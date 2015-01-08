@@ -8,7 +8,7 @@ class Timeline
   include Curses
 
   def initialize
-    @window = stdscr.subwin(stdscr.maxy - 3, 0, 3, 0)
+    @window = stdscr.subwin(stdscr.maxy - 3, stdscr.maxx - 30, 3, 0)
     @window.scrollok(true)
 
     @highlight = 0
@@ -25,6 +25,8 @@ class Timeline
     @statuses << status
     @highlight += 1 unless @highlight == 0
     refresh_window
+
+    UserWindow.instance.update(highlighted_status.user) unless highlighted_status.nil?
   end
 
   def refresh_window
@@ -33,7 +35,6 @@ class Timeline
     @window.clear
     @statuses.reverse.drop(@offset).each.with_index(1) do |status, i|
       formatted_lines = status.formatted_lines(@window.maxx)
-      puts formatted_lines
       if current_line + formatted_lines + 3 > @window.maxy
         @last = @offset + i
         break
@@ -67,24 +68,32 @@ class Timeline
     @highlight = [@highlight - lines, 1].max
     @offset = [@offset - 1, 0].max if @highlight - 3 <= @offset
     refresh_window
+
+    UserWindow.instance.update(highlighted_status.user)
   end
 
   def move_down(lines = 1)
     @highlight = [@highlight + lines, @statuses.count].min
     @offset = [@offset + 1, @statuses.count - 1].min if @highlight + 3 >= @last
     refresh_window
+
+    UserWindow.instance.update(highlighted_status.user)
   end
 
   def move_to_top
     @highlight = 1
     @offset = 0
     refresh_window
+
+    UserWindow.instance.update(highlighted_status.user)
   end
 
   def move_to_bottom
     @highlight = @statuses.count
     @offset = @statuses.count - 1
     refresh_window
+
+    UserWindow.instance.update(highlighted_status.user)
   end
 
   def reply

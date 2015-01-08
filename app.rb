@@ -10,9 +10,12 @@ require './notifier'
 require './status'
 require './client_manager'
 require './user'
+require './user_window'
 require './extentions'
 require 'bundler'
 Bundler.require
+
+UserWindow.instance
 
 begin
   Twterm::Auth.authenticate_user if Twterm::Config[:screen_name].nil?

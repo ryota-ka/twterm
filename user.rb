@@ -1,13 +1,14 @@
 class User
-  attr_reader :id, :name, :screen_name, :description, :location, :url, :statuses_count, :friends_count, :followers_count
+  attr_reader :id, :name, :screen_name, :description, :location, :website, :statuses_count, :friends_count, :followers_count
 
   def initialize(user)
     @id = user.id
     @name = user.name
     @screen_name = user.screen_name
-    @description = user.description
-    @location = user.location
-    @url = user.url
+    @description = user.description || ''
+
+    @location = user.location.is_a?(String) ? user.location : ''
+    @website = user.website
 
     @following = user.following?
     @protected = user.protected?

@@ -53,7 +53,6 @@ class Tweetbox
   def refresh_window
     @window.clear
     @window.addstr(@status)
-    # @window.box(?|, ?-, ?+)
     @window.refresh
   end
 end
