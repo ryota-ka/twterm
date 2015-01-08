@@ -34,32 +34,41 @@ class Timeline
 
     @window.clear
     @statuses.reverse.drop(@offset).each.with_index(1) do |status, i|
-      formatted_lines = status.formatted_lines(@window.maxx)
+      formatted_lines = status.split(@window.maxx - 3).count
       if current_line + formatted_lines + 3 > @window.maxy
         @last = @offset + i
         break
       end
 
-      @window.setpos(current_line, 0)
+      posy = current_line
 
       if @highlight == i
-        @window.attron(A_REVERSE)
-        @window.attron(A_BOLD)
+        @window.attron(color_pair(5))
+        (formatted_lines + 1).times do |j|
+          @window.setpos(posy + j, 0)
+          @window.addch(' ')
+        end
+        @window.attroff(color_pair(5))
       end
+
+      @window.setpos(current_line, 2)
 
       @window.attron(color_pair(3)) if status.favorited?
 
-      @window.addstr("#{status.user.name} (@#{status.user.screen_name}) [#{status.created_at}]".mb_ljust(@window.maxx))
-      @window.addstr(status.format(@window.maxx))
+      @window.attron(A_BOLD)
+      @window.addstr(status.user.name)
+      @window.attroff(A_BOLD)
+      @window.addstr(" (@#{status.user.screen_name}) [#{status.created_at}]")
+
+      status.split(@window.maxx - 3).each do |line|
+        current_line += 1
+        @window.setpos(current_line, 2)
+        @window.addstr(line)
+      end
 
       @window.attroff(color_pair(3))
 
-      if @highlight == i
-        @window.attroff(A_REVERSE)
-        @window.attroff(A_BOLD)
-      end
-
-      current_line += formatted_lines + 2
+      current_line += 2
     end
     @window.refresh
   end

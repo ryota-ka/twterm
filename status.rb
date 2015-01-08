@@ -14,7 +14,7 @@ class Status
 
     @user = User.new(tweet.user)
 
-    @formatted_text = {}
+    @splitted_text = {}
   end
 
   def favorited?
@@ -25,14 +25,7 @@ class Status
     @favorited = true
   end
 
-  def format(width)
-    @formatted_text[width] ||=
-    @text.split("\n").map do |line|
-      ('    ' + line).scan(/.{1,#{width}}/).map { |l| l.mb_ljust(width) }.join
-    end.join
-  end
-
-  def formatted_lines(width)
-    (format(width).length / width.to_f).ceil
+  def split(width)
+    @splitted_text[:width] ||= @text.split_by_width(width)
   end
 end
