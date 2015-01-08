@@ -26,8 +26,16 @@ class UserWindow
     @window.addstr("@#{@user.screen_name}")
     @window.attroff(A_BOLD)
 
-    @user.description.split_by_width(@window.maxx - 2).each.with_index(0) do |line, i|
-      @window.setpos(4 + i, 2)
+    max_len = [:statuses_count, :friends_count, :followers_count].map { |method| @user.send(method) }.map(&:format).map(&:length).max
+    @window.setpos(4, 2)
+    @window.addstr("#{@user.statuses_count.format} tweets  ".rjust(@window.maxx - 2))
+    @window.setpos(5, 2)
+    @window.addstr("#{@user.friends_count.format} following  ".rjust(@window.maxx - 2))
+    @window.setpos(6, 2)
+    @window.addstr("#{@user.followers_count.format} followers  ".rjust(@window.maxx - 2))
+
+    @user.description.split_by_width(@window.maxx - 4).each.with_index(0) do |line, i|
+      @window.setpos(8 + i, 2)
       @window.addstr(line)
     end
 
