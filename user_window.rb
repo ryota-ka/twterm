@@ -33,8 +33,18 @@ class UserWindow
     @window.setpos(6, 2)
     @window.addstr("#{@user.followers_count.format} followers  ".rjust(@window.maxx - 2))
 
+    @window.setpos(8, 2)
+    @window.addstr('Location:')
+    @window.setpos(9, 4)
+    @window.addstr(@user.location)
+
+    @window.setpos(10, 2)
+    @window.addstr('Website:')
+    @window.setpos(11, 4)
+    @window.addstr(@user.website)
+
     @user.description.split_by_width(@window.maxx - 4).each.with_index(0) do |line, i|
-      @window.setpos(8 + i, 2)
+      @window.setpos(13 + i, 2)
       @window.addstr(line)
     end
 
