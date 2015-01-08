@@ -46,8 +46,12 @@ class Timeline
         @window.attron(A_BOLD)
       end
 
+      @window.attron(color_pair(3)) if status.favorited?
+
       @window.addstr("#{status.user.name} (@#{status.user.screen_name}) [#{status.created_at}]".mb_ljust(@window.maxx))
       @window.addstr(status.format(@window.maxx))
+
+      @window.attroff(color_pair(3))
 
       if @highlight == i
         @window.attroff(A_REVERSE)
@@ -84,8 +88,16 @@ class Timeline
   end
 
   def reply
-    index = @statuses.count - @highlight
-    in_reply_to = @statuses[index]
-    Tweetbox.instance.compose(in_reply_to)
+    Tweetbox.instance.compose(highlighted_status)
+  end
+
+  def favorite
+    ClientManager.instance.current.favorite(highlighted_status) do
+      @window.refresh
+    end
+  end
+
+  def highlighted_status
+    @statuses[@statuses.count - @highlight]
   end
 end

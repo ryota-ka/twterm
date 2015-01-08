@@ -47,6 +47,16 @@ class Client
     end
   end
 
+  def favorite(status, &block)
+    return false unless status.is_a? Status
+
+    Thread.new do
+      @rest_client.favorite(status.id)
+      status.favorite!
+      yield status if block_given?
+    end
+  end
+
   def self.create(token, secret)
     client = new(token, secret)
     ClientManager.instance.push(client)

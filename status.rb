@@ -21,6 +21,10 @@ class Status
     @favorited
   end
 
+  def favorite!
+    @favorited = true
+  end
+
   def format(width)
     @formatted_text[width] ||=
     @text.split("\n").map do |line|
