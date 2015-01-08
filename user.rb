@@ -5,7 +5,8 @@ class User
     @id = user.id
     @name = user.name
     @screen_name = user.screen_name
-    @description = user.description
+    @description = user.description || ''
+
     @location = user.location
     @url = user.url
 
