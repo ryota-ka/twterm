@@ -26,7 +26,6 @@ class UserWindow
     @window.addstr("@#{@user.screen_name}")
     @window.attroff(A_BOLD)
 
-    max_len = [:statuses_count, :friends_count, :followers_count].map { |method| @user.send(method) }.map(&:format).map(&:length).max
     @window.setpos(4, 2)
     @window.addstr("#{@user.statuses_count.format} tweets  ".rjust(@window.maxx - 2))
     @window.setpos(5, 2)

@@ -35,7 +35,6 @@ class Timeline
     @window.clear
     @statuses.reverse.drop(@offset).each.with_index(1) do |status, i|
       formatted_lines = status.formatted_lines(@window.maxx)
-      puts formatted_lines
       if current_line + formatted_lines + 3 > @window.maxy
         @last = @offset + i
         break
