@@ -11,6 +11,7 @@ class Status
     @favorite_count = tweet.favorite_count
 
     @favorited = tweet.favorited?
+    @retweeted = tweet.retweeted?
 
     @user = User.new(tweet.user)
 
@@ -19,6 +20,10 @@ class Status
 
   def favorited?
     @favorited
+  end
+
+  def retweeted?
+    @retweeted
   end
 
   def favorite!

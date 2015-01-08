@@ -53,20 +53,29 @@ class Timeline
 
       @window.setpos(current_line, 2)
 
-      @window.attron(color_pair(3)) if status.favorited?
-
       @window.attron(A_BOLD)
       @window.addstr(status.user.name)
       @window.attroff(A_BOLD)
-      @window.addstr(" (@#{status.user.screen_name}) [#{status.created_at}]")
+      @window.addstr(" (@#{status.user.screen_name}) [#{status.created_at}] ")
+
+      if status.favorited?
+        @window.attron(color_pair(3))
+        @window.addch(' ')
+        @window.attroff(color_pair(3))
+        @window.addch(' ')
+      end
+
+      if status.retweeted?
+        @window.attron(color_pair(2))
+        @window.addch(' ')
+        @window.attroff(color_pair(2))
+      end
 
       status.split(@window.maxx - 3).each do |line|
         current_line += 1
         @window.setpos(current_line, 2)
         @window.addstr(line)
       end
-
-      @window.attroff(color_pair(3))
 
       current_line += 2
     end
