@@ -33,7 +33,7 @@ class Timeline
     current_line = 0
 
     @window.clear
-    @statuses.reverse.drop(@offset).each.with_index(1) do |status, i|
+    @statuses.reverse.drop(@offset).each.with_index(1 + @offset) do |status, i|
       formatted_lines = status.split(@window.maxx - 3).count
       if current_line + formatted_lines + 3 > @window.maxy
         @last = @offset + i
