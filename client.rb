@@ -33,7 +33,7 @@ class Client
   def post(text, in_reply_to = nil)
     Thread.new do
       if in_reply_to.is_a? Status
-        text = "@#{in_reply_to.user.screen_name}: #{text}"
+        text = "@#{in_reply_to.user.screen_name} #{text}"
         @rest_client.update(text, in_reply_to_status_id: in_reply_to.id)
       else
         @rest_client.update(text)
