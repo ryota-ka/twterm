@@ -25,7 +25,7 @@ class Tweetbox
     begin
       system 'stty echo'
       curs_set(1)
-      @status = readline(@in_reply_to.nil? ? ' > ' : " @#{in_reply_to.user.screen_name}: ", true)
+      @status = readline(@in_reply_to.nil? ? ' > ' : " @#{in_reply_to.user.screen_name} ", true)
       system 'stty -echo'
       curs_set(0)
     rescue Interrupt
