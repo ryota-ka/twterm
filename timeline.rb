@@ -115,6 +115,7 @@ class Timeline
   end
 
   def reply
+    Notifier.instance.show_message "Reply to @#{highlighted_status.user.screen_name}"
     Tweetbox.instance.compose(highlighted_status)
   end
 
