@@ -41,6 +41,8 @@ class Screen
       exit
     when 'r'
       Timeline.instance.reply
+    when 'R'
+      Timeline.instance.retweet
     when 'u'
       # show user
     when 4
