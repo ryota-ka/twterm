@@ -127,7 +127,7 @@ class Timeline
 
   def favorite
     ClientManager.instance.current.favorite(highlighted_status) do
-      @window.refresh
+      refresh_window
     end
   end
 
