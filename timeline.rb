@@ -33,10 +33,10 @@ class Timeline
     current_line = 0
 
     @window.clear
-    @statuses.reverse.drop(@offset).each.with_index(1) do |status, i|
+    @statuses.reverse.drop(@offset).each.with_index(1 + @offset) do |status, i|
       formatted_lines = status.split(@window.maxx - 3).count
       if current_line + formatted_lines + 3 > @window.maxy
-        @last = @offset + i
+        @last = i
         break
       end
 
@@ -84,7 +84,7 @@ class Timeline
 
   def move_up(lines = 1)
     @highlight = [@highlight - lines, 1].max
-    @offset = [@offset - 1, 0].max if @highlight - 3 <= @offset
+    @offset = [@offset - 1, 0].max if @highlight - 4 < @offset
     refresh_window
 
     UserWindow.instance.update(highlighted_status.user)
@@ -92,7 +92,13 @@ class Timeline
 
   def move_down(lines = 1)
     @highlight = [@highlight + lines, @statuses.count].min
-    @offset = [@offset + 1, @statuses.count - 1].min if @highlight + 3 >= @last
+    @offset = [
+      @offset + 1,
+      @statuses.count,
+      @statuses.count - offset_from_bottom
+    ].min if @highlight > @last - 4
+    refresh_window
+
     refresh_window
 
     UserWindow.instance.update(highlighted_status.user)
@@ -108,7 +114,7 @@ class Timeline
 
   def move_to_bottom
     @highlight = @statuses.count
-    @offset = @statuses.count - 1
+    @offset = @statuses.count - offset_from_bottom
     refresh_window
 
     UserWindow.instance.update(highlighted_status.user)
@@ -127,5 +133,16 @@ class Timeline
 
   def highlighted_status
     @statuses[@statuses.count - @highlight]
+  end
+
+  def offset_from_bottom
+    return @offset_from_bottom unless @offset_from_bottom.nil?
+
+    height = 0
+    @statuses.each.with_index(0) do |status, i|
+      height += status.split(@window.maxx - 3).count + 2
+      Twterm::Config[:hfb] = i
+      return i if height >= @window.maxy
+    end
   end
 end
