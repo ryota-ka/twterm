@@ -25,6 +25,7 @@ begin
   client.home.reverse.each do |status|
     Timeline.instance.push(status)
   end
+  Timeline.instance.move_to_top
 
   Notifier.instance.show_message ''
 
