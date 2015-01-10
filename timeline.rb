@@ -56,7 +56,7 @@ class Timeline
       @window.attron(A_BOLD)
       @window.addstr(status.user.name)
       @window.attroff(A_BOLD)
-      @window.addstr(" (@#{status.user.screen_name}) [#{status.created_at}] ")
+      @window.addstr(" (@#{status.user.screen_name}) [#{status.date}] ")
 
       if status.favorited?
         @window.attron(color_pair(3))
