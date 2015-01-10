@@ -131,6 +131,12 @@ class Timeline
     end
   end
 
+  def retweet
+    ClientManager.instance.current.retweet(highlighted_status) do
+      refresh_window
+    end
+  end
+
   def highlighted_status
     @statuses[@statuses.count - @highlight]
   end

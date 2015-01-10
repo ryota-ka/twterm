@@ -35,6 +35,10 @@ class Status
     @favorited = true
   end
 
+  def retweet!
+    @retweeted = true
+  end
+
   def split(width)
     @splitted_text[:width] ||= @text.split_by_width(width)
   end

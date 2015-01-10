@@ -57,6 +57,16 @@ class Client
     end
   end
 
+  def retweet(status, &block)
+    return false unless status.is_a? Status
+
+    Thread.new do
+      @rest_client.retweet(status.id)
+      status.retweet!
+      yield status if block_given?
+    end
+  end
+
   def self.create(token, secret)
     client = new(token, secret)
     ClientManager.instance.push(client)
