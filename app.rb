@@ -18,10 +18,6 @@ class App
   include Singleton
 
   def initialize
-    @exit_enabled = true
-
-    UserWindow.instance
-
     Twterm::Auth.authenticate_user if Twterm::Config[:screen_name].nil?
 
     client = Client.create(Twterm::Config[:access_token], Twterm::Config[:access_token_secret])
@@ -32,6 +28,7 @@ class App
     Timeline.instance.move_to_top
 
     Notifier.instance.show_message ''
+    UserWindow.instance
 
     client.stream(Timeline.instance)
   end
@@ -43,18 +40,6 @@ class App
       end
     end
     t.join
-  end
-
-  def enable_exit
-    @exit_enabled = true
-  end
-
-  def disable_exit
-    @exit_enabled = false
-  end
-
-  def exit_enabled?
-    @exit_enabled
   end
 
   def register_interruption_handler(&block)
