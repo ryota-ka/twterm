@@ -22,6 +22,8 @@ class Screen
   end
 
   def wait
+    App.instance.reset_interruption_handler
+
     case getch
     when 'f'
       Timeline.instance.favorite
