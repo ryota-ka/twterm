@@ -21,18 +21,21 @@ class Tweetbox
       @in_reply_to = nil
     end
 
-    @window.setpos(0, 0)
-    begin
+    thread = Thread.new do
       system 'stty echo'
       curs_set(1)
       @status = readline(@in_reply_to.nil? ? ' > ' : " @#{in_reply_to.user.screen_name} ", true)
-      system 'stty -echo'
       curs_set(0)
-    rescue Interrupt
-      clear
-      Screen.instance.wait
+      post
     end
-    post
+
+    App.instance.register_interruption_handler do
+      thread.kill
+      clear
+      curs_set(0)
+    end
+
+    thread.join
   end
 
   def post

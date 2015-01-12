@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-# encoding: utf-8
 
 require './auth'
 require './config'
@@ -15,32 +14,62 @@ require './extentions'
 require 'bundler'
 Bundler.require
 
-UserWindow.instance
+class App
+  include Singleton
 
-begin
-  Twterm::Auth.authenticate_user if Twterm::Config[:screen_name].nil?
+  def initialize
+    @exit_enabled = true
 
-  client = Client.create(Twterm::Config[:access_token], Twterm::Config[:access_token_secret])
+    UserWindow.instance
 
-  client.home.reverse.each do |status|
-    Timeline.instance.push(status)
+    Twterm::Auth.authenticate_user if Twterm::Config[:screen_name].nil?
+
+    client = Client.create(Twterm::Config[:access_token], Twterm::Config[:access_token_secret])
+
+    client.home.reverse.each do |status|
+      Timeline.instance.push(status)
+    end
+    Timeline.instance.move_to_top
+
+    Notifier.instance.show_message ''
+
+    client.stream(Timeline.instance)
   end
-  Timeline.instance.move_to_top
 
-  Notifier.instance.show_message ''
+  def start
+    t = Thread.new do
+      loop do
+        Screen.instance.wait
+      end
+    end
+    t.join
+  end
 
-  client.stream(Timeline.instance)
+  def enable_exit
+    @exit_enabled = true
+  end
 
-  t = Thread.new do
-    loop do
-      Screen.instance.wait
+  def disable_exit
+    @exit_enabled = false
+  end
+
+  def exit_enabled?
+    @exit_enabled
+  end
+
+  def register_interruption_handler(&block)
+    fail ArgumentError, 'Block must be passed' unless block_given?
+    Signal.trap(:INT) do
+      yield
     end
   end
-  t.join
-rescue Interrupt
-  Curses.close_screen
-  exit
-rescue Twitter::Error::TooManyRequests
-  puts 'API rate limit exceeded'
-  exit
+
+  def reset_interruption_handler
+    Signal.trap(:INT) do
+      exit if App.instance.exit_enabled?
+    end
+  end
 end
+
+App.instance.reset_interruption_handler
+App.instance.start
