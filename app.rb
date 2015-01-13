@@ -51,7 +51,7 @@ class App
 
   def reset_interruption_handler
     Signal.trap(:INT) do
-      exit if App.instance.exit_enabled?
+      exit
     end
   end
 end

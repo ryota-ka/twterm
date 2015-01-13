@@ -1,7 +1,9 @@
 require 'time'
 
 class Status
-  attr_reader :id, :text, :created_at, :retweet_count, :favorite_count, :user
+  attr_reader :id, :text, :created_at, :retweet_count, :favorite_count, :favorited, :retweeted, :user
+  alias_method :favorited?, :favorited
+  alias_method :retweeted?, :retweeted
 
   def initialize(tweet)
     @id = tweet.id
@@ -16,14 +18,6 @@ class Status
     @user = User.new(tweet.user)
 
     @splitted_text = {}
-  end
-
-  def favorited?
-    @favorited
-  end
-
-  def retweeted?
-    @retweeted
   end
 
   def date
