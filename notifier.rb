@@ -17,6 +17,9 @@ class Notifier
     refresh_window
   end
 
+  def show_error(message)
+  end
+
   def clear
     @message = ''
     refresh_window
