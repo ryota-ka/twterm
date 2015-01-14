@@ -71,6 +71,21 @@ class Timeline
         @window.with_color(:black, :green) do
           @window.addch(' ')
         end
+        @window.addch(' ')
+      end
+
+      if status.favorite_count > 0
+        @window.with_color(:yellow) do
+          @window.addstr("#{status.favorite_count}fav#{status.favorite_count > 1 ? 's' : ''}")
+        end
+        @window.addch(' ')
+      end
+
+      if status.retweet_count > 0
+        @window.with_color(:green) do
+          @window.addstr("#{status.retweet_count}RT#{status.retweet_count > 1 ? 's' : ''}")
+        end
+        @window.addch(' ')
       end
 
       status.split(@window.maxx - 3).each do |line|
