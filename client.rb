@@ -61,9 +61,13 @@ class Client
     return false unless status.is_a? Status
 
     Thread.new do
-      @rest_client.retweet(status.id)
-      status.retweet!
-      yield status if block_given?
+      begin
+        @rest_client.retweet!(status.id)
+        status.retweet!
+        yield status if block_given?
+      rescue Twitter::Error::AlreadyRetweeted, Twitter::Error::NotFound
+        Notifier.instance.show_error 'Retweet attempt failed'
+      end
     end
   end
 

@@ -19,9 +19,9 @@ class App
   include Singleton
 
   def initialize
-    Screen.instance
-
     Twterm::Auth.authenticate_user if Twterm::Config[:screen_name].nil?
+
+    Screen.instance
 
     client = Client.create(Twterm::Config[:access_token], Twterm::Config[:access_token_secret])
 
