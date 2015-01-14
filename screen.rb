@@ -14,11 +14,6 @@ class Screen
     stdscr.keypad(true)
 
     start_color
-    init_pair 1, COLOR_WHITE, COLOR_CYAN
-    init_pair 2, COLOR_BLACK, COLOR_GREEN
-    init_pair 3, COLOR_BLACK, COLOR_YELLOW
-    init_pair 4, COLOR_GREEN, COLOR_BLACK
-    init_pair 5, COLOR_WHITE, COLOR_MAGENTA
   end
 
   def wait

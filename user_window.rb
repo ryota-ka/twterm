@@ -19,12 +19,12 @@ class UserWindow
   def refresh_window
     @window.clear
 
-    @window.attron(A_BOLD)
-    @window.setpos(1, 2)
-    @window.addstr(@user.name)
-    @window.setpos(2, 2)
-    @window.addstr("@#{@user.screen_name}")
-    @window.attroff(A_BOLD)
+    @window.bold do
+      @window.setpos(1, 2)
+      @window.addstr(@user.name)
+      @window.setpos(2, 2)
+      @window.addstr("@#{@user.screen_name}")
+    end
 
     @window.setpos(4, 2)
     @window.addstr("#{@user.statuses_count.format} tweets  ".rjust(@window.maxx - 2))
@@ -56,11 +56,11 @@ class UserWindow
   private
 
   def draw_border
-    @window.attron(color_pair(4))
-    @window.maxy.times do |i|
-      @window.setpos(i, 0)
-      @window.addch('|')
+    @window.with_color(:green) do
+      @window.maxy.times do |i|
+        @window.setpos(i, 0)
+        @window.addch('|')
+      end
     end
-    @window.attroff(color_pair(4))
   end
 end

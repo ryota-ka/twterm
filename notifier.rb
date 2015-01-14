@@ -27,9 +27,9 @@ class Notifier
 
     unless @message.empty?
       @window.setpos(0, 0)
-      @window.attron(color_pair(2))
-      @window.addstr(@message.ljust(stdscr.maxx))
-      @window.attroff(color_pair(2))
+      @window.with_color(:black, :green) do
+        @window.addstr(@message.ljust(stdscr.maxx))
+      end
     end
 
     @window.refresh

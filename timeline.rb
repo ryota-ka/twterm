@@ -43,32 +43,34 @@ class Timeline
       posy = current_line
 
       if @highlight == i
-        @window.attron(color_pair(5))
-        (formatted_lines + 1).times do |j|
-          @window.setpos(posy + j, 0)
-          @window.addch(' ')
+        @window.with_color(:black, :magenta) do
+          (formatted_lines + 1).times do |j|
+            @window.setpos(posy + j, 0)
+            @window.addch(' ')
+          end
         end
-        @window.attroff(color_pair(5))
       end
 
       @window.setpos(current_line, 2)
 
-      @window.attron(A_BOLD)
-      @window.addstr(status.user.name)
-      @window.attroff(A_BOLD)
+      @window.bold do
+        @window.addstr(status.user.name)
+      end
+
       @window.addstr(" (@#{status.user.screen_name}) [#{status.date}] ")
 
       if status.favorited?
-        @window.attron(color_pair(3))
-        @window.addch(' ')
-        @window.attroff(color_pair(3))
+        @window.with_color(:black, :yellow) do
+          @window.addch(' ')
+        end
+
         @window.addch(' ')
       end
 
       if status.retweeted?
-        @window.attron(color_pair(2))
-        @window.addch(' ')
-        @window.attroff(color_pair(2))
+        @window.with_color(:black, :green) do
+          @window.addch(' ')
+        end
       end
 
       status.split(@window.maxx - 3).each do |line|

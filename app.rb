@@ -11,6 +11,7 @@ require './client_manager'
 require './user'
 require './user_window'
 require './extentions'
+require './color_manager'
 require 'bundler'
 Bundler.require
 
@@ -18,6 +19,8 @@ class App
   include Singleton
 
   def initialize
+    Screen.instance
+
     Twterm::Auth.authenticate_user if Twterm::Config[:screen_name].nil?
 
     client = Client.create(Twterm::Config[:access_token], Twterm::Config[:access_token_secret])
