@@ -29,6 +29,11 @@ class Status
     @favorited = true
   end
 
+
+  def unfavorite!
+    @favorited = false
+  end
+
   def retweet!
     @retweeted = true
   end
