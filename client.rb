@@ -57,6 +57,16 @@ class Client
     end
   end
 
+  def unfavorite(status)
+    fail ArgumentError, 'no status given' unless status.is_a? Status
+
+    Thread.new do
+      @rest_client.unfavorite(status.id)
+      status.unfavorite!
+      yield status if block_given?
+    end
+  end
+
   def retweet(status, &block)
     return false unless status.is_a? Status
 

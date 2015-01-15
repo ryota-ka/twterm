@@ -143,8 +143,14 @@ class Timeline
   end
 
   def favorite
-    ClientManager.instance.current.favorite(highlighted_status) do
-      refresh_window
+    if highlighted_status.favorited?
+      ClientManager.instance.current.unfavorite(highlighted_status) do
+        refresh_window
+      end
+    else
+      ClientManager.instance.current.favorite(highlighted_status) do
+        refresh_window
+      end
     end
   end
 
