@@ -36,22 +36,20 @@ class Notifier
 
   def refresh_window
     @window.clear
-
-    color =
-      if !@error.empty?
-        :red
-      elsif !@message.empty?
-        :green
-      else
-        nil
-      end
-
-    return if color.nil?
-
     @window.setpos(0, 0)
-    @window.with_color(:white, color) do
-      @window.addstr(@error.ljust(@window.maxx))
+
+    if !@error.empty?
+      @window.with_color(:white, :red) do
+        @window.addstr(@error.ljust(@window.maxx))
+      end
+    elsif !@message.empty?
+      @window.with_color(:black, :green) do
+        @window.addstr(@message.ljust(@window.maxx))
+      end
+    else
+      nil
     end
+
     @window.refresh
   end
 end
