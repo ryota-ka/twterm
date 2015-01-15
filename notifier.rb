@@ -10,6 +10,7 @@ class Notifier
     @window = stdscr.subwin(1, 0, stdscr.maxy - 2, 0)
 
     @message = ''
+    @error = ''
   end
 
   def show_message(message)
@@ -17,7 +18,15 @@ class Notifier
     refresh_window
   end
 
-  def show_error(message)
+  def show_error(message, duration = 2)
+    Thread.new do
+      @error = message
+      refresh_window
+      sleep duration
+
+      @error = ''
+      show_message(@message)
+    end
   end
 
   def clear
@@ -28,13 +37,21 @@ class Notifier
   def refresh_window
     @window.clear
 
-    unless @message.empty?
-      @window.setpos(0, 0)
-      @window.with_color(:black, :green) do
-        @window.addstr(@message.ljust(stdscr.maxx))
+    color =
+      if !@error.empty?
+        :red
+      elsif !@message.empty?
+        :green
+      else
+        nil
       end
-    end
 
+    return if color.nil?
+
+    @window.setpos(0, 0)
+    @window.with_color(:white, color) do
+      @window.addstr(@error.ljust(@window.maxx))
+    end
     @window.refresh
   end
 end
