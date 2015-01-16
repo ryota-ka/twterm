@@ -160,6 +160,15 @@ class Timeline
     end
   end
 
+  def delete_status(status_id)
+    @statuses.delete_if do |status|
+      status.id == status_id
+    end
+    refresh_window
+  end
+
+  private
+
   def highlighted_status
     @statuses[@statuses.count - @highlight]
   end
