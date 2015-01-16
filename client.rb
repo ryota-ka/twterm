@@ -12,21 +12,29 @@ class Client
       config.access_token_secret = secret
     end
 
-    UserStream.configure do |config|
+    TweetStream.configure do |config|
       config.consumer_key       = 'vLNSVFgXclBJQJRZ7VLMxL9lA'
       config.consumer_secret    = 'OFLKzrepRG2p1hq0nUB9j2S9ndFQoNTPheTpmOY0GYw55jGgS5'
       config.oauth_token        = token
       config.oauth_token_secret = secret
+      config.auth_method        = :oauth
     end
 
-    @stream_client = UserStream.client
+    @stream_client = TweetStream::Client.new
   end
 
   def stream(timeline)
+    @stream_client.on_timeline_status do |status|
+      timeline.push(Status.new(status))
+    end
+
+    @stream_client.on_event(:favorite) do |event|
+      message = "@#{event[:source][:screen_name]} has favorited your tweet: #{event[:target_object][:text]}"
+      Notifier.instance.show_message(message)
+    end
+
     Thread.new do
-      @stream_client.user do |status|
-        timeline.push(Status.new(status)) unless status.text.nil?
-      end
+      @stream_client.userstream
     end
   end
 

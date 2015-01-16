@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+require 'oauth'
 require './auth'
 require './config'
 require './screen'

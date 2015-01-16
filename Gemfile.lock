@@ -3,11 +3,26 @@ GEM
   specs:
     addressable (2.3.6)
     buftok (0.2.0)
+    cookiejar (0.3.2)
     curses (1.0.1)
+    daemons (1.1.9)
+    em-http-request (1.1.2)
+      addressable (>= 2.3.4)
+      cookiejar
+      em-socksify (>= 0.3)
+      eventmachine (>= 1.0.3)
+      http_parser.rb (>= 0.6.0)
+    em-socksify (0.3.0)
+      eventmachine (>= 1.0.0.beta.4)
+    em-twitter (0.3.5)
+      buftok (~> 0.2)
+      eventmachine (~> 1.0)
+      http_parser.rb (~> 0.6)
+      simple_oauth (~> 0.2)
     equalizer (0.0.9)
+    eventmachine (1.0.4)
     faraday (0.9.0)
       multipart-post (>= 1.2, < 3)
-    hashie (1.2.0)
     http (0.6.3)
       http_parser.rb (~> 0.6.0)
     http_parser.rb (0.6.0)
@@ -16,11 +31,17 @@ GEM
       addressable (~> 2.3)
     memoizable (0.4.2)
       thread_safe (~> 0.3, >= 0.3.1)
+    multi_json (1.10.1)
     multipart-post (2.0.0)
     naught (1.0.0)
-    oauth (0.4.7)
     simple_oauth (0.3.1)
     thread_safe (0.3.4)
+    tweetstream (2.6.1)
+      daemons (~> 1.1)
+      em-http-request (>= 1.1.1)
+      em-twitter (~> 0.3)
+      multi_json (~> 1.3)
+      twitter (~> 5.5)
     twitter (5.13.0)
       addressable (~> 2.3)
       buftok (~> 0.2.0)
@@ -32,11 +53,6 @@ GEM
       memoizable (~> 0.4.0)
       naught (~> 1.0)
       simple_oauth (~> 0.3.0)
-    userstream (1.4.0)
-      hashie (~> 1.2.0)
-      oauth (~> 0.4.7)
-      yajl-ruby (~> 1.1.0)
-    yajl-ruby (1.1.0)
 
 PLATFORMS
   ruby
@@ -44,5 +60,5 @@ PLATFORMS
 DEPENDENCIES
   curses
   launchy
+  tweetstream
   twitter
-  userstream
