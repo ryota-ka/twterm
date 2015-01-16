@@ -28,6 +28,10 @@ class Client
       timeline.push(Status.new(status))
     end
 
+    @stream_client.on_delete do |status_id|
+      timeline.delete_status(status_id)
+    end
+
     @stream_client.on_event(:favorite) do |event|
       message = "@#{event[:source][:screen_name]} has favorited your tweet: #{event[:target_object][:text]}"
       Notifier.instance.show_message(message)
