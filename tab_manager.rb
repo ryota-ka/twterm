@@ -17,9 +17,11 @@ class TabManager
 
   def next
     @index = (@index + 1) % @tabs.count
+    current_tab.refresh_window
   end
 
   def previous
     @index = (@index - 1) % @tabs.count
+    current_tab.refresh_window
   end
 end
