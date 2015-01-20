@@ -59,6 +59,12 @@ class Client
     end
   end
 
+  def mentions
+    @rest_client.mentions.map do |tweet|
+      Status.new(tweet)
+    end
+  end
+
   def favorite(status, &block)
     return false unless status.is_a? Status
 
