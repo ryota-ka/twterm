@@ -13,6 +13,10 @@ require './user'
 require './user_window'
 require './extentions'
 require './color_manager'
+require './tab_manager'
+require './tab/base'
+require './tab/status_tab'
+require './tab/timeline'
 require 'bundler'
 Bundler.require
 
@@ -26,15 +30,16 @@ class App
 
     client = Client.create(Twterm::Config[:access_token], Twterm::Config[:access_token_secret])
 
+    timeline = Tab::Timeline.new(client)
+    TabManager.instance.add(timeline)
+
     client.home.reverse.each do |status|
-      Timeline.instance.push(status)
+      TabManager.instance.current_tab.push(status)
     end
-    Timeline.instance.move_to_top
+    TabManager.instance.current_tab.move_to_top
 
     Notifier.instance.show_message ''
     UserWindow.instance
-
-    client.stream(Timeline.instance)
   end
 
   def start

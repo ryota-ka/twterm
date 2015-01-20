@@ -21,15 +21,19 @@ class Screen
 
     case getch
     when 'f'
-      Timeline.instance.favorite
+      TabManager.instance.current_tab.favorite
     when 'g', Key::HOME
-      Timeline.instance.move_to_top
+      TabManager.instance.current_tab.move_to_top
     when 'G', Key::END
-      Timeline.instance.move_to_bottom
+      TabManager.instance.current_tab.move_to_bottom
+    when 'h', 2
+      TabManager.instance.previous
     when 'j', 14, Key::DOWN
-      Timeline.instance.move_down
+      TabManager.instance.current_tab.move_down
     when 'k', 16, Key::UP
-      Timeline.instance.move_up
+      TabManager.instance.current_tab.move_up
+    when 'l', 4
+      TabManager.instance.next
     when 'n'
       Notifier.instance.show_message 'Compose new tweet'
       Tweetbox.instance.compose
@@ -37,15 +41,15 @@ class Screen
     when 'q'
       exit
     when 'r'
-      Timeline.instance.reply
+      TabManager.instance.current_tab.reply
     when 'R'
-      Timeline.instance.retweet
+      TabManager.instance.current_tab.retweet
     when 'u'
       # show user
     when 4
-      Timeline.instance.move_down(10)
+      TabManager.instance.current_tab.move_down(10)
     when 21
-      Timeline.instance.move_up(10)
+      TabManager.instance.current_tab.move_up(10)
     when '/'
       # filter
     else
