@@ -32,8 +32,11 @@ class TabManager
   end
 
   def close
+    current_tab.close
     @tabs.delete_at(@index)
     @index = @tabs.count - 1
     current_tab.refresh
+  rescue Tab::NotClosableError
+    Notifier.instance.show_error 'This tab cannot be closed'
   end
 end

@@ -14,6 +14,10 @@ module Tab
       end
     end
 
+    def close
+      @window.close
+    end
+
     private
 
     def update

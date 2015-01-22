@@ -12,5 +12,9 @@ module Tab
     def connect_stream
       @client.stream(self)
     end
+
+    def close
+      fail NotClosableError
+    end
   end
 end
