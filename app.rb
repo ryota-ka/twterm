@@ -18,6 +18,7 @@ require './tab/base'
 require './tab/status_tab'
 require './tab/timeline'
 require './tab/mentions_tab'
+require './tab/user_tab'
 require 'bundler'
 Bundler.require
 

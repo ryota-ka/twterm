@@ -65,6 +65,12 @@ class Client
     end
   end
 
+  def user_timeline(user_id)
+    @rest_client.user_timeline(user_id).map do |tweet|
+      Status.new(tweet)
+    end
+  end
+
   def favorite(status, &block)
     return false unless status.is_a? Status
 
