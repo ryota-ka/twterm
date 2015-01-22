@@ -7,7 +7,7 @@ class Notifier
   include Curses
 
   def initialize
-    @window = stdscr.subwin(1, 0, stdscr.maxy - 2, 0)
+    @window = stdscr.subwin(1, stdscr.maxx, stdscr.maxy - 4, 0)
 
     @message = ''
     @error = ''

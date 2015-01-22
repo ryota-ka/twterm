@@ -3,8 +3,7 @@ module Tab
     include Base
 
     def initialize
-      @window = stdscr.subwin(stdscr.maxy - 3, stdscr.maxx - 30, 3, 0)
-      @window.scrollok(true)
+      super
 
       @highlight = 0
       @offset = 0
@@ -86,8 +85,8 @@ module Tab
     end
 
     def show_user
-      user_id = highlighted_status.user.id
-      user_tab = Tab::UserTab.new(user_id)
+      user = highlighted_status.user
+      user_tab = Tab::UserTab.new(user)
       TabManager.instance.add_and_show(user_tab)
     end
 

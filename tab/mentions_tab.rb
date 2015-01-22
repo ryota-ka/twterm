@@ -7,6 +7,7 @@ module Tab
 
       super()
       @client = client
+      @title = 'Mentions'
     end
 
     def fetch
