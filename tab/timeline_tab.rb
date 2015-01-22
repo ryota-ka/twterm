@@ -7,6 +7,8 @@ module Tab
 
       super()
       @client = client
+
+      @title = 'Timeline'
     end
 
     def connect_stream

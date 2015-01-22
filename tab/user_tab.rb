@@ -2,15 +2,18 @@ module Tab
   class UserTab
     include StatusesTab
 
-    attr_reader :user_id
+    attr_reader :user
 
-    def initialize(user_id)
+    def initialize(user)
+      fail ArgumentError, 'argument must be an instance of User class' unless user.is_a? User
+
       super()
 
-      @user_id = user_id
+      @user = user
+      @title = "@#{user.screen_name}"
 
       Thread.new do
-        ClientManager.instance.current.user_timeline(@user_id).reverse.each do |status|
+        ClientManager.instance.current.user_timeline(@user.id).reverse.each do |status|
           push(status)
         end
       end

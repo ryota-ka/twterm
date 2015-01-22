@@ -2,7 +2,7 @@ module Tab
   module Base
     include Curses
 
-    attr_accessor :title
+    attr_reader :title
 
     def initialize
       @window = stdscr.subwin(stdscr.maxy - 7, stdscr.maxx - 30, 3, 0)

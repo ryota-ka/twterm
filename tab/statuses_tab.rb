@@ -85,8 +85,8 @@ module Tab
     end
 
     def show_user
-      user_id = highlighted_status.user.id
-      user_tab = Tab::UserTab.new(user_id)
+      user = highlighted_status.user
+      user_tab = Tab::UserTab.new(user)
       TabManager.instance.add_and_show(user_tab)
     end
 
