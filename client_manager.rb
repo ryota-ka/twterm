@@ -8,7 +8,7 @@ class ClientManager
   end
 
   def push(client)
-    fail unless client.is_a? Client
+    fail ArgumentError, 'argument must be an instance of Client class' unless client.is_a? Client
     @clients << client
   end
 

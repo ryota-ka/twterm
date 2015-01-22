@@ -1,5 +1,5 @@
 module Tab
-  module StatusTab
+  module StatusesTab
     include Base
 
     def initialize
@@ -175,7 +175,6 @@ module Tab
       height = 0
       @statuses.each.with_index(0) do |status, i|
         height += status.split(@window.maxx - 3).count + 2
-        Twterm::Config[:hfb] = i
         if height >= @window.maxy
           @offset_from_bottom = i
           return i

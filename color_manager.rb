@@ -16,8 +16,8 @@ module ColorManager
   @count = 0
 
   def get_color_pair_index(fg, bg)
-    fail ArgumentError, 'Invalid color name' unless COLORS.include? fg
-    fail ArgumentError, 'Invalid color name' unless COLORS.include? bg
+    fail ArgumentError, 'invalid color name' unless COLORS.include? fg
+    fail ArgumentError, 'invalid color name' unless COLORS.include? bg
 
     return @colors[bg][fg] unless @colors[bg][fg].nil?
 
@@ -27,8 +27,8 @@ module ColorManager
   private
 
   def add_color(fg, bg)
-    fail ArgumentError, 'Invalid color name' unless COLORS.include? fg
-    fail ArgumentError, 'Invalid color name' unless COLORS.include? bg
+    fail ArgumentError, 'invalid color name' unless COLORS.include? fg
+    fail ArgumentError, 'invalid color name' unless COLORS.include? bg
 
     @count += 1
     index = @count

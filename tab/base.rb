@@ -17,7 +17,6 @@ module Tab
     private
 
     def update
-      exit
       fail NotImplementedError, 'update method must be implemented'
     end
   end

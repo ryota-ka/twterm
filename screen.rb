@@ -12,7 +12,6 @@ class Screen
     cbreak
     curs_set(0)
     stdscr.keypad(true)
-
     start_color
   end
 

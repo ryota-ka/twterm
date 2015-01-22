@@ -1,22 +1,20 @@
 module Tab
   class MentionsTab
-    include StatusTab
+    include StatusesTab
 
     def initialize(client)
-      fail unless client.is_a? Client
+      fail ArgumentError, 'argument must be an instance of Client class' unless client.is_a? Client
 
       super()
       @client = client
     end
 
     def fetch
-      @client.mentions.reverse.each do |status|
-        self.push(status)
+      Thread.new do
+        @client.mentions.reverse.each do |status|
+          push(status)
+        end
       end
-    end
-
-    def connect_stream
-      @client.stream(self)
     end
   end
 end

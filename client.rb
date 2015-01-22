@@ -82,7 +82,7 @@ class Client
   end
 
   def unfavorite(status)
-    fail ArgumentError, 'no status given' unless status.is_a? Status
+    fail ArgumentError, 'argument must be an instance of Status class' unless status.is_a? Status
 
     Thread.new do
       @rest_client.unfavorite(status.id)
@@ -91,7 +91,7 @@ class Client
     end
   end
 
-  def retweet(status, &block)
+  def retweet(status)
     return false unless status.is_a? Status
 
     Thread.new do
