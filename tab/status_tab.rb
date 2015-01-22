@@ -166,6 +166,12 @@ module Tab
       refresh_window
     end
 
+    def show_user
+      user_id = highlighted_status.user.id
+      user_tab = Tab::UserTab.new(user_id)
+      TabManager.instance.add_and_show(user_tab)
+    end
+
     private
 
     def highlighted_status

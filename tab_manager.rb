@@ -11,6 +11,12 @@ class TabManager
     @tabs << tab
   end
 
+  def add_and_show(tab)
+    add(tab)
+    @index = @tabs.count - 1
+    current_tab.refresh_window
+  end
+
   def current_tab
     @tabs[@index]
   end
@@ -22,6 +28,12 @@ class TabManager
 
   def previous
     @index = (@index - 1) % @tabs.count
+    current_tab.refresh_window
+  end
+
+  def close
+    @tabs.delete_at(@index)
+    @index = @tabs.count - 1
     current_tab.refresh_window
   end
 end
