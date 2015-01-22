@@ -5,8 +5,13 @@ module Tab
     attr_accessor :title
 
     def refresh
-      object_id
-      update if TabManager.instance.current_tab.object_id == object_id
+      return if @refreshing || TabManager.instance.current_tab.object_id != object_id
+
+      @refreshing = true
+      Thread.new do
+        update
+        @refreshing = false
+      end
     end
 
     private
