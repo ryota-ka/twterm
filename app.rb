@@ -34,7 +34,7 @@ class App
 
     timeline = Tab::Timeline.new(client)
     timeline.connect_stream
-    TabManager.instance.add(timeline)
+    TabManager.instance.add_and_show(timeline)
 
     client.home.reverse.each do |status|
       TabManager.instance.current_tab.push(status)
