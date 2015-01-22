@@ -32,7 +32,7 @@ class Screen
       TabManager.instance.current_tab.move_down
     when 'k', 16, Key::UP
       TabManager.instance.current_tab.move_up
-    when 'l', 4
+    when 'l', 6
       TabManager.instance.next
     when 'n'
       Notifier.instance.show_message 'Compose new tweet'
