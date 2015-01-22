@@ -11,7 +11,8 @@ class UserWindow
   end
 
   def update(user)
-    fail ArgumentError, 'Augument must be a user' unless user.is_a? User
+    fail ArgumentError, 'argument must be an instance of User class' unless user.is_a? User
+
     @user = user
     refresh_window
   end

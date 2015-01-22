@@ -1,5 +1,7 @@
 class User
-  attr_reader :id, :name, :screen_name, :description, :location, :website, :statuses_count, :friends_count, :followers_count
+  attr_reader :id, :name, :screen_name, :description, :location, :website, :following, :protected, :statuses_count, :friends_count, :followers_count
+  alias_method :following?, :following
+  alias_method :protected?, :protected
 
   def initialize(user)
     @id = user.id
@@ -16,13 +18,5 @@ class User
     @statuses_count = user.statuses_count
     @friends_count = user.friends_count
     @followers_count = user.followers_count
-  end
-
-  def following?
-    @following
-  end
-
-  def protected?
-    @protected
   end
 end

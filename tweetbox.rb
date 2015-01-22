@@ -42,7 +42,6 @@ class Tweetbox
     return if @status.nil?
 
     ClientManager.instance.current.post(@status, @in_reply_to)
-    Twterm::Config[:tweet] = @status
     clear
     Screen.instance.wait
   end

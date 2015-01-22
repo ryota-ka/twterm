@@ -1,6 +1,6 @@
 module Tab
   class UserTab
-    include StatusTab
+    include StatusesTab
 
     attr_reader :user_id
 

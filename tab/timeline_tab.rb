@@ -1,9 +1,9 @@
 module Tab
-  class Timeline
-    include StatusTab
+  class TimelineTab
+    include StatusesTab
 
     def initialize(client)
-      fail unless client.is_a? Client
+      fail ArgumentError, 'argument must be an instance of Client class' unless client.is_a? Client
 
       super()
       @client = client
