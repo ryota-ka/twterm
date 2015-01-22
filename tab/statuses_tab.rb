@@ -3,8 +3,7 @@ module Tab
     include Base
 
     def initialize
-      @window = stdscr.subwin(stdscr.maxy - 3, stdscr.maxx - 30, 3, 0)
-      @window.scrollok(true)
+      super
 
       @highlight = 0
       @offset = 0

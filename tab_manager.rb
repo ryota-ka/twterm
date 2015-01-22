@@ -1,9 +1,12 @@
 class TabManager
   include Singleton
+  include Curses
 
   def initialize
     @tabs = []
     @index = 0
+
+    @window = stdscr.subwin(3, stdscr.maxx - 3, 0, 0)
   end
 
   def add(tab)

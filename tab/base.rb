@@ -4,6 +4,10 @@ module Tab
 
     attr_accessor :title
 
+    def initialize
+      @window = stdscr.subwin(stdscr.maxy - 7, stdscr.maxx - 30, 3, 0)
+    end
+
     def refresh
       return if @refreshing || TabManager.instance.current_tab.object_id != object_id
 
