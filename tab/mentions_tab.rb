@@ -16,5 +16,9 @@ module Tab
         end
       end
     end
+
+    def close
+      fail NotClosableError
+    end
   end
 end
