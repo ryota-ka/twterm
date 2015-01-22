@@ -9,7 +9,6 @@ module Tab
       @highlight = 0
       @offset = 0
       @last = 0
-      stdscr.refresh
 
       @statuses = []
     end
@@ -19,12 +18,79 @@ module Tab
 
       @statuses << status
       @highlight += 1 unless @highlight == 0
-      refresh_window
-
-      UserWindow.instance.update(highlighted_status.user) unless highlighted_status.nil?
+      refresh
     end
 
-    def refresh_window
+    def move_up(lines = 1)
+      return if @statuses.empty?
+
+      @highlight = [@highlight - lines, 1].max
+      @offset = [@offset - 1, 0].max if @highlight - 4 < @offset
+      refresh
+    end
+
+    def move_down(lines = 1)
+      return if @statuses.empty?
+
+      @highlight = [@highlight + lines, @statuses.count].min
+      @offset = [
+        @offset + 1,
+        @statuses.count,
+        @statuses.count - offset_from_bottom
+      ].min if @highlight > @last - 4
+
+      refresh
+    end
+
+    def move_to_top
+      @highlight = 1
+      @offset = 0
+      refresh
+    end
+
+    def move_to_bottom
+      @highlight = @statuses.count
+      @offset = @statuses.count - offset_from_bottom
+      refresh
+    end
+
+    def reply
+      Notifier.instance.show_message "Reply to @#{highlighted_status.user.screen_name}"
+      Tweetbox.instance.compose(highlighted_status)
+    end
+
+    def favorite
+      if highlighted_status.favorited?
+        ClientManager.instance.current.unfavorite(highlighted_status) do
+          refresh
+        end
+      else
+        ClientManager.instance.current.favorite(highlighted_status) do
+          refresh
+        end
+      end
+    end
+
+    def retweet
+      ClientManager.instance.current.retweet(highlighted_status) do
+        refresh
+      end
+    end
+
+    def delete_status(status_id)
+      @statuses.delete_if do |status|
+        status.id == status_id
+      end
+      refresh
+    end
+
+    def show_user
+      user_id = highlighted_status.user.id
+      user_tab = Tab::UserTab.new(user_id)
+      TabManager.instance.add_and_show(user_tab)
+    end
+
+    def update
       current_line = 0
 
       @window.clear
@@ -92,84 +158,8 @@ module Tab
         current_line += 2
       end
       @window.refresh
-    end
 
-    def move_up(lines = 1)
-      return if @statuses.empty?
-
-      @highlight = [@highlight - lines, 1].max
-      @offset = [@offset - 1, 0].max if @highlight - 4 < @offset
-      refresh_window
-
-      UserWindow.instance.update(highlighted_status.user)
-    end
-
-    def move_down(lines = 1)
-      return if @statuses.empty?
-
-      @highlight = [@highlight + lines, @statuses.count].min
-      @offset = [
-        @offset + 1,
-        @statuses.count,
-        @statuses.count - offset_from_bottom
-      ].min if @highlight > @last - 4
-      refresh_window
-
-      refresh_window
-
-      UserWindow.instance.update(highlighted_status.user)
-    end
-
-    def move_to_top
-      @highlight = 1
-      @offset = 0
-      refresh_window
-
-      UserWindow.instance.update(highlighted_status.user)
-    end
-
-    def move_to_bottom
-      @highlight = @statuses.count
-      @offset = @statuses.count - offset_from_bottom
-      refresh_window
-
-      UserWindow.instance.update(highlighted_status.user)
-    end
-
-    def reply
-      Notifier.instance.show_message "Reply to @#{highlighted_status.user.screen_name}"
-      Tweetbox.instance.compose(highlighted_status)
-    end
-
-    def favorite
-      if highlighted_status.favorited?
-        ClientManager.instance.current.unfavorite(highlighted_status) do
-          refresh_window
-        end
-      else
-        ClientManager.instance.current.favorite(highlighted_status) do
-          refresh_window
-        end
-      end
-    end
-
-    def retweet
-      ClientManager.instance.current.retweet(highlighted_status) do
-        refresh_window
-      end
-    end
-
-    def delete_status(status_id)
-      @statuses.delete_if do |status|
-        status.id == status_id
-      end
-      refresh_window
-    end
-
-    def show_user
-      user_id = highlighted_status.user.id
-      user_tab = Tab::UserTab.new(user_id)
-      TabManager.instance.add_and_show(user_tab)
+      UserWindow.instance.update(highlighted_status.user) unless highlighted_status.nil?
     end
 
     private
