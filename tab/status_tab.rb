@@ -17,12 +17,13 @@ module Tab
       fail unless status.is_a? Status
 
       @statuses << status
+      status.split(@window.maxx - 3)
       @highlight += 1 unless @highlight == 0
       refresh
     end
 
     def move_up(lines = 1)
-      return if @statuses.empty?
+      return if @statuses.empty? || @highlight == 1
 
       @highlight = [@highlight - lines, 1].max
       @offset = [@offset - 1, 0].max if @highlight - 4 < @offset
@@ -30,7 +31,7 @@ module Tab
     end
 
     def move_down(lines = 1)
-      return if @statuses.empty?
+      return if @statuses.empty? || @highlight == @statuses.count
 
       @highlight = [@highlight + lines, @statuses.count].min
       @offset = [
@@ -175,7 +176,10 @@ module Tab
       @statuses.each.with_index(0) do |status, i|
         height += status.split(@window.maxx - 3).count + 2
         Twterm::Config[:hfb] = i
-        return i if height >= @window.maxy
+        if height >= @window.maxy
+          @offset_from_bottom = i
+          return i
+        end
       end
     end
   end
