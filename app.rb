@@ -60,7 +60,7 @@ class App
   end
 
   def register_interruption_handler(&block)
-    fail ArgumentError, 'no block given' unless block_given
+    fail ArgumentError, 'no block given' unless block_given?
     Signal.trap(:INT) do
       block.call
     end

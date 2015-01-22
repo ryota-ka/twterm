@@ -54,24 +54,18 @@ class Client
   end
 
   def home
-    @rest_client.home_timeline.map do |tweet|
-      Status.new(tweet)
-    end
+    @rest_client.home_timeline(count: 200).map { |tweet| Status.new(tweet) }
   end
 
   def mentions
-    @rest_client.mentions.map do |tweet|
-      Status.new(tweet)
-    end
+    @rest_client.mentions(count: 200).map { |tweet| Status.new(tweet) }
   end
 
   def user_timeline(user_id)
-    @rest_client.user_timeline(user_id).map do |tweet|
-      Status.new(tweet)
-    end
+    @rest_client.user_timeline(user_id).map { |tweet| Status.new(tweet) }
   end
 
-  def favorite(status, &block)
+  def favorite(status)
     return false unless status.is_a? Status
 
     Thread.new do
