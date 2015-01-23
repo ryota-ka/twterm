@@ -37,8 +37,30 @@ class Client
       Notifier.instance.show_message(message)
     end
 
-    Thread.new do
-      @stream_client.userstream
+    @stream_client.on_no_data_received do
+      connect_stream
+    end
+
+    connect_stream
+  end
+
+  def connect_stream
+    @stream_client.stop_stream
+
+    @streaming_thread = Thread.new do
+      Thread.new do
+        loop do
+          begin
+            Notifier.instance.show_message 'Trying to reconnect to Twitter...'
+            @stream_client.userstream
+            Notifier.instance.show_message 'Connection established'
+            break
+          rescue EventMachine::ConnectionError
+            Notifier.instance.show_error 'Connection failed'
+            sleep 30
+          end
+        end
+      end
     end
   end
 
