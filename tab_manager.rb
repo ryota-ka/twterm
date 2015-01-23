@@ -48,8 +48,6 @@ class TabManager
     Notifier.instance.show_error 'This tab cannot be closed'
   end
 
-  private
-
   def refresh_window
     @window.clear
     current_tab_id = current_tab.object_id

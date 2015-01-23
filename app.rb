@@ -52,12 +52,7 @@ class App
   end
 
   def run
-    t = Thread.new do
-      loop do
-        Screen.instance.wait
-      end
-    end
-    t.join
+    Screen.instance.wait
   end
 
   def register_interruption_handler(&block)

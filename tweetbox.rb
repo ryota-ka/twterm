@@ -9,8 +9,6 @@ class Tweetbox
   include Curses
 
   def initialize
-    @window = stdscr.subwin(3, 0, 0, 0)
-    @window.box(?|, ?-, ?+)
     @status = ''
   end
 
@@ -22,17 +20,20 @@ class Tweetbox
     end
 
     thread = Thread.new do
-      system 'stty echo'
-      curs_set(1)
-      @status = readline(@in_reply_to.nil? ? ' > ' : " @#{in_reply_to.user.screen_name} ", true)
-      curs_set(0)
+      close_screen
+      puts "\ncompose new tweet:"
+      @status = readline(@in_reply_to.nil? ? '> ' : " @#{in_reply_to.user.screen_name} ", true)
+      reset_prog_mode
       post
+      Screen.instance.refresh
     end
 
     App.instance.register_interruption_handler do
       thread.kill
       clear
-      curs_set(0)
+      puts "\ncanceled"
+      reset_prog_mode
+      Screen.instance.refresh
     end
 
     thread.join
@@ -43,18 +44,12 @@ class Tweetbox
 
     ClientManager.instance.current.post(@status, @in_reply_to)
     clear
+    Screen.instance.refresh
     Screen.instance.wait
   end
 
   def clear
     @status = ''
     Notifier.instance.clear
-    refresh_window
-  end
-
-  def refresh_window
-    @window.clear
-    @window.addstr(@status)
-    @window.refresh
   end
 end

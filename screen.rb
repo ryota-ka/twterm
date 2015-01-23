@@ -16,6 +16,30 @@ class Screen
   end
 
   def wait
+    @paused = false
+
+    @thread = Thread.new do
+      loop do
+        scan unless @paused
+      end
+    end
+    @thread.join
+  end
+
+  def stop
+    @paused = true
+  end
+
+  def refresh
+    TabManager.instance.refresh_window
+    TabManager.instance.current_tab.refresh
+    UserWindow.instance.refresh_window
+    Notifier.instance.refresh_window
+  end
+
+  private
+
+  def scan
     App.instance.reset_interruption_handler
 
     case getch
