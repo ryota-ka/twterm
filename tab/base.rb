@@ -5,11 +5,11 @@ module Tab
     attr_reader :title
 
     def initialize
-      @window = stdscr.subwin(stdscr.maxy - 7, stdscr.maxx - 30, 3, 0)
+      @window = stdscr.subwin(stdscr.maxy - 4, stdscr.maxx - 30, 3, 0)
     end
 
     def refresh
-      return if @refreshing || TabManager.instance.current_tab.object_id != object_id
+      return if @refreshing || closed? || TabManager.instance.current_tab.object_id != object_id
 
       @refreshing = true
       Thread.new do

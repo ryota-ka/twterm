@@ -7,7 +7,7 @@ class Notifier
   include Curses
 
   def initialize
-    @window = stdscr.subwin(1, stdscr.maxx, stdscr.maxy - 4, 0)
+    @window = stdscr.subwin(1, stdscr.maxx, stdscr.maxy - 1, 0)
 
     @message = ''
     @error = ''
@@ -35,6 +35,8 @@ class Notifier
   end
 
   def refresh_window
+    return if closed?
+
     @window.clear
     @window.setpos(0, 0)
 
