@@ -7,7 +7,7 @@ class Status
 
   def initialize(tweet)
     @id = tweet.id
-    @text = tweet.text
+    @text = CGI.unescapeHTML(tweet.text)
     @created_at = (tweet.created_at.is_a?(String) ? Time.parse(tweet.created_at) : tweet.created_at.dup).localtime
     @retweet_count = tweet.retweet_count
     @favorite_count = tweet.favorite_count

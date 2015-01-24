@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'oauth'
+require 'cgi'
 require './auth'
 require './config'
 require './screen'
