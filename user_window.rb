@@ -20,6 +20,12 @@ class UserWindow
   def refresh_window
     @window.clear
 
+    if @user.nil?
+      draw_border
+      @window.refresh
+      return
+    end
+
     @window.bold do
       @window.setpos(1, 2)
       @window.addstr(@user.name)

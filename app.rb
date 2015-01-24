@@ -30,22 +30,17 @@ class App
 
     Screen.instance
 
-    client = Client.create(Config[:access_token], Config[:access_token_secret])
+    client = Client.create(Config[:user_id], Config[:screen_name], Config[:access_token], Config[:access_token_secret])
 
     timeline = Tab::TimelineTab.new(client)
-    timeline.connect_stream
     TabManager.instance.add_and_show(timeline)
 
-    client.home.reverse.each do |status|
-      TabManager.instance.current_tab.push(status)
-    end
-    TabManager.instance.current_tab.move_to_top
-
     mentions_tab = Tab::MentionsTab.new(client)
-    mentions_tab.fetch
     TabManager.instance.add(mentions_tab)
 
-    Notifier.instance.show_message ''
+    Screen.instance.refresh
+
+    client.stream
     UserWindow.instance
 
     reset_interruption_handler
@@ -53,6 +48,7 @@ class App
 
   def run
     Screen.instance.wait
+    Screen.instance.refresh
   end
 
   def register_interruption_handler(&block)
