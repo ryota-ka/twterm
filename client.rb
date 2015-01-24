@@ -127,7 +127,7 @@ class Client
         @rest_client.retweet!(status.id)
         status.retweet!
         yield status if block_given?
-      rescue Twitter::Error::AlreadyRetweeted, Twitter::Error::NotFound
+      rescue Twitter::Error::AlreadyRetweeted, Twitter::Error::NotFound, Twitter::Error::Forbidden
         Notifier.instance.show_error 'Retweet attempt failed'
       end
     end
