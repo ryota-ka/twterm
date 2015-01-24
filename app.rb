@@ -19,6 +19,9 @@ require './tab/statuses_tab'
 require './tab/timeline_tab'
 require './tab/mentions_tab'
 require './tab/user_tab'
+require './notification/base'
+require './notification/message'
+require './notification/error'
 require 'bundler'
 Bundler.require
 

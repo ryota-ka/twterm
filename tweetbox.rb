@@ -50,6 +50,5 @@ class Tweetbox
 
   def clear
     @status = ''
-    Notifier.instance.clear
   end
 end

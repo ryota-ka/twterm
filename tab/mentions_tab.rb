@@ -10,7 +10,7 @@ module Tab
       @client = client
       @client.on_mention do |status|
         push(status)
-        Notifier.instance.show_message 'You have a new mention'
+        Notifier.instance.show_message "Mentioned by @#{status.user.screen_name}: #{status.text}"
       end
 
       @title = 'Mentions'

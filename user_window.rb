@@ -7,7 +7,7 @@ class UserWindow
   include Curses
 
   def initialize
-    @window = stdscr.subwin(stdscr.maxy - 4, 30, 0, stdscr.maxx - 30)
+    @window = stdscr.subwin(stdscr.maxy - 2, 30, 0, stdscr.maxx - 30)
   end
 
   def update(user)

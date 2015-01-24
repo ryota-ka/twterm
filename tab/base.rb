@@ -5,7 +5,7 @@ module Tab
     attr_reader :title
 
     def initialize
-      @window = stdscr.subwin(stdscr.maxy - 4, stdscr.maxx - 30, 3, 0)
+      @window = stdscr.subwin(stdscr.maxy - 5, stdscr.maxx - 30, 3, 0)
     end
 
     def refresh
