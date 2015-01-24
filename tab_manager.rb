@@ -26,13 +26,13 @@ class TabManager
     @tabs[@index]
   end
 
-  def next
+  def show_next
     @index = (@index + 1) % @tabs.count
     current_tab.refresh
     refresh_window
   end
 
-  def previous
+  def show_previous
     @index = (@index - 1) % @tabs.count
     current_tab.refresh
     refresh_window
@@ -66,5 +66,19 @@ class TabManager
     end
 
     @window.refresh
+  end
+
+  def respond_to_key(key)
+    case key
+    when 'h', 2, Key::LEFT
+      show_previous
+    when 'l', 6, Key::RIGHT
+      show_next
+    when 'w'
+      close
+    else
+      return false
+    end
+    true
   end
 end

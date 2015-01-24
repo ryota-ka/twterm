@@ -22,6 +22,10 @@ module Tab
       @window.close
     end
 
+    def respond_to_key(key)
+      fail NotImplementedError, 'respond_to_key method must be implemented'
+    end
+
     private
 
     def update
