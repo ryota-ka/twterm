@@ -4,7 +4,10 @@ Bundler.require
 class Client
   private_class_method :new
 
-  def initialize(token, secret)
+  def initialize(user_id, screen_name, token, secret)
+    @user_id = user_id
+    @screen_name = screen_name
+
     @rest_client = Twitter::REST::Client.new do |config|
       config.consumer_key        = 'vLNSVFgXclBJQJRZ7VLMxL9lA'
       config.consumer_secret     = 'OFLKzrepRG2p1hq0nUB9j2S9ndFQoNTPheTpmOY0GYw55jGgS5'
@@ -21,11 +24,15 @@ class Client
     end
 
     @stream_client = TweetStream::Client.new
+
+    @callbacks = {}
   end
 
-  def stream(timeline)
-    @stream_client.on_timeline_status do |status|
-      timeline.push(Status.new(status))
+  def stream
+    @stream_client.on_timeline_status do |tweet|
+      status = Status.new(tweet)
+      invoke_callbacks(:timeline_status, status)
+      invoke_callbacks(:mention, status) if status.text.include? "@#{@screen_name}"
     end
 
     @stream_client.on_delete do |status_id|
@@ -46,22 +53,21 @@ class Client
 
   def connect_stream
     @stream_client.stop_stream
+    @streaming_thread.kill if @streaming_thread.is_a? Thread
 
-    @streaming_thread = Thread.new do
-      Thread.new do
-        loop do
-          begin
-            Notifier.instance.show_message 'Trying to reconnect to Twitter...'
-            @stream_client.userstream
-            Notifier.instance.show_message 'Connection established'
-            break
-          rescue EventMachine::ConnectionError
-            Notifier.instance.show_error 'Connection failed'
-            sleep 30
-          end
+    loop do
+      Notifier.instance.show_message 'Trying to connect to Twitter...'
+      begin
+        @streaming_thread = Thread.new do
+          @stream_client.userstream
         end
+        break
+      rescue EventMachine::ConnectionError
+        Notifier.instance.show_error 'Connection failed'
+        sleep 30
       end
     end
+    Notifier.instance.show_message 'Connection established'
   end
 
   def post(text, in_reply_to = nil)
@@ -75,12 +81,16 @@ class Client
     end
   end
 
-  def home
-    @rest_client.home_timeline(count: 200).map { |tweet| Status.new(tweet) }
+  def home_timeline
+    Thread.new do
+      yield @rest_client.home_timeline(count: 200).map { |tweet| Status.new(tweet) }
+    end
   end
 
   def mentions
-    @rest_client.mentions(count: 200).map { |tweet| Status.new(tweet) }
+    Thread.new do
+      yield @rest_client.mentions(count: 200).map { |tweet| Status.new(tweet) }
+    end
   end
 
   def user_timeline(user_id)
@@ -95,6 +105,8 @@ class Client
       status.favorite!
       yield status if block_given?
     end
+
+    self
   end
 
   def unfavorite(status)
@@ -121,9 +133,36 @@ class Client
     end
   end
 
-  def self.create(token, secret)
-    client = new(token, secret)
+  def on_timeline_status(&block)
+    fail ArgumentError, 'no block given' unless block_given?
+    on(:timeline_status, &block)
+  end
+
+  def on_mention(&block)
+    fail ArgumentError, 'no block given' unless block_given?
+    on(:mention, &block)
+  end
+
+  def self.create(user_id, screen_name, token, secret)
+    client = new(user_id, screen_name, token, secret)
     ClientManager.instance.push(client)
     client
+  end
+
+  private
+
+  def on(event, &block)
+    @callbacks[event] ||= []
+    @callbacks[event] << block
+    self
+  end
+
+  def invoke_callbacks(event, data = nil)
+    return if @callbacks[event].nil?
+
+    @callbacks[event].each do |callback|
+      callback.call(data)
+    end
+    self
   end
 end

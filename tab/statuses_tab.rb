@@ -27,6 +27,7 @@ module Tab
       @highlight = [@highlight - lines, 1].max
       @offset = [@offset - 1, 0].max if @highlight - 4 < @offset
       refresh
+      show_help
     end
 
     def move_down(lines = 1)
@@ -40,18 +41,21 @@ module Tab
       ].min if @highlight > @last - 4
 
       refresh
+      show_help
     end
 
     def move_to_top
       @highlight = 1
       @offset = 0
       refresh
+      show_help
     end
 
     def move_to_bottom
       @highlight = @statuses.count
       @offset = @statuses.count - offset_from_bottom
       refresh
+      show_help
     end
 
     def reply
@@ -179,6 +183,10 @@ module Tab
           return i
         end
       end
+    end
+
+    def show_help
+      Notifier.instance.show_help '[n] Compose  [r] Reply  [f] Favorite  [R] Retweet  [u] Show user  [w] Close tab  [q] Quit'
     end
   end
 end

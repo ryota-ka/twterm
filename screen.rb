@@ -34,7 +34,7 @@ class Screen
     TabManager.instance.refresh_window
     TabManager.instance.current_tab.refresh
     UserWindow.instance.refresh_window
-    Notifier.instance.refresh_window
+    Notifier.instance.show
   end
 
   private
@@ -58,7 +58,6 @@ class Screen
     when 'l', 6
       TabManager.instance.next
     when 'n'
-      Notifier.instance.show_message 'Compose new tweet'
       Tweetbox.instance.compose
       return
     when 'q'

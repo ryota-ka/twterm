@@ -7,12 +7,24 @@ module Tab
 
       super()
       @client = client
+      @client.on_timeline_status do |status|
+        push(status)
+      end
 
       @title = 'Timeline'
+
+      fetch { move_to_top }
     end
 
-    def connect_stream
-      @client.stream(self)
+    def fetch
+      Thread.new do
+        @client.home_timeline do |statuses|
+          statuses.reverse.each do |status|
+            push(status)
+          end
+        end
+        yield if block_given?
+      end
     end
 
     def close

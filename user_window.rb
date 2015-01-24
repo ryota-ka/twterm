@@ -7,7 +7,7 @@ class UserWindow
   include Curses
 
   def initialize
-    @window = stdscr.subwin(stdscr.maxy - 4, 30, 0, stdscr.maxx - 30)
+    @window = stdscr.subwin(stdscr.maxy - 2, 30, 0, stdscr.maxx - 30)
   end
 
   def update(user)
@@ -19,6 +19,12 @@ class UserWindow
 
   def refresh_window
     @window.clear
+
+    if @user.nil?
+      draw_border
+      @window.refresh
+      return
+    end
 
     @window.bold do
       @window.setpos(1, 2)
