@@ -40,6 +40,7 @@ class Client
     end
 
     @stream_client.on_event(:favorite) do |event|
+      break if event[:source][:screen_name] == @screen_name
       message = "@#{event[:source][:screen_name]} has favorited your tweet: #{event[:target_object][:text]}"
       Notifier.instance.show_message(message)
     end
