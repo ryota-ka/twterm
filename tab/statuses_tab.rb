@@ -57,6 +57,7 @@ module Tab
       current_line = 0
 
       @window.clear
+
       @statuses.reverse.drop(offset).each.with_index(offset) do |status, i|
         formatted_lines = status.split(@window.maxx - 4).count
         if current_line + formatted_lines + 3 > @window.maxy

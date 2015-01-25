@@ -22,8 +22,12 @@ module Tab
       @window.close
     end
 
-    def respond_to_key(key)
+    def respond_to_key(_)
       fail NotImplementedError, 'respond_to_key method must be implemented'
+    end
+
+    def ==(other)
+      object_id == other.object_id
     end
 
     private
