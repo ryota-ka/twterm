@@ -15,7 +15,7 @@ module Tab
     def fetch
       client = ClientManager.instance.current
       client.list(@list) do |statuses|
-        statuses.each do |status|
+        statuses.reverse.each do |status|
           push(status)
         end
         yield if block_given?
