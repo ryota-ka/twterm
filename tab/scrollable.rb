@@ -53,5 +53,20 @@ module Tab
     def offset_from_bottom
       0
     end
+
+    def draw_scroll_bar
+      return if count == 0
+
+      height = @window.maxy
+      length = [height * (last - index + 1) / count, 1].max
+      top = height * index / count
+
+      @window.with_color(:black, :white) do
+        length.times do |i|
+          @window.setpos(top + i, @window.maxx - 1)
+          @window.addch(' ')
+        end
+      end
+    end
   end
 end

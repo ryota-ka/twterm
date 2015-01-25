@@ -13,7 +13,7 @@ module Tab
       fail unless status.is_a? Status
 
       @statuses << status
-      status.split(@window.maxx - 3)
+      status.split(@window.maxx - 4)
       refresh
     end
 
@@ -58,7 +58,7 @@ module Tab
 
       @window.clear
       @statuses.reverse.drop(offset).each.with_index(offset) do |status, i|
-        formatted_lines = status.split(@window.maxx - 3).count
+        formatted_lines = status.split(@window.maxx - 4).count
         if current_line + formatted_lines + 3 > @window.maxy
           @last = i
           break
@@ -112,7 +112,7 @@ module Tab
           @window.addch(' ')
         end
 
-        status.split(@window.maxx - 3).each do |line|
+        status.split(@window.maxx - 4).each do |line|
           current_line += 1
           @window.setpos(current_line, 2)
           @window.addstr(line)
@@ -120,6 +120,9 @@ module Tab
 
         current_line += 2
       end
+
+      draw_scroll_bar
+
       @window.refresh
 
       UserWindow.instance.update(highlighted_status.user) unless highlighted_status.nil?
@@ -141,7 +144,7 @@ module Tab
 
       height = 0
       @statuses.each.with_index(-1) do |status, i|
-        height += status.split(@window.maxx - 3).count + 2
+        height += status.split(@window.maxx - 4).count + 2
         if height >= @window.maxy
           @offset_from_bottom = i
           return i
