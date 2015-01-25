@@ -97,6 +97,19 @@ class Client
     @rest_client.user_timeline(user_id).map { |tweet| Status.new(tweet) }
   end
 
+  def lists
+    Thread.new do
+      yield @rest_client.lists.map { |list| List.new(list) }
+    end
+  end
+
+  def list(list)
+    fail ArgumentError, 'argument must be an instance of List class' unless list.is_a? List
+    Thread.new do
+      yield @rest_client.list_timeline(list.id, count: 200).map { |tweet| Status.new(tweet) }
+    end
+  end
+
   def favorite(status)
     return false unless status.is_a? Status
 

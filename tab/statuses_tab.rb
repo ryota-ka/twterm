@@ -130,27 +130,17 @@ module Tab
     end
 
     def respond_to_key(key)
+      return true if super
+
       case key
       when 'f'
         favorite
-      when 'g'
-        move_to_top
-      when 'G'
-        move_to_bottom
-      when 'j', 14, Key::DOWN
-        move_down
-      when 'k', 16, Key::UP
-        move_up
       when 'r'
         reply
       when 'R'
         retweet
       when 'u'
         show_user
-      when 4
-        move_down(10)
-      when 21
-        move_up(10)
       else
         return false
       end

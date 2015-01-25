@@ -38,6 +38,11 @@ class TabManager
     refresh_window
   end
 
+  def open_new
+    tab = Tab::New::Start.new
+    add_and_show(tab)
+  end
+
   def close
     current_tab.close
     @tabs.delete_at(@index)
@@ -46,6 +51,11 @@ class TabManager
     refresh_window
   rescue Tab::NotClosableError
     Notifier.instance.show_error 'This tab cannot be closed'
+  end
+
+  def switch(tab)
+    close
+    add_and_show(tab)
   end
 
   def refresh_window
@@ -74,6 +84,8 @@ class TabManager
       show_previous
     when 'l', 6, Key::RIGHT
       show_next
+    when 'N'
+      open_new
     when 'w'
       close
     else

@@ -13,6 +13,26 @@ module Tab
       @last = 0
     end
 
+    def respond_to_key(key)
+      case key
+      when 'g'
+        move_to_top
+      when 'G'
+        move_to_bottom
+      when 'j', 14, Key::DOWN
+        move_down
+      when 'k', 16, Key::UP
+        move_up
+      when 4
+        move_down(10)
+      when 21
+        move_up(10)
+      else
+        return false
+      end
+      true
+    end
+
     def move_up(amount = 1)
       return if count == 0 || index == 0
 
