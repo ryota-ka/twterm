@@ -129,6 +129,24 @@ module Tab
       show_help
     end
 
+    def respond_to_key(key)
+      return true if super
+
+      case key
+      when 'f'
+        favorite
+      when 'r'
+        reply
+      when 'R'
+        retweet
+      when 'u'
+        show_user
+      else
+        return false
+      end
+      true
+    end
+
     private
 
     def highlighted_status
