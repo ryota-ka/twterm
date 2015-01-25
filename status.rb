@@ -7,7 +7,7 @@ class Status
 
   def initialize(tweet)
     @id = tweet.id
-    @text = CGI.unescapeHTML(tweet.text)
+    @text = CGI.unescapeHTML(tweet.full_text.dup)
     @created_at = (tweet.created_at.is_a?(String) ? Time.parse(tweet.created_at) : tweet.created_at.dup).localtime
     @retweet_count = tweet.retweet_count
     @favorite_count = tweet.favorite_count
@@ -15,9 +15,14 @@ class Status
     @favorited = tweet.favorited?
     @retweeted = tweet.retweeted?
 
+    @media = tweet.media
+    @urls = tweet.urls
+
     @user = User.new(tweet.user)
 
     @splitted_text = {}
+
+    expand_url!
   end
 
   def date
@@ -25,10 +30,14 @@ class Status
     @created_at.strftime(format)
   end
 
+  def expand_url!
+    @media.each { |medium| @text.sub!(medium.url, medium.display_url) }
+    @urls.each { |url| @text.sub!(url.url, url.display_url) }
+  end
+
   def favorite!
     @favorited = true
   end
-
 
   def unfavorite!
     @favorited = false
