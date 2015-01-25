@@ -45,7 +45,6 @@ class Tweetbox
     ClientManager.instance.current.post(@status, @in_reply_to)
     clear
     Screen.instance.refresh
-    Screen.instance.wait
   end
 
   def clear

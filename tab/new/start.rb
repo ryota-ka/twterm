@@ -14,6 +14,10 @@ module Tab
         when 'L'
           tab = Tab::New::List.new
           TabManager.instance.switch(tab)
+        when 'S'
+          tab = Tab::New::Search.new
+          TabManager.instance.switch(tab)
+          tab.invoke_input
         else
           return false
         end
@@ -37,8 +41,19 @@ module Tab
           @window.addstr('[L]')
         end
 
-        @window.setpos(8, 5)
-        @window.addstr('To cancel opening a new tab, just press [w]')
+        @window.setpos(6, 5)
+        @window.addstr('- [S] Open search tab')
+        @window.bold do
+          @window.setpos(6, 7)
+          @window.addstr('[S]')
+        end
+
+        @window.setpos(9, 3)
+        @window.addstr('To cancel opening a new tab, just press [w] to close this tab.')
+        @window.bold do
+          @window.setpos(9, 43)
+          @window.addstr('[w]')
+        end
         @window.refresh
       end
     end

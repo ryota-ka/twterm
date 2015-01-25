@@ -110,6 +110,12 @@ class Client
     end
   end
 
+  def search(query)
+    Thread.new do
+      yield @rest_client.search(query, count: 100).map { |tweet| Status.new(tweet) }
+    end
+  end
+
   def favorite(status)
     return false unless status.is_a? Status
 
