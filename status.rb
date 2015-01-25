@@ -5,6 +5,16 @@ class Status
   alias_method :favorited?, :favorited
   alias_method :retweeted?, :retweeted
 
+  @@instances = []
+
+  def self.new(tweet)
+    @@instances.each do |instance|
+      next unless instance.id == tweet.id
+      return instance.update!(tweet)
+    end
+    super
+  end
+
   def initialize(tweet)
     @id = tweet.id
     @text = CGI.unescapeHTML(tweet.full_text.dup)
@@ -12,8 +22,8 @@ class Status
     @retweet_count = tweet.retweet_count
     @favorite_count = tweet.favorite_count
 
-    @favorited = tweet.favorited?
     @retweeted = tweet.retweeted?
+    @favorited = tweet.favorited?
 
     @media = tweet.media
     @urls = tweet.urls
@@ -23,6 +33,16 @@ class Status
     @splitted_text = {}
 
     expand_url!
+
+    @@instances << self
+  end
+
+  def update!(tweet)
+    @retweet_count = tweet.retweet_count
+    @favorite_count = tweet.favorite_count
+    @retweeted = tweet.retweeted?
+    @favorited = tweet.favorited?
+    self
   end
 
   def date
