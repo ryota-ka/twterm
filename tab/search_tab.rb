@@ -13,7 +13,7 @@ module Tab
 
     def fetch
       ClientManager.instance.current.search(@query) do |statuses|
-        statuses.each { |status| push(status) }
+        statuses.reverse.each { |status| push(status) }
         yield if block_given?
       end
     end
