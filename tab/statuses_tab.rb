@@ -2,6 +2,7 @@ module Tab
   module StatusesTab
     include Base
     include Scrollable
+    include AutoReloadable
 
     def initialize
       super
@@ -11,6 +12,8 @@ module Tab
 
     def push(status)
       fail unless status.is_a? Status
+
+      return if @statuses.any? { |s| s.id == status.id }
 
       @statuses << status
       status.split(@window.maxx - 4)

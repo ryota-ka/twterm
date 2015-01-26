@@ -10,6 +10,7 @@ module Tab
       @list = list
       @title = @list.full_name
       fetch { move_to_top }
+      auto_reload(300) { fetch }
     end
 
     def fetch

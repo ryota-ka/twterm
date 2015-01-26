@@ -16,6 +16,7 @@ module Tab
       @title = 'Mentions'
 
       fetch { move_to_top }
+      auto_reload(300) { fetch }
     end
 
     def fetch
