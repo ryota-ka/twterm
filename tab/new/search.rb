@@ -21,6 +21,7 @@ module Tab
           puts "\ninput search query"
           query = readline('input query > ').strip
           reset_prog_mode
+          Screen.instance.refresh
 
           if query.nil? || query.empty?
             tab = Tab::New::Start.new
@@ -29,8 +30,6 @@ module Tab
             tab = Tab::SearchTab.new(query)
             TabManager.instance.switch(tab)
           end
-
-          Screen.instance.refresh
         end
 
         App.instance.register_interruption_handler do
