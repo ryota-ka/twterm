@@ -12,10 +12,14 @@ module Tab
       @user = user
       @title = "@#{user.screen_name}"
 
-      Thread.new do
-        ClientManager.instance.current.user_timeline(@user.id).reverse.each do |status|
-          push(status)
-        end
+      fetch { move_to_top }
+      auto_reload(120) { fetch }
+    end
+
+    def fetch
+      ClientManager.instance.current.user_timeline(@user.id) do |statuses|
+        statuses.reverse.each { |status| push(status) }
+        yield if block_given?
       end
     end
   end
