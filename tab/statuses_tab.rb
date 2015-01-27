@@ -89,12 +89,20 @@ module Tab
         @window.setpos(current_line, 2)
 
         @window.bold do
-          @window.addstr(status.user.name)
+          @window.with_color(status.user.color) do
+            @window.addstr(status.user.name)
+          end
         end
 
         @window.addstr(" (@#{status.user.screen_name}) [#{status.date}] ")
 
-        @window.addstr("(retweeted by @#{status.retweeted_by.screen_name}) ") unless status.retweeted_by.nil?
+        unless status.retweeted_by.nil?
+          @window.addstr('(retweeted by ')
+          @window.bold do
+            @window.addstr("@#{status.retweeted_by.screen_name}")
+          end
+          @window.addstr(') ')
+        end
 
         if status.favorited?
           @window.with_color(:black, :yellow) do
