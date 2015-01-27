@@ -22,11 +22,13 @@ module Tab
     end
 
     def reply
+      return if highlighted_status.nil?
       Notifier.instance.show_message "Reply to @#{highlighted_status.user.screen_name}"
       Tweetbox.instance.compose(highlighted_status)
     end
 
     def favorite
+      return if highlighted_status.nil?
       if highlighted_status.favorited?
         ClientManager.instance.current.unfavorite(highlighted_status) do
           refresh
@@ -39,6 +41,7 @@ module Tab
     end
 
     def retweet
+      return if highlighted_status.nil?
       ClientManager.instance.current.retweet(highlighted_status) do
         refresh
       end
@@ -52,12 +55,14 @@ module Tab
     end
 
     def show_user
+      return if highlighted_status.nil?
       user = highlighted_status.user
       user_tab = Tab::UserTab.new(user)
       TabManager.instance.add_and_show(user_tab)
     end
 
     def open_link
+      return if highlighted_status.nil?
       status = highlighted_status
       urls = status.urls.map(&:expanded_url) + status.media.map(&:expanded_url)
       urls.each { |url| Launchy.open(url) }
