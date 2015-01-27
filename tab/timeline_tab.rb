@@ -14,6 +14,7 @@ module Tab
       @title = 'Timeline'
 
       fetch { move_to_top }
+      auto_reload(180) { fetch }
     end
 
     def fetch
