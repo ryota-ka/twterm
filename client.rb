@@ -95,7 +95,9 @@ class Client
   end
 
   def user_timeline(user_id)
-    @rest_client.user_timeline(user_id).map { |tweet| Status.new(tweet) }
+    Thread.new do
+      yield @rest_client.user_timeline(user_id, count: 200).map { |tweet| Status.new(tweet) }
+    end
   end
 
   def lists
