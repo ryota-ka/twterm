@@ -23,8 +23,8 @@ module Tab
           statuses.reverse.each do |status|
             push(status)
           end
+          yield if block_given?
         end
-        yield if block_given?
       end
     end
 
