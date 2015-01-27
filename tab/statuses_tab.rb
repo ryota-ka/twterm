@@ -17,6 +17,7 @@ module Tab
 
       @statuses << status
       status.split(@window.maxx - 4)
+      @scrollable_index += 1
       refresh
     end
 
@@ -70,7 +71,7 @@ module Tab
       @statuses.reverse.drop(offset).each.with_index(offset) do |status, i|
         formatted_lines = status.split(@window.maxx - 4).count
         if current_line + formatted_lines + 2 > @window.maxy
-          @last = i
+          @scrollable_last = i
           break
         end
 
