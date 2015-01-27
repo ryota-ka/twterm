@@ -1,7 +1,7 @@
 require 'time'
 
 class Status
-  attr_reader :id, :text, :created_at, :retweet_count, :favorite_count, :favorited, :retweeted, :user
+  attr_reader :id, :text, :created_at, :retweet_count, :favorite_count, :favorited, :retweeted, :user, :retweeted_by
   alias_method :favorited?, :favorited
   alias_method :retweeted?, :retweeted
 
@@ -16,6 +16,11 @@ class Status
   end
 
   def initialize(tweet)
+    unless tweet.retweeted_status.is_a? Twitter::NullObject
+      @retweeted_by = User.new(tweet.user)
+      tweet = tweet.retweeted_status
+    end
+
     @id = tweet.id
     @text = CGI.unescapeHTML(tweet.full_text.dup)
     @created_at = (tweet.created_at.is_a?(String) ? Time.parse(tweet.created_at) : tweet.created_at.dup).localtime
