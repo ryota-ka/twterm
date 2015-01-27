@@ -63,7 +63,7 @@ module Tab
 
       @statuses.reverse.drop(offset).each.with_index(offset) do |status, i|
         formatted_lines = status.split(@window.maxx - 4).count
-        if current_line + formatted_lines + 3 > @window.maxy
+        if current_line + formatted_lines + 2 > @window.maxy
           @last = i
           break
         end
