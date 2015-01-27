@@ -19,10 +19,10 @@ module Tab
         input_thread = Thread.new do
           close_screen
           puts "\ninput search query"
-          query = readline('input query > ')
+          query = readline('input query > ').strip
           reset_prog_mode
 
-          if query.empty?
+          if query.nil? || query.empty?
             tab = Tab::New::Start.new
             TabManager.instance.switch(tab)
           else
