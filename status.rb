@@ -1,7 +1,7 @@
 require 'time'
 
 class Status
-  attr_reader :id, :text, :created_at, :retweet_count, :favorite_count, :favorited, :retweeted, :user, :retweeted_by
+  attr_reader :id, :text, :created_at, :retweet_count, :favorite_count, :favorited, :retweeted, :user, :retweeted_by, :urls, :media
   alias_method :favorited?, :favorited
   alias_method :retweeted?, :retweeted
 

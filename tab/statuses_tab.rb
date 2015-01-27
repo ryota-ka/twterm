@@ -56,6 +56,12 @@ module Tab
       TabManager.instance.add_and_show(user_tab)
     end
 
+    def open_link
+      status = highlighted_status
+      urls = status.urls.map(&:expanded_url) + status.media.map(&:expanded_url)
+      urls.each { |url| Launchy.open(url) }
+    end
+
     def update
       current_line = 0
 
@@ -141,6 +147,8 @@ module Tab
       case key
       when 'f'
         favorite
+      when 'o'
+        open_link
       when 'r'
         reply
       when 'R'
