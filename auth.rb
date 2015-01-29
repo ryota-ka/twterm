@@ -1,7 +1,3 @@
-require 'bundler'
-require './config'
-Bundler.require
-
 module Auth
   def authenticate_user
     consumer = OAuth::Consumer.new(
