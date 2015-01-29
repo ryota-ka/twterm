@@ -45,7 +45,7 @@ class Screen
     when 'n'
       Tweetbox.instance.compose
       return
-    when 'q'
+    when 'Q'
       exit
     when '/'
       # filter
