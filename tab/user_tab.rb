@@ -19,6 +19,7 @@ module Tab
     def fetch
       ClientManager.instance.current.user_timeline(@user.id) do |statuses|
         statuses.reverse.each { |status| push(status) }
+        sort
         yield if block_given?
       end
     end

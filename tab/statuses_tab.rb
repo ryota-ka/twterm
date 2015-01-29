@@ -198,6 +198,10 @@ module Tab
       end
     end
 
+    def sort
+      @statuses.sort_by!(&:created_at)
+    end
+
     def show_help
       Notifier.instance.show_help '[n] Compose  [r] Reply  [F] Favorite  [R] Retweet  [u] Show user  [w] Close tab  [Q] Quit'
     end
