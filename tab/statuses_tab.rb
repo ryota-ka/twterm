@@ -159,7 +159,7 @@ module Tab
       return true if super
 
       case key
-      when 'f'
+      when 'F'
         favorite
       when 'o'
         open_link
@@ -199,7 +199,7 @@ module Tab
     end
 
     def show_help
-      Notifier.instance.show_help '[n] Compose  [r] Reply  [f] Favorite  [R] Retweet  [u] Show user  [w] Close tab  [q] Quit'
+      Notifier.instance.show_help '[n] Compose  [r] Reply  [F] Favorite  [R] Retweet  [u] Show user  [w] Close tab  [Q] Quit'
     end
   end
 end
