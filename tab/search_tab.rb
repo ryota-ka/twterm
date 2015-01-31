@@ -2,6 +2,8 @@ module Tab
   class SearchTab
     include StatusesTab
 
+    attr_reader :query
+
     def initialize(query)
       super()
 
@@ -16,6 +18,11 @@ module Tab
         statuses.reverse.each { |status| push(status) }
         yield if block_given?
       end
+    end
+
+    def ==(other)
+      return false unless other.is_a? Tab::SearchTab
+      query == other.query
     end
   end
 end

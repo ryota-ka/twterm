@@ -11,4 +11,9 @@ class List
     @member_count = list.member_count
     @subscriber_count = list.subscriber_count
   end
+
+  def ==(other)
+    return false unless other.is_a? List
+    id == other.id
+  end
 end

@@ -10,9 +10,15 @@ class TabManager
     @window = stdscr.subwin(3, stdscr.maxx - 30, 0, 0)
   end
 
-  def add(tab)
-    fail ArgumentError, 'argument must be an instance of Tab::Base' unless tab.is_a? Tab::Base
-    @tabs << tab
+  def add(tab_to_add)
+    fail ArgumentError, 'argument must be an instance of Tab::Base' unless tab_to_add.is_a? Tab::Base
+    @tabs.each.with_index do |tab, i|
+      next unless tab == tab_to_add
+      @index = i
+      refresh_window
+      return
+    end
+    @tabs << tab_to_add
     @history.push(@tabs.count)
     refresh_window
   end

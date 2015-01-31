@@ -24,6 +24,10 @@ module Tab
         true
       end
 
+      def ==(other)
+        other.is_a? Tab::New::Start
+      end
+
       private
 
       def update

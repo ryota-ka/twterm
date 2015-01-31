@@ -26,6 +26,10 @@ module Tab
         true
       end
 
+      def ==(other)
+        other.is_a? Tab::New::List
+      end
+
       private
 
       def current_list

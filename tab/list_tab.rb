@@ -2,6 +2,8 @@ module Tab
   class ListTab
     include StatusesTab
 
+    attr_reader :list
+
     def initialize(list)
       fail ArgumentError, 'argument must be an instance of List class' unless list.is_a? List
 
@@ -22,6 +24,11 @@ module Tab
         sort
         yield if block_given?
       end
+    end
+
+    def ==(other)
+      return false unless other.is_a? Tab::ListTab
+      list == other.list
     end
   end
 end
