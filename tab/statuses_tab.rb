@@ -23,7 +23,6 @@ module Tab
 
     def reply
       return if highlighted_status.nil?
-      Notifier.instance.show_message "Reply to @#{highlighted_status.user.screen_name}"
       Tweetbox.instance.compose(highlighted_status)
     end
 
@@ -196,6 +195,7 @@ module Tab
           return i
         end
       end
+      count
     end
 
     def sort
