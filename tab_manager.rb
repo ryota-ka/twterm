@@ -5,6 +5,7 @@ class TabManager
   def initialize
     @tabs = []
     @index = 0
+    @history = []
 
     @window = stdscr.subwin(3, stdscr.maxx - 30, 0, 0)
   end
@@ -12,6 +13,7 @@ class TabManager
   def add(tab)
     fail ArgumentError, 'argument must be an instance of Tab::Base' unless tab.is_a? Tab::Base
     @tabs << tab
+    @history.push(@tabs.count)
     refresh_window
   end
 
@@ -23,6 +25,7 @@ class TabManager
   end
 
   def current_tab
+    @history.unshift(@index).uniq!
     @tabs[@index]
   end
 
@@ -46,7 +49,9 @@ class TabManager
   def close
     current_tab.close
     @tabs.delete_at(@index)
-    @index = @tabs.count - 1
+    @history.delete_if { |n| n == @index }
+    @history = @history.map { |i| i > @index ? i - 1 : i }
+    @index = @history.first
     current_tab.refresh
     refresh_window
   rescue Tab::NotClosableError
