@@ -16,18 +16,20 @@ class TabManager
       next unless tab == tab_to_add
       @index = i
       refresh_window
-      return
+      return false
     end
     @tabs << tab_to_add
     @history.push(@tabs.count)
     refresh_window
+    true
   end
 
   def add_and_show(tab)
-    add(tab)
-    @index = @tabs.count - 1
+    result = add(tab)
+    @index = @tabs.count - 1 if result
     current_tab.refresh
     refresh_window
+    result
   end
 
   def current_tab
