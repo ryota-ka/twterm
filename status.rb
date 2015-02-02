@@ -1,7 +1,7 @@
 require 'time'
 
 class Status
-  attr_reader :id, :text, :created_at, :retweet_count, :favorite_count, :favorited, :retweeted, :user, :retweeted_by, :urls, :media
+  attr_reader :id, :text, :created_at, :retweet_count, :favorite_count, :in_reply_to_status_id, :favorited, :retweeted, :user, :retweeted_by, :urls, :media
   alias_method :favorited?, :favorited
   alias_method :retweeted?, :retweeted
 
@@ -26,6 +26,7 @@ class Status
     @created_at = (tweet.created_at.is_a?(String) ? Time.parse(tweet.created_at) : tweet.created_at.dup).localtime
     @retweet_count = tweet.retweet_count
     @favorite_count = tweet.favorite_count
+    @in_reply_to_status_id = tweet.in_reply_to_status_id
 
     @retweeted = tweet.retweeted?
     @favorited = tweet.favorited?
@@ -74,5 +75,10 @@ class Status
 
   def split(width)
     @splitted_text[:width] ||= @text.split_by_width(width)
+  end
+
+  def ==(other)
+    return false unless other.is_a? Status
+    id == other.id
   end
 end
