@@ -1,7 +1,7 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    addressable (2.3.6)
+    addressable (2.3.7)
     buftok (0.2.0)
     cookiejar (0.3.2)
     curses (1.0.1)
@@ -20,13 +20,13 @@ GEM
       http_parser.rb (~> 0.6)
       simple_oauth (~> 0.2)
     equalizer (0.0.9)
-    eventmachine (1.0.4)
-    faraday (0.9.0)
+    eventmachine (1.0.7)
+    faraday (0.9.1)
       multipart-post (>= 1.2, < 3)
     http (0.6.3)
       http_parser.rb (~> 0.6.0)
     http_parser.rb (0.6.0)
-    json (1.8.1)
+    json (1.8.2)
     launchy (2.4.3)
       addressable (~> 2.3)
     memoizable (0.4.2)

@@ -21,6 +21,18 @@ module Tab
       refresh
     end
 
+    def unshift(status)
+      fail ArgumentError, 'argument must be an instance of Status class' unless status.is_a? Status
+
+      return if @statuses.any? { |s| s == status }
+
+      @statuses.unshift(status)
+      status.split(@window.maxx - 4)
+      @scrollable_index -= 1
+      @scrollable_offset -= 1 if @scrollable_offset > 0
+      refresh
+    end
+
     def reply
       return if highlighted_status.nil?
       Tweetbox.instance.compose(highlighted_status)
@@ -65,6 +77,12 @@ module Tab
       status = highlighted_status
       urls = status.urls.map(&:expanded_url) + status.media.map(&:expanded_url)
       urls.each { |url| Launchy.open(url) }
+    end
+
+    def show_conversation
+      return if highlighted_status.nil?
+      tab = Tab::ConversationTab.new(highlighted_status)
+      TabManager.instance.add_and_show(tab)
     end
 
     def update
@@ -158,6 +176,8 @@ module Tab
       return true if super
 
       case key
+      when 'c'
+        show_conversation
       when 'F'
         favorite
       when 'o'

@@ -119,6 +119,10 @@ class Client
     end
   end
 
+  def show_status(status_id)
+    Thread.new { yield Status.new(@rest_client.status(status_id)) }
+  end
+
   def favorite(status)
     return false unless status.is_a? Status
 
