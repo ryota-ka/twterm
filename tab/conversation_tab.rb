@@ -15,10 +15,11 @@ module Tab
     end
 
     def fetch_reply(status)
-      ClientManager.instance.current.show_status(status.in_reply_to_status_id) do |reply|
+      status.in_reply_to_status do |reply|
+        return if reply.nil?
         unshift(reply)
         fetch_reply(reply)
-      end unless status.in_reply_to_status_id.nil?
+      end
     end
 
     def ==(other)

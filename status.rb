@@ -77,8 +77,25 @@ class Status
     @splitted_text[:width] ||= @text.split_by_width(width)
   end
 
+  def in_reply_to_status(&block)
+    warn @in_reply_to_status_id
+    block.call(nil) if @in_reply_to_status_id.nil?
+
+    status = Status.find_by_in_reply_to_status_id(@in_reply_to_status_id)
+    warn status.inspect
+    block.call(status) unless status.nil?
+
+    ClientManager.instance.current.show_status(@in_reply_to_status_id, &block)
+  end
+
   def ==(other)
     return false unless other.is_a? Status
     id == other.id
+  end
+
+  class << self
+    def find_by_in_reply_to_status_id(in_reply_to_status_id)
+      @@instances.find { |status| status.id == in_reply_to_status_id }
+    end
   end
 end
