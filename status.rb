@@ -78,11 +78,9 @@ class Status
   end
 
   def in_reply_to_status(&block)
-    warn @in_reply_to_status_id
     block.call(nil) if @in_reply_to_status_id.nil?
 
     status = Status.find_by_in_reply_to_status_id(@in_reply_to_status_id)
-    warn status.inspect
     block.call(status) unless status.nil?
 
     ClientManager.instance.current.show_status(@in_reply_to_status_id, &block)

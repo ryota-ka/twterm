@@ -4,6 +4,8 @@ Bundler.require
 class Client
   private_class_method :new
 
+  @@create_status_proc ||= -> (s) { Status.new(s) }
+
   def initialize(user_id, screen_name, token, secret)
     @user_id = user_id
     @screen_name = screen_name
@@ -56,23 +58,21 @@ class Client
     @stream_client.stop_stream
     @streaming_thread.kill if @streaming_thread.is_a? Thread
 
-    loop do
-      Notifier.instance.show_message 'Trying to connect to Twitter...'
+    Notifier.instance.show_message 'Trying to connect to Twitter...'
+    @streaming_thread = Thread.new do
       begin
-        @streaming_thread = Thread.new do
-          @stream_client.userstream
-        end
-        break
+        @stream_client.userstream
       rescue EventMachine::ConnectionError
         Notifier.instance.show_error 'Connection failed'
         sleep 30
+        retry
       end
+      Notifier.instance.show_message 'Connection established'
     end
-    Notifier.instance.show_message 'Connection established'
   end
 
   def post(text, in_reply_to = nil)
-    Thread.new do
+    send_request do
       if in_reply_to.is_a? Status
         text = "@#{in_reply_to.user.screen_name} #{text}"
         @rest_client.update(text, in_reply_to_status_id: in_reply_to.id)
@@ -83,50 +83,52 @@ class Client
   end
 
   def home_timeline
-    Thread.new do
-      yield @rest_client.home_timeline(count: 200).map { |tweet| Status.new(tweet) }
+    send_request do
+      yield @rest_client.home_timeline(count: 200).map(&create_status)
     end
   end
 
   def mentions
-    Thread.new do
-      yield @rest_client.mentions(count: 200).map { |tweet| Status.new(tweet) }
+    send_request do
+      yield @rest_client.mentions(count: 200).map(&create_status)
     end
   end
 
   def user_timeline(user_id)
-    Thread.new do
-      yield @rest_client.user_timeline(user_id, count: 200).map { |tweet| Status.new(tweet) }
+    send_request do
+      yield @rest_client.user_timeline(user_id, count: 200).map(&create_status)
     end
   end
 
   def lists
-    Thread.new do
+    send_request do
       yield @rest_client.lists.map { |list| List.new(list) }
     end
   end
 
   def list(list)
     fail ArgumentError, 'argument must be an instance of List class' unless list.is_a? List
-    Thread.new do
-      yield @rest_client.list_timeline(list.id, count: 200).map { |tweet| Status.new(tweet) }
+    send_request do
+      yield @rest_client.list_timeline(list.id, count: 200).map(&create_status)
     end
   end
 
   def search(query)
-    Thread.new do
-      yield @rest_client.search(query, count: 100).map { |tweet| Status.new(tweet) }
+    send_request do
+      yield @rest_client.search(query, count: 100).map(&create_status)
     end
   end
 
   def show_status(status_id)
-    Thread.new { yield Status.new(@rest_client.status(status_id)) }
+    send_request do
+      yield Status.new(@rest_client.status(status_id))
+    end
   end
 
   def favorite(status)
     return false unless status.is_a? Status
 
-    Thread.new do
+    send_request do
       @rest_client.favorite(status.id)
       status.favorite!
       yield status if block_given?
@@ -138,7 +140,7 @@ class Client
   def unfavorite(status)
     fail ArgumentError, 'argument must be an instance of Status class' unless status.is_a? Status
 
-    Thread.new do
+    send_request do
       @rest_client.unfavorite(status.id)
       status.unfavorite!
       yield status if block_given?
@@ -148,7 +150,7 @@ class Client
   def retweet(status)
     return false unless status.is_a? Status
 
-    Thread.new do
+    send_request do
       begin
         @rest_client.retweet!(status.id)
         status.retweet!
@@ -190,5 +192,21 @@ class Client
       callback.call(data)
     end
     self
+  end
+
+  def send_request(&block)
+    Thread.new do
+      begin
+        block.call
+      rescue Twitter::Error
+        Notifier.instance.show_error 'Failed to send request'
+        sleep 10
+        retry
+      end
+    end
+  end
+
+  def create_status
+    @@create_status_proc
   end
 end
