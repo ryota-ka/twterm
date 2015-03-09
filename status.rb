@@ -1,7 +1,7 @@
 require 'time'
 
 class Status
-  attr_reader :id, :text, :created_at, :retweet_count, :favorite_count, :in_reply_to_status_id, :favorited, :retweeted, :user, :retweeted_by, :urls, :media
+  attr_reader :id, :text, :created_at, :created_at_for_sort, :retweet_count, :favorite_count, :in_reply_to_status_id, :favorited, :retweeted, :user, :retweeted_by, :urls, :media
   alias_method :favorited?, :favorited
   alias_method :retweeted?, :retweeted
 
@@ -18,12 +18,14 @@ class Status
   def initialize(tweet)
     unless tweet.retweeted_status.is_a? Twitter::NullObject
       @retweeted_by = User.new(tweet.user)
+      retweeted_at = Status.parse_time(tweet.created_at)
       tweet = tweet.retweeted_status
     end
 
     @id = tweet.id
     @text = CGI.unescapeHTML(tweet.full_text.dup)
-    @created_at = (tweet.created_at.is_a?(String) ? Time.parse(tweet.created_at) : tweet.created_at.dup).localtime
+    @created_at = Status.parse_time(tweet.created_at)
+    @created_at_for_sort = retweeted_at || @created_at
     @retweet_count = tweet.retweet_count
     @favorite_count = tweet.favorite_count
     @in_reply_to_status_id = tweet.in_reply_to_status_id
@@ -94,6 +96,10 @@ class Status
   class << self
     def find_by_in_reply_to_status_id(in_reply_to_status_id)
       @@instances.find { |status| status.id == in_reply_to_status_id }
+    end
+
+    def parse_time(time)
+      (time.is_a?(String) ? Time.parse(time) : time.dup).localtime
     end
   end
 end

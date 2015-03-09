@@ -219,7 +219,7 @@ module Tab
     end
 
     def sort
-      @statuses.sort_by!(&:created_at)
+      @statuses.sort_by!(&:created_at_for_sort)
     end
 
     def show_help
