@@ -9,7 +9,7 @@ module Tab
 
       @client = client
       @client.on_mention do |status|
-        push(status)
+        prepend(status)
         Notifier.instance.show_message "Mentioned by @#{status.user.screen_name}: #{status.text}"
       end
 
@@ -22,7 +22,7 @@ module Tab
     def fetch
       @client.mentions do |statuses|
         statuses.reverse.each do |status|
-          push(status)
+          prepend(status)
         end
         sort
         yield if block_given?

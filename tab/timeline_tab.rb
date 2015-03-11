@@ -8,7 +8,7 @@ module Tab
       super()
       @client = client
       @client.on_timeline_status do |status|
-        push(status)
+        prepend(status)
       end
 
       @title = 'Timeline'
@@ -21,7 +21,7 @@ module Tab
       Thread.new do
         @client.home_timeline do |statuses|
           statuses.reverse.each do |status|
-            push(status)
+            prepend(status)
           end
           sort
           yield if block_given?

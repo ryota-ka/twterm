@@ -9,6 +9,7 @@ module Tab
       @scrollable_count = 0
       @scrollable_offset = 0
       @scrollable_last = 0
+      @scrollable_scrollbar_length = 0
     end
 
     def respond_to_key(key)
@@ -45,6 +46,18 @@ module Tab
 
     def last
       @scrollable_last
+    end
+
+    def item_prepended
+      @scrollable_index += 1
+      @scrollable_offset += 1
+      update_scrollbar_length
+    end
+
+    def item_appended
+      @scrollable_index -= 1
+      @scrollable_offset -= 1 if @scrollable_offset > 0
+      update_scrollbar_length
     end
 
     def move_up(amount = 1)
@@ -88,15 +101,20 @@ module Tab
       0
     end
 
+    def update_scrollbar_length
+      height = @window.maxy
+      top = height * index / count
+      @scrollable_scrollbar_length = [height * (last - index + 1) / count, 1].max
+    end
+
     def draw_scroll_bar
       return if count == 0
 
       height = @window.maxy
-      length = [height * (last - index + 1) / count, 1].max
       top = height * index / count
 
       @window.with_color(:black, :white) do
-        length.times do |i|
+        @scrollable_scrollbar_length.times do |i|
           @window.setpos(top + i, @window.maxx - 1)
           @window.addch(' ')
         end
