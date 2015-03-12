@@ -102,9 +102,13 @@ module Tab
     end
 
     def update_scrollbar_length
-      height = @window.maxy
-      top = height * index / count
-      @scrollable_scrollbar_length = [height * (last - index + 1) / count, 1].max
+      @scrollable_scrollbar_length =
+        if count == 0
+          0
+        else
+          height = @window.maxy
+          [height * (last - index + 1) / count, 1].max
+        end
     end
 
     def draw_scroll_bar
