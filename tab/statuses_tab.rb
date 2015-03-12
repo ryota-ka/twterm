@@ -10,26 +10,25 @@ module Tab
       @statuses = []
     end
 
-    def push(status)
+    def prepend(status)
       fail unless status.is_a? Status
 
       return if @statuses.any? { |s| s.id == status.id }
 
       @statuses << status
       status.split(@window.maxx - 4)
-      @scrollable_index += 1
+      item_prepended
       refresh
     end
 
-    def unshift(status)
+    def append(status)
       fail ArgumentError, 'argument must be an instance of Status class' unless status.is_a? Status
 
       return if @statuses.any? { |s| s == status }
 
       @statuses.unshift(status)
       status.split(@window.maxx - 4)
-      @scrollable_index -= 1
-      @scrollable_offset -= 1 if @scrollable_offset > 0
+      item_appended
       refresh
     end
 

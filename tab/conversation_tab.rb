@@ -10,14 +10,14 @@ module Tab
       @title = 'Conversation'
 
       super()
-      push(status)
+      prepend(status)
       Thread.new { fetch_reply(status) }
     end
 
     def fetch_reply(status)
       status.in_reply_to_status do |reply|
         return if reply.nil?
-        unshift(reply)
+        append(reply)
         fetch_reply(reply)
       end
     end

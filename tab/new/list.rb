@@ -49,6 +49,7 @@ module Tab
           ClientManager.instance.current.lists do |lists|
             @@lists = lists
             show_lists
+            update_scrollbar_length
             @window.refresh
           end
         end if @@lists.nil?

@@ -19,7 +19,7 @@ module Tab
       client = ClientManager.instance.current
       client.list(@list) do |statuses|
         statuses.reverse.each do |status|
-          push(status)
+          prepend(status)
         end
         sort
         yield if block_given?
