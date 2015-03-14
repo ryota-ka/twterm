@@ -176,10 +176,9 @@ class Client
 
   class << self
     def new(user_id, screen_name, token, secret)
-      existing_client = @@instances.find { |i| i.user_id == user_id }
-      return existing_client unless existing_client.nil?
-
-      super
+      detector = -> (instance) { instance.user_id == user_id }
+      instance = @@instances.find(&detector)
+      instance.nil? ? super : instance
     end
 
     def current
@@ -198,9 +197,7 @@ class Client
   def invoke_callbacks(event, data = nil)
     return if @callbacks[event].nil?
 
-    @callbacks[event].each do |callback|
-      callback.call(data)
-    end
+    @callbacks[event].each { |cb| cb.call(data) }
     self
   end
 

@@ -58,9 +58,8 @@ module Tab
     end
 
     def delete_status(status_id)
-      @statuses.delete_if do |status|
-        status.id == status_id
-      end
+      detector = -> (status) { status.id == status_id }
+      @statuses.delete_if(&detector)
       refresh
     end
 
@@ -75,7 +74,7 @@ module Tab
       return if highlighted_status.nil?
       status = highlighted_status
       urls = status.urls.map(&:expanded_url) + status.media.map(&:expanded_url)
-      urls.each { |url| Launchy.open(url) }
+      urls.each(&Launchy.method(:open))
     end
 
     def show_conversation

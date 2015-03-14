@@ -18,7 +18,7 @@ module Tab
 
     def fetch
       Client.current.user_timeline(@user.id) do |statuses|
-        statuses.reverse.each { |status| prepend(status) }
+        statuses.reverse.each(&method(:prepend))
         sort
         yield if block_given?
       end

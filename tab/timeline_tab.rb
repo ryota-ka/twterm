@@ -7,10 +7,7 @@ module Tab
 
       super()
       @client = client
-      @client.on_timeline_status do |status|
-        prepend(status)
-      end
-
+      @client.on_timeline_status(&method(:prepend))
       @title = 'Timeline'
 
       fetch { move_to_top }
@@ -20,9 +17,7 @@ module Tab
     def fetch
       Thread.new do
         @client.home_timeline do |statuses|
-          statuses.reverse.each do |status|
-            prepend(status)
-          end
+          statuses.each(&method(:prepend))
           sort
           yield if block_given?
         end

@@ -9,11 +9,9 @@ class User
   @@instances = []
 
   def self.new(user)
-    @@instances.each do |instance|
-      next unless instance.id == user.id
-      return instance.update!(user)
-    end
-    super
+    detector = -> (instance) { instance.id == user.id }
+    instance = @@instances.find(&detector)
+    instance.nil? ? super : instance.update!(user)
   end
 
   def initialize(user)
