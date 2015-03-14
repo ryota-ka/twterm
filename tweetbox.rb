@@ -21,6 +21,7 @@ class Tweetbox
 
     resetter = proc do
       reset_prog_mode
+      sleep 0.1
       Screen.instance.refresh
     end
 
@@ -47,7 +48,6 @@ class Tweetbox
 
     Client.current.post(@status, @in_reply_to)
     clear
-    Screen.instance.refresh
   end
 
   def clear
