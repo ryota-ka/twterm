@@ -43,7 +43,7 @@ class Curses::Window
   end
 
   def with_color(fg, bg = :black, &block)
-    color_pair_index = ColorManager.get_color_pair_index(fg, bg)
+    color_pair_index = ColorManager.instance.get_color_pair_index(fg, bg)
     attron(Curses.color_pair(color_pair_index))
     block.call
     attroff(Curses.color_pair(color_pair_index))
