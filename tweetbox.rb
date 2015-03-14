@@ -19,21 +19,24 @@ class Tweetbox
       @in_reply_to = nil
     end
 
+    resetter = proc do
+      reset_prog_mode
+      Screen.instance.refresh
+    end
+
     thread = Thread.new do
       close_screen
       puts "\ncompose new tweet:"
       @status = readline(@in_reply_to.nil? ? '> ' : " @#{in_reply_to.user.screen_name} ", true)
-      reset_prog_mode
+      resetter.call
       post
-      Screen.instance.refresh
     end
 
     App.instance.register_interruption_handler do
       thread.kill
       clear
       puts "\ncanceled"
-      reset_prog_mode
-      Screen.instance.refresh
+      resetter.call
     end
 
     thread.join

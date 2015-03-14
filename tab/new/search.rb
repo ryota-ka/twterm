@@ -16,28 +16,26 @@ module Tab
       end
 
       def invoke_input
+        resetter = proc do
+          reset_prog_mode
+          Screen.instance.refresh
+        end
+
         input_thread = Thread.new do
           close_screen
           puts "\ninput search query"
           query = readline('input query > ').strip
-          reset_prog_mode
-          Screen.instance.refresh
+          resetter.call
 
-          if query.nil? || query.empty?
-            tab = Tab::New::Start.new
-            TabManager.instance.switch(tab)
-          else
-            tab = Tab::SearchTab.new(query)
-            TabManager.instance.switch(tab)
-          end
+          tab = query.nil? || query.empty? ? Tab::New::Start.new : Tab::SearchTab.new(query)
+          TabManager.instance.switch(tab)
         end
 
         App.instance.register_interruption_handler do
           input_thread.kill
-          reset_prog_mode
+          resetter.call
           tab = Tab::New::Start.new
           TabManager.instance.switch(tab)
-          Screen.instance.refresh
         end
 
         input_thread.join
