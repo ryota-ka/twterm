@@ -8,11 +8,9 @@ class Status
   @@instances = []
 
   def self.new(tweet)
-    @@instances.each do |instance|
-      next unless instance.id == tweet.id
-      return instance.update!(tweet)
-    end
-    super
+    detector = -> (instance) { instance.id == tweet.id }
+    instance = @@instances.find(&detector)
+    instance.nil? ? super : instance.update!(tweet)
   end
 
   def initialize(tweet)
@@ -59,8 +57,8 @@ class Status
   end
 
   def expand_url!
-    @media.each { |medium| @text.sub!(medium.url, medium.display_url) }
-    @urls.each { |url| @text.sub!(url.url, url.display_url) }
+    sub = -> (x) { @text.sub!(x.url, x.display_url) }
+    (@media + @urls).each(&sub)
   end
 
   def favorite!

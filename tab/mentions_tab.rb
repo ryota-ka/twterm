@@ -21,9 +21,7 @@ module Tab
 
     def fetch
       @client.mentions do |statuses|
-        statuses.reverse.each do |status|
-          prepend(status)
-        end
+        statuses.reverse.each(&method(:prepend))
         sort
         yield if block_given?
       end
