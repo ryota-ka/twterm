@@ -23,8 +23,7 @@ module Tab
     end
 
     def ==(other)
-      return false unless other.is_a? Tab::ConversationTab
-      status == other.status
+      other.is_a?(self.class) && status == other.status
     end
   end
 end

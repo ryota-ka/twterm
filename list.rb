@@ -13,7 +13,6 @@ class List
   end
 
   def ==(other)
-    return false unless other.is_a? List
-    id == other.id
+    other.is_a?(self.class) && id == other.id
   end
 end

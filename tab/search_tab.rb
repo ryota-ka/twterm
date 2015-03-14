@@ -21,8 +21,7 @@ module Tab
     end
 
     def ==(other)
-      return false unless other.is_a? Tab::SearchTab
-      query == other.query
+      other.is_a?(self.class) && query == other.query
     end
   end
 end

@@ -27,7 +27,7 @@ module Tab
     end
 
     def ==(other)
-      object_id == other.object_id
+      self.equal?(other)
     end
 
     private

@@ -25,8 +25,7 @@ module Tab
     end
 
     def ==(other)
-      return false unless other.is_a? Tab::ListTab
-      list == other.list
+      other.is_a?(self.class) && list == other.list
     end
   end
 end
