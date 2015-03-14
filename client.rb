@@ -4,7 +4,7 @@ Bundler.require
 class Client
   attr_reader :user_id, :screen_name
 
-  @@create_status_proc ||= -> (s) { Status.new(s) }
+  CREATE_STATUS_PROC = -> (s) { Status.new(s) }
 
   @@instances = []
 
@@ -87,19 +87,19 @@ class Client
 
   def home_timeline
     send_request do
-      yield @rest_client.home_timeline(count: 200).map(&create_status)
+      yield @rest_client.home_timeline(count: 200).map(&CREATE_STATUS_PROC)
     end
   end
 
   def mentions
     send_request do
-      yield @rest_client.mentions(count: 200).map(&create_status)
+      yield @rest_client.mentions(count: 200).map(&CREATE_STATUS_PROC)
     end
   end
 
   def user_timeline(user_id)
     send_request do
-      yield @rest_client.user_timeline(user_id, count: 200).map(&create_status)
+      yield @rest_client.user_timeline(user_id, count: 200).map(&CREATE_STATUS_PROC)
     end
   end
 
@@ -112,13 +112,13 @@ class Client
   def list(list)
     fail ArgumentError, 'argument must be an instance of List class' unless list.is_a? List
     send_request do
-      yield @rest_client.list_timeline(list.id, count: 200).map(&create_status)
+      yield @rest_client.list_timeline(list.id, count: 200).map(&CREATE_STATUS_PROC)
     end
   end
 
   def search(query)
     send_request do
-      yield @rest_client.search(query, count: 100).map(&create_status)
+      yield @rest_client.search(query, count: 100).map(&CREATE_STATUS_PROC)
     end
   end
 
@@ -214,9 +214,5 @@ class Client
         retry
       end
     end
-  end
-
-  def create_status
-    @@create_status_proc
   end
 end
