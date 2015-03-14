@@ -1,5 +1,7 @@
-module ColorManager
+class ColorManager
+  include Singleton
   include Curses
+
   COLORS = [:black, :white, :red, :green, :blue, :yellow, :cyan, :magenta]
   CURSES_COLORS = {
     black: COLOR_BLACK,
@@ -12,8 +14,13 @@ module ColorManager
     magenta: COLOR_MAGENTA
   }
 
-  @colors = { black: {}, white: {}, red: {}, green: {}, blue: {}, yellow: {}, cyan: {}, magenta: {} }
-  @count = 0
+  def initialize
+    @colors = {
+      black: {}, white: {}, red: {}, green: {},
+      blue: {}, yellow: {}, cyan: {}, magenta: {}
+    }
+    @count = 0
+  end
 
   def get_color_pair_index(fg, bg)
     fail ArgumentError, 'invalid color name' unless COLORS.include? fg
@@ -38,6 +45,4 @@ module ColorManager
 
     index
   end
-
-  module_function :get_color_pair_index, :add_color
 end
