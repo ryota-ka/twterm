@@ -16,7 +16,7 @@ module Tab
     end
 
     def fetch
-      client = ClientManager.instance.current
+      client = Client.current
       client.list(@list) do |statuses|
         statuses.reverse.each do |status|
           prepend(status)

@@ -42,7 +42,7 @@ class Tweetbox
   def post
     return if @status.nil?
 
-    ClientManager.instance.current.post(@status, @in_reply_to)
+    Client.current.post(@status, @in_reply_to)
     clear
     Screen.instance.refresh
   end

@@ -14,7 +14,7 @@ module Tab
     end
 
     def fetch
-      ClientManager.instance.current.search(@query) do |statuses|
+      Client.current.search(@query) do |statuses|
         statuses.reverse.each { |status| prepend(status) }
         yield if block_given?
       end

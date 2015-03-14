@@ -4,12 +4,12 @@ require 'oauth'
 require 'cgi'
 require './auth'
 require './config'
+require './client'
 require './screen'
 require './tweetbox'
 require './notifier'
 require './status'
 require './list'
-require './client_manager'
 require './user'
 require './user_window'
 require './extentions'
@@ -43,7 +43,7 @@ class App
 
     Screen.instance
 
-    client = Client.create(Config[:user_id], Config[:screen_name], Config[:access_token], Config[:access_token_secret])
+    client = Client.new(Config[:user_id], Config[:screen_name], Config[:access_token], Config[:access_token_secret])
 
     timeline = Tab::TimelineTab.new(client)
     TabManager.instance.add_and_show(timeline)
