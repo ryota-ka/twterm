@@ -40,11 +40,11 @@ module Tab
     def favorite
       return if highlighted_status.nil?
       if highlighted_status.favorited?
-        ClientManager.instance.current.unfavorite(highlighted_status) do
+        Client.current.unfavorite(highlighted_status) do
           refresh
         end
       else
-        ClientManager.instance.current.favorite(highlighted_status) do
+        Client.current.favorite(highlighted_status) do
           refresh
         end
       end
@@ -52,7 +52,7 @@ module Tab
 
     def retweet
       return if highlighted_status.nil?
-      ClientManager.instance.current.retweet(highlighted_status) do
+      Client.current.retweet(highlighted_status) do
         refresh
       end
     end

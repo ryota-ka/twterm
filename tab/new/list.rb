@@ -46,7 +46,7 @@ module Tab
 
         Thread.new do
           Notifier.instance.show_message('Loading lists ...')
-          ClientManager.instance.current.lists do |lists|
+          Client.current.lists do |lists|
             @@lists = lists
             show_lists
             update_scrollbar_length

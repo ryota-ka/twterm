@@ -2,9 +2,11 @@ require 'bundler'
 Bundler.require
 
 class Client
-  private_class_method :new
+  attr_reader :user_id, :screen_name
 
   @@create_status_proc ||= -> (s) { Status.new(s) }
+
+  @@instances = []
 
   def initialize(user_id, screen_name, token, secret)
     @user_id = user_id
@@ -28,6 +30,7 @@ class Client
     @stream_client = TweetStream::Client.new
 
     @callbacks = {}
+    @@instances << self
   end
 
   def stream
@@ -171,10 +174,17 @@ class Client
     on(:mention, &block)
   end
 
-  def self.create(user_id, screen_name, token, secret)
-    client = new(user_id, screen_name, token, secret)
-    ClientManager.instance.push(client)
-    client
+  class << self
+    def new(user_id, screen_name, token, secret)
+      existing_client = @@instances.find { |i| i.user_id == user_id }
+      return existing_client unless existing_client.nil?
+
+      super
+    end
+
+    def current
+      @@instances[0]
+    end
   end
 
   private

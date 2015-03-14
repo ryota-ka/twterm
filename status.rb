@@ -85,7 +85,7 @@ class Status
     status = Status.find_by_in_reply_to_status_id(@in_reply_to_status_id)
     block.call(status) unless status.nil?
 
-    ClientManager.instance.current.show_status(@in_reply_to_status_id, &block)
+    Client.current.show_status(@in_reply_to_status_id, &block)
   end
 
   def ==(other)
