@@ -25,7 +25,7 @@ module Tab
       end
 
       def ==(other)
-        other.is_a? Tab::New::Start
+        other.is_a?(self.class)
       end
 
       private

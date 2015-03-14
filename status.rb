@@ -87,8 +87,7 @@ class Status
   end
 
   def ==(other)
-    return false unless other.is_a? Status
-    id == other.id
+    other.is_a?(self.class) && id == other.id
   end
 
   class << self
