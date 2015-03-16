@@ -190,7 +190,7 @@ module Tab
         retweet
       when 18
         fetch
-      when 'u'
+      when 'U'
         show_user
       else
         return false
@@ -227,7 +227,7 @@ module Tab
     end
 
     def show_help
-      Notifier.instance.show_help '[n] Compose  [r] Reply  [F] Favorite  [R] Retweet  [u] Show user  [w] Close tab  [Q] Quit'
+      Notifier.instance.show_help '[n] Compose  [r] Reply  [F] Favorite  [R] Retweet  [U] Show user  [w] Close tab  [Q] Quit'
     end
   end
 end

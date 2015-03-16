@@ -22,10 +22,10 @@ module Tab
         move_down
       when 'k', 16, Key::UP
         move_up
-      when 4
-        move_down(10)
-      when 21
-        move_up(10)
+      when 'd', 4
+        10.times { move_down }
+      when 'u', 21
+        10.times { move_up }
       else
         return false
       end
@@ -60,18 +60,18 @@ module Tab
       update_scrollbar_length
     end
 
-    def move_up(amount = 1)
+    def move_up
       return if count == 0 || index == 0
 
-      @scrollable_index = [index - amount, 0].max
+      @scrollable_index = [index - 1, 0].max
       @scrollable_offset = [offset - 1, 0].max if index - 4 < offset
       refresh
     end
 
-    def move_down(amount = 1)
+    def move_down
       return if count == 0 || index == count - 1
 
-      @scrollable_index = [index + amount, count - 1].min
+      @scrollable_index = [index + 1, count - 1].min
       @scrollable_offset = [
         offset + 1,
         count - 1,
