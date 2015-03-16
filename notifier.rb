@@ -14,7 +14,7 @@ class Notifier
     Thread.new do
       while notification = @queue.pop
         show(notification)
-        sleep 1.5
+        sleep 3
         show
       end
     end
@@ -52,7 +52,9 @@ class Notifier
         @window.setpos(1, 0)
         @window.addstr(' ' * @window.maxx)
         @window.setpos(1, 1)
-        @window.addstr(Time.now.strftime('[%H:%M:%S]') + ' ' + notification.show_with_width(@window.maxx))
+        time = notification.time.strftime('[%H:%M:%S]')
+        message = notification.show_with_width(@window.maxx)
+        @window.addstr("#{time} #{message}")
       end
     end
 

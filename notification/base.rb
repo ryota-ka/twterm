@@ -1,9 +1,10 @@
 module Notification
   module Base
-    attr_reader :fg_color, :bg_color
+    attr_reader :time, :fg_color, :bg_color
 
     def initialize(message)
       @message = message
+      @time = Time.now
     end
 
     def show_with_width(width)
