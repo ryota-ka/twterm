@@ -1,7 +1,4 @@
 source 'https://rubygems.org'
 
-gem 'oauth'
-gem 'twitter'
-gem 'launchy'
-gem 'tweetstream'
-gem 'curses'
+# Specify your gem's dependencies in twterm.gemspec
+gemspec

@@ -1,0 +1,50 @@
+$:.unshift(File.dirname(__FILE__)) unless
+$:.include?(File.dirname(__FILE__)) || $:.include?(File.expand_path(File.dirname(__FILE__)))
+
+require 'cgi'
+require 'curses'
+require 'oauth'
+require 'readline'
+require 'singleton'
+require 'tweetstream'
+require 'twitter'
+require 'yaml'
+
+require 'extentions'
+require 'twterm/app'
+require 'twterm/auth'
+require 'twterm/client'
+require 'twterm/color_manager'
+require 'twterm/config'
+require 'twterm/list'
+require 'twterm/notification/base'
+require 'twterm/notification/message'
+require 'twterm/notification/error'
+require 'twterm/notifier'
+require 'twterm/screen'
+require 'twterm/status'
+require 'twterm/tab_manager'
+require 'twterm/tab/base'
+require 'twterm/tab/auto_reloadable'
+require 'twterm/tab/exceptions'
+require 'twterm/tab/scrollable'
+require 'twterm/tab/statuses_tab'
+require 'twterm/tab/conversation_tab'
+require 'twterm/tab/list_tab'
+require 'twterm/tab/mentions_tab'
+require 'twterm/tab/new/start'
+require 'twterm/tab/new/list'
+require 'twterm/tab/new/search'
+require 'twterm/tab/search_tab'
+require 'twterm/tab/timeline_tab'
+require 'twterm/tab/user_tab'
+require 'twterm/tweetbox'
+require 'twterm/user'
+require 'twterm/user_window'
+require 'twterm/version'
+
+module Twterm
+  class Conf
+    REQUIRE_VERSION = '1.0.0'
+  end
+end
