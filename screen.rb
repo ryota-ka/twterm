@@ -1,7 +1,3 @@
-require 'singleton'
-require 'bundler'
-Bundler.require
-
 class Screen
   include Singleton
   include Curses

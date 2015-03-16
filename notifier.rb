@@ -1,7 +1,3 @@
-require 'singleton'
-require 'bundler'
-Bundler.require
-
 class Notifier
   include Singleton
   include Curses

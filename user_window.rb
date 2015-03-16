@@ -1,7 +1,3 @@
-require 'singleton'
-require 'bundler'
-Bundler.require
-
 class UserWindow
   include Singleton
   include Curses
