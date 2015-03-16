@@ -205,10 +205,10 @@ class Client
     Thread.new do
       begin
         block.call
-      rescue Twitter::Error
+      rescue Twitter::Error => e
         Notifier.instance.show_error 'Failed to send request'
         sleep 10
-        retry
+        retry if e.message == 'getaddrinfo: nodename nor servname provided, or not known'
       end
     end
   end
