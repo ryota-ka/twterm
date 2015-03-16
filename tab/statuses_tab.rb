@@ -83,6 +83,10 @@ module Tab
       TabManager.instance.add_and_show(tab)
     end
 
+    def fetch
+      fail NotImplementedError, 'fetch method must be implemented'
+    end
+
     def update
       current_line = 0
 
@@ -184,6 +188,8 @@ module Tab
         reply
       when 'R'
         retweet
+      when 18
+        fetch
       when 'u'
         show_user
       else
