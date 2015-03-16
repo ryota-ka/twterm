@@ -1,8 +1,3 @@
-require 'readline'
-require 'singleton'
-require 'bundler'
-Bundler.require
-
 class Tweetbox
   include Singleton
   include Readline

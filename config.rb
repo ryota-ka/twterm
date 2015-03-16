@@ -1,5 +1,3 @@
-require 'yaml'
-
 module Config
   CONFIG_FILE = "#{ENV['HOME']}/.twterm.yml"
 

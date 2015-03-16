@@ -1,5 +1,3 @@
-require 'time'
-
 class Status
   attr_reader :id, :text, :created_at, :created_at_for_sort, :retweet_count, :favorite_count, :in_reply_to_status_id, :favorited, :retweeted, :user, :retweeted_by, :urls, :media
   alias_method :favorited?, :favorited

@@ -1,6 +1,3 @@
-require 'bundler'
-Bundler.require
-
 class Client
   attr_reader :user_id, :screen_name
 
