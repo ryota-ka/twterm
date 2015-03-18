@@ -8,15 +8,19 @@ module Twterm
       def initialize
         super
 
-        @statuses = []
+        @status_ids = []
+      end
+
+      def statuses
+        @status_ids.map { |id| Status.find(id) }
       end
 
       def prepend(status)
         fail unless status.is_a? Status
 
-        return if @statuses.any? { |s| s.id == status.id }
+        return if @status_ids.include?(status.id)
 
-        @statuses << status
+        @status_ids << status.id
         status.split(@window.maxx - 4)
         item_prepended
         refresh
@@ -25,9 +29,9 @@ module Twterm
       def append(status)
         fail ArgumentError, 'argument must be an instance of Status class' unless status.is_a? Status
 
-        return if @statuses.any? { |s| s == status }
+        return if @status_ids.include?(status.id)
 
-        @statuses.unshift(status)
+        @status_ids.unshift(status.id)
         status.split(@window.maxx - 4)
         item_appended
         refresh
@@ -59,9 +63,12 @@ module Twterm
       end
 
       def delete_status(status_id)
+
+=begin
         detector = -> (status) { status.id == status_id }
         @statuses.delete_if(&detector)
         refresh
+=end
       end
 
       def show_user
@@ -88,12 +95,16 @@ module Twterm
         fail NotImplementedError, 'fetch method must be implemented'
       end
 
+      def cleanup(ids)
+        @status_ids = @status_ids & ids
+      end
+
       def update
         current_line = 0
 
         @window.clear
 
-        @statuses.reverse.drop(offset).each.with_index(offset) do |status, i|
+        statuses.reverse.drop(offset).each.with_index(offset) do |status, i|
           formatted_lines = status.split(@window.maxx - 4).count
           if current_line + formatted_lines + 2 > @window.maxy
             @scrollable_last = i
@@ -165,6 +176,8 @@ module Twterm
           end
 
           current_line += 2
+
+          status.touch!
         end
 
         draw_scroll_bar
@@ -202,18 +215,19 @@ module Twterm
       private
 
       def highlighted_status
-        @statuses[count - index - 1]
+        id = @status_ids[count - index - 1]
+        Status.find(id)
       end
 
       def count
-        @statuses.count
+        @status_ids.count
       end
 
       def offset_from_bottom
         return @offset_from_bottom unless @offset_from_bottom.nil?
 
         height = 0
-        @statuses.each.with_index(-1) do |status, i|
+        statuses.each.with_index(-1) do |status, i|
           height += status.split(@window.maxx - 4).count + 2
           if height >= @window.maxy
             @offset_from_bottom = i
@@ -224,7 +238,7 @@ module Twterm
       end
 
       def sort
-        @statuses.sort_by!(&:created_at_for_sort)
+        @status_ids.sort_by! { |id| Status.find(id).created_at_for_sort }
       end
 
       def show_help
