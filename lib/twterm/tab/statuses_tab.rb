@@ -63,12 +63,8 @@ module Twterm
       end
 
       def delete_status(status_id)
-
-=begin
-        detector = -> (status) { status.id == status_id }
-        @statuses.delete_if(&detector)
+        @status_ids.delete(status_id)
         refresh
-=end
       end
 
       def show_user
@@ -96,7 +92,9 @@ module Twterm
       end
 
       def cleanup(ids)
-        @status_ids = @status_ids & ids
+        move_to_top
+        @status_ids &= ids
+        refresh
       end
 
       def update

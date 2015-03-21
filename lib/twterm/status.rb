@@ -82,7 +82,7 @@ module Twterm
     def in_reply_to_status(&block)
       block.call(nil) if @in_reply_to_status_id.nil?
 
-      status = Status.find_by_in_reply_to_status_id(@in_reply_to_status_id)
+      status = Status.find(@in_reply_to_status_id)
       block.call(status) unless status.nil?
 
       Client.current.show_status(@in_reply_to_status_id, &block)
@@ -99,11 +99,6 @@ module Twterm
     class << self
       def find(id)
         @@instances[id]
-      end
-
-      def find_by_in_reply_to_status_id(in_reply_to_status_id)
-        find(in_reply_to_status)
-        # @@instances.find { |status| status.id == in_reply_to_status_id }
       end
 
       def parse_time(time)
