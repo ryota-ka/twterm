@@ -64,14 +64,17 @@ module Twterm
     end
 
     def favorite!
+      @favorite_count += 1
       @favorited = true
     end
 
     def unfavorite!
+      @favorite_count -= 1
       @favorited = false
     end
 
     def retweet!
+      @retweet_count += 1
       @retweeted = true
     end
 
