@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
 
-require './lib/twterm'
+require 'twterm'
 
 Twterm::App.instance.run
