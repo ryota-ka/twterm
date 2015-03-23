@@ -23,7 +23,11 @@ module Twterm
 
       thread = Thread.new do
         close_screen
-        puts "\ncompose new tweet:"
+        if @in_reply_to.nil?
+          puts "\nCompose new tweet:"
+        else
+          puts "\nReply to @#{@in_reply_to.user.screen_name}'s tweet: \"#{@in_reply_to.text}\""
+        end
         @status = readline(@in_reply_to.nil? ? '> ' : " @#{in_reply_to.user.screen_name} ", true)
         resetter.call
         post
