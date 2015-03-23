@@ -25,6 +25,8 @@ module Twterm
     end
 
     def run
+      run_periodic_cleanup
+
       Screen.instance.wait
       Screen.instance.refresh
     end
@@ -39,6 +41,17 @@ module Twterm
     def reset_interruption_handler
       Signal.trap(:INT) do
         exit
+      end
+    end
+
+    private
+
+    def run_periodic_cleanup
+      Thread.new do
+        loop do
+          sleep 300
+          Status.cleanup
+        end
       end
     end
   end
