@@ -24,6 +24,10 @@ module Twterm
           yield if block_given?
         end
       end
+
+      def ==(other)
+        other.is_a?(self.class) && user == other.user
+      end
     end
   end
 end
