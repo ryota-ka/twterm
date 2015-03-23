@@ -85,19 +85,19 @@ module Twterm
 
     def home_timeline
       send_request do
-        yield @rest_client.home_timeline(count: 200).map(&CREATE_STATUS_PROC)
+        yield @rest_client.home_timeline(count: 100).map(&CREATE_STATUS_PROC)
       end
     end
 
     def mentions
       send_request do
-        yield @rest_client.mentions(count: 200).map(&CREATE_STATUS_PROC)
+        yield @rest_client.mentions(count: 100).map(&CREATE_STATUS_PROC)
       end
     end
 
     def user_timeline(user_id)
       send_request do
-        yield @rest_client.user_timeline(user_id, count: 200).map(&CREATE_STATUS_PROC)
+        yield @rest_client.user_timeline(user_id, count: 100).map(&CREATE_STATUS_PROC)
       end
     end
 
@@ -110,7 +110,7 @@ module Twterm
     def list(list)
       fail ArgumentError, 'argument must be an instance of List class' unless list.is_a? List
       send_request do
-        yield @rest_client.list_timeline(list.id, count: 200).map(&CREATE_STATUS_PROC)
+        yield @rest_client.list_timeline(list.id, count: 100).map(&CREATE_STATUS_PROC)
       end
     end
 
@@ -123,6 +123,17 @@ module Twterm
     def show_status(status_id)
       send_request do
         yield Status.new(@rest_client.status(status_id))
+      end
+    end
+
+    def show_user(query)
+      send_request do
+        begin
+          user = User.new(@rest_client.user(query))
+        rescue Twitter::Error::NotFound
+          user = nil
+        end
+        yield user
       end
     end
 

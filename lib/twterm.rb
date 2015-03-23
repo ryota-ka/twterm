@@ -36,6 +36,7 @@ require 'twterm/tab/mentions_tab'
 require 'twterm/tab/new/start'
 require 'twterm/tab/new/list'
 require 'twterm/tab/new/search'
+require 'twterm/tab/new/user'
 require 'twterm/tab/search_tab'
 require 'twterm/tab/timeline_tab'
 require 'twterm/tab/user_tab'
@@ -46,6 +47,6 @@ require 'twterm/version'
 
 module Twterm
   class Conf
-    REQUIRE_VERSION = '1.0.0'
+    REQUIRE_VERSION = '1.0.2'
   end
 end

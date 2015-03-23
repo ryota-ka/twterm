@@ -19,6 +19,10 @@ module Twterm
             tab = Tab::New::Search.new
             TabManager.instance.switch(tab)
             tab.invoke_input
+          when 'U'
+            tab = Tab::New::User.new
+            TabManager.instance.switch(tab)
+            tab.invoke_input
           else
             return false
           end
@@ -53,10 +57,17 @@ module Twterm
             @window.addstr('[S]')
           end
 
-          @window.setpos(9, 3)
+          @window.setpos(8, 5)
+          @window.addstr('- [U] Open user tab')
+          @window.bold do
+            @window.setpos(8, 7)
+            @window.addstr('[U]')
+          end
+
+          @window.setpos(11, 3)
           @window.addstr('To cancel opening a new tab, just press [w] to close this tab.')
           @window.bold do
-            @window.setpos(9, 43)
+            @window.setpos(11, 43)
             @window.addstr('[w]')
           end
           @window.refresh

@@ -1,14 +1,15 @@
 module Twterm
   class Status
-    attr_reader :id, :text, :created_at, :created_at_for_sort, :retweet_count, :favorite_count, :in_reply_to_status_id, :favorited, :retweeted, :user, :retweeted_by, :urls, :media
+    MAX_CACHED_STATUSES_COUNT = 1000
+
+    attr_reader :id, :text, :created_at, :created_at_for_sort, :retweet_count, :favorite_count, :in_reply_to_status_id, :favorited, :retweeted, :user, :retweeted_by, :urls, :media, :touched_at
     alias_method :favorited?, :favorited
     alias_method :retweeted?, :retweeted
 
-    @@instances = []
+    @@instances = {}
 
     def self.new(tweet)
-      detector = -> (instance) { instance.id == tweet.id }
-      instance = @@instances.find(&detector)
+      instance = find(tweet.id)
       instance.nil? ? super : instance.update!(tweet)
     end
 
@@ -39,7 +40,9 @@ module Twterm
 
       expand_url!
 
-      @@instances << self
+      @touched_at = Time.now
+
+      @@instances[id] = self
     end
 
     def update!(tweet)
@@ -79,10 +82,14 @@ module Twterm
     def in_reply_to_status(&block)
       block.call(nil) if @in_reply_to_status_id.nil?
 
-      status = Status.find_by_in_reply_to_status_id(@in_reply_to_status_id)
+      status = Status.find(@in_reply_to_status_id)
       block.call(status) unless status.nil?
 
       Client.current.show_status(@in_reply_to_status_id, &block)
+    end
+
+    def touch!
+      @touched_at = Time.now
     end
 
     def ==(other)
@@ -90,12 +97,21 @@ module Twterm
     end
 
     class << self
-      def find_by_in_reply_to_status_id(in_reply_to_status_id)
-        @@instances.find { |status| status.id == in_reply_to_status_id }
+      def find(id)
+        @@instances[id]
       end
 
       def parse_time(time)
         (time.is_a?(String) ? Time.parse(time) : time.dup).localtime
+      end
+
+      def cleanup
+        count = MAX_CACHED_STATUSES_COUNT
+        return if @@instances.count < count
+
+        statuses = @@instances.values.sort_by(&:touched_at).take(count)
+        status_ids = statuses.map(&:id)
+        @@instances = status_ids.zip(statuses).to_h
       end
     end
   end
