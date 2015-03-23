@@ -72,12 +72,6 @@ module Twterm
       add_and_show(tab)
     end
 
-    def each_tab(&block)
-      @tabs.each do |tab|
-        block.call(tab)
-      end
-    end
-
     def refresh_window
       @window.clear
       current_tab_id = current_tab.object_id

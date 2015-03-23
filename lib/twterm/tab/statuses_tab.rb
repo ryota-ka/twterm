@@ -9,10 +9,19 @@ module Twterm
         super
 
         @status_ids = []
+
+        Thread.new do
+          loop do
+            statuses.take(100).each(&:touch!)
+            sleep 60
+          end
+        end
       end
 
       def statuses
-        @status_ids.map { |id| Status.find(id) }
+        statuses = @status_ids.map { |id| Status.find(id) }.reject(&:nil?)
+        @status_ids = statuses.map(&:id)
+        statuses
       end
 
       def prepend(status)
@@ -22,6 +31,7 @@ module Twterm
 
         @status_ids << status.id
         status.split(@window.maxx - 4)
+        status.touch!
         item_prepended
         refresh
       end
@@ -33,6 +43,7 @@ module Twterm
 
         @status_ids.unshift(status.id)
         status.split(@window.maxx - 4)
+        status.touch!
         item_appended
         refresh
       end
@@ -89,12 +100,6 @@ module Twterm
 
       def fetch
         fail NotImplementedError, 'fetch method must be implemented'
-      end
-
-      def cleanup(ids)
-        move_to_top
-        @status_ids &= ids
-        refresh
       end
 
       def update
@@ -174,8 +179,6 @@ module Twterm
           end
 
           current_line += 2
-
-          status.touch!
         end
 
         draw_scroll_bar

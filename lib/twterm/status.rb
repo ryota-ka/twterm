@@ -1,6 +1,6 @@
 module Twterm
   class Status
-    MAX_CACHED_STATUSES_COUNT = 500
+    MAX_CACHED_STATUSES_COUNT = 1000
 
     attr_reader :id, :text, :created_at, :created_at_for_sort, :retweet_count, :favorite_count, :in_reply_to_status_id, :favorited, :retweeted, :user, :retweeted_by, :urls, :media, :touched_at
     alias_method :favorited?, :favorited
@@ -112,10 +112,6 @@ module Twterm
         statuses = @@instances.values.sort_by(&:touched_at).take(count)
         status_ids = statuses.map(&:id)
         @@instances = status_ids.zip(statuses).to_h
-
-        TabManager.instance.each_tab do |tab|
-          tab.cleanup(status_ids)
-        end
       end
     end
   end
