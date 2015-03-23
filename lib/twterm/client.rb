@@ -126,6 +126,17 @@ module Twterm
       end
     end
 
+    def show_user(query)
+      send_request do
+        begin
+          user = User.new(@rest_client.user(query))
+        rescue Twitter::Error::NotFound
+          user = nil
+        end
+        yield user
+      end
+    end
+
     def favorite(status)
       return false unless status.is_a? Status
 
