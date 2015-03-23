@@ -7,8 +7,13 @@ module Twterm
         site: 'https://api.twitter.com'
       )
       request_token = consumer.get_request_token
-      Launchy.open request_token.authorize_url
-      print 'input PIN: '
+      url = request_token.authorize_url
+      begin
+        Launchy.open(url)
+      rescue Launchy::CommandNotFoundError
+        puts "Open the following URL to authorize yourself: #{url}"
+      end
+      print 'Input PIN: '
       pin = (STDIN.gets || '').strip
       access_token = request_token.get_access_token(oauth_verifier: pin)
 
