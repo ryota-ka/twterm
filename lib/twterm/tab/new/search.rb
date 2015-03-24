@@ -26,7 +26,7 @@ module Twterm
           input_thread = Thread.new do
             close_screen
             puts "\ninput search query"
-            query = readline('input query > ').strip
+            query = (readline('input query > ') || '').strip
             resetter.call
 
             tab = query.nil? || query.empty? ? Tab::New::Start.new : Tab::SearchTab.new(query)

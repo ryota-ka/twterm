@@ -26,7 +26,7 @@ module Twterm
           input_thread = Thread.new do
             close_screen
             puts "\nSearch user"
-            screen_name = readline('> @').strip
+            screen_name = (readline('> @') || '').strip
             resetter.call
 
             Client.current.show_user(screen_name) do |user|
