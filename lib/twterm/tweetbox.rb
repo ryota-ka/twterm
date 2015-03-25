@@ -58,7 +58,7 @@ module Twterm
     end
 
     def post
-      return if @status.nil?
+      return if @status.nil? || @status.empty?
 
       Client.current.post(@status, @in_reply_to)
       clear
