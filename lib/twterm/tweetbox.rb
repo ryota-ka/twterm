@@ -31,11 +31,16 @@ module Twterm
         end
 
         Readline.completion_append_character = ' '
+        Readline.basic_word_break_characters = " \t\n\"\\'`$><=;|&{("
         Readline.completion_proc = proc do |str|
           if str.start_with?('#')
-            HashtagManager.instance.tags
+            History::Hashtag.instance.history
               .map { |tag| "##{tag}" }
               .select { |tag| tag.downcase.start_with?(str.downcase) }
+          elsif str.start_with?('@')
+            History::ScreenName.instance.history
+              .map { |name| "@#{name}" }
+              .select! { |name| name.downcase.start_with?(str.downcase) }
           else
             []
           end
