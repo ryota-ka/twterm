@@ -17,6 +17,9 @@ require 'twterm/auth'
 require 'twterm/client'
 require 'twterm/color_manager'
 require 'twterm/config'
+require 'twterm/history/base'
+require 'twterm/history/hashtag'
+require 'twterm/history/screen_name'
 require 'twterm/list'
 require 'twterm/notification/base'
 require 'twterm/notification/message'
@@ -47,6 +50,6 @@ require 'twterm/version'
 
 module Twterm
   class Conf
-    REQUIRE_VERSION = '1.0.2'
+    REQUIRE_VERSION = '1.0.4'
   end
 end

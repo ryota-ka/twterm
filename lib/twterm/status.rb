@@ -42,6 +42,10 @@ module Twterm
 
       @touched_at = Time.now
 
+      tweet.hashtags.each do |hashtag|
+        History::Hashtag.instance.add(hashtag.text)
+      end
+
       @@instances[id] = self
     end
 
@@ -64,14 +68,17 @@ module Twterm
     end
 
     def favorite!
+      @favorite_count += 1
       @favorited = true
     end
 
     def unfavorite!
+      @favorite_count -= 1
       @favorited = false
     end
 
     def retweet!
+      @retweet_count += 1
       @retweeted = true
     end
 

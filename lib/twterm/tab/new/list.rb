@@ -48,10 +48,10 @@ module Twterm
           Thread.new do
             Notifier.instance.show_message('Loading lists ...')
             Client.current.lists do |lists|
-              @@lists = lists
+              @@lists = lists.sort_by(&:full_name)
               show_lists
               update_scrollbar_length
-              @window.refresh
+              @window.refresh if TabManager.instance.current_tab == self
             end
           end if @@lists.nil?
 

@@ -23,12 +23,42 @@ module Twterm
 
       thread = Thread.new do
         close_screen
+
         if @in_reply_to.nil?
           puts "\nCompose new tweet:"
         else
           puts "\nReply to @#{@in_reply_to.user.screen_name}'s tweet: \"#{@in_reply_to.text}\""
         end
-        @status = readline(@in_reply_to.nil? ? '> ' : " @#{in_reply_to.user.screen_name} ", true)
+
+        Readline.completion_append_character = ' '
+        Readline.basic_word_break_characters = " \t\n\"\\'`$><=;|&{("
+        Readline.completion_proc = proc do |str|
+          if str.start_with?('#')
+            History::Hashtag.instance.history
+              .map { |tag| "##{tag}" }
+              .select { |tag| tag.downcase.start_with?(str.downcase) }
+          elsif str.start_with?('@')
+            History::ScreenName.instance.history
+              .map { |name| "@#{name}" }
+              .select! { |name| name.downcase.start_with?(str.downcase) }
+          else
+            []
+          end
+        end
+
+        loop do
+          msg = @in_reply_to.nil? || !@status.empty? ? '> ' : "> @#{in_reply_to.user.screen_name} "
+          line = (readline(msg, true) || '').strip
+          break if line.empty?
+
+          if line.end_with?('\\')
+            @status << line.chop.lstrip + "\n"
+          else
+            @status << line
+            break
+          end
+        end
+
         resetter.call
         post
       end
@@ -44,7 +74,7 @@ module Twterm
     end
 
     def post
-      return if @status.nil?
+      return if @status.nil? || @status.empty?
 
       Client.current.post(@status, @in_reply_to)
       clear
