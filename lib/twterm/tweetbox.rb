@@ -35,7 +35,7 @@ module Twterm
           if str.start_with?('#')
             HashtagManager.instance.tags
               .map { |tag| "##{tag}" }
-              .select { |tag| tag.start_with?(str) }
+              .select { |tag| tag.downcase.start_with?(str.downcase) }
           else
             []
           end
