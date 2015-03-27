@@ -42,6 +42,10 @@ module Twterm
 
       @touched_at = Time.now
 
+      tweet.hashtags.each do |hashtag|
+        HashtagManager.instance.add(hashtag.text)
+      end
+
       @@instances[id] = self
     end
 

@@ -2,7 +2,11 @@ module Twterm
   class App
     include Singleton
 
+    DATA_DIR = "#{ENV['HOME']}/.twterm"
+
     def initialize
+      Dir.mkdir(DATA_DIR, 700) unless File.directory?(DATA_DIR)
+
       Config.load
       Auth.authenticate_user if Config[:screen_name].nil?
 
