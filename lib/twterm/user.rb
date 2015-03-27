@@ -35,7 +35,7 @@ module Twterm
       @friends_count = user.friends_count
       @followers_count = user.followers_count
 
-      ScreenNameManager.instance.add(user.screen_name)
+      History::ScreenName.instance.add(user.screen_name)
 
       self
     end
