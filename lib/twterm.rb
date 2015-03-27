@@ -50,6 +50,6 @@ require 'twterm/version'
 
 module Twterm
   class Conf
-    REQUIRE_VERSION = '1.0.2'
+    REQUIRE_VERSION = '1.0.4'
   end
 end
