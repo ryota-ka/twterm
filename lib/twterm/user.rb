@@ -34,6 +34,9 @@ module Twterm
       @statuses_count = user.statuses_count
       @friends_count = user.friends_count
       @followers_count = user.followers_count
+
+      ScreenNameManager.instance.add(user.screen_name)
+
       self
     end
   end
