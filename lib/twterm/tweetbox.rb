@@ -30,6 +30,17 @@ module Twterm
           puts "\nReply to @#{@in_reply_to.user.screen_name}'s tweet: \"#{@in_reply_to.text}\""
         end
 
+        Readline.completion_append_character = ' '
+        Readline.completion_proc = proc do |str|
+          if str.start_with?('#')
+            HashtagManager.instance.tags
+              .map { |tag| "##{tag}" }
+              .select { |tag| tag.downcase.start_with?(str.downcase) }
+          else
+            []
+          end
+        end
+
         loop do
           msg = @in_reply_to.nil? || !@status.empty? ? '> ' : "> @#{in_reply_to.user.screen_name} "
           line = (readline(msg, true) || '').strip

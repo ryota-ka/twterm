@@ -1,6 +1,6 @@
 module Twterm
   module Config
-    CONFIG_FILE = "#{ENV['HOME']}/.twterm.yml"
+    CONFIG_FILE = "#{App::DATA_DIR}/config"
 
     def [](key)
       @config[key]
