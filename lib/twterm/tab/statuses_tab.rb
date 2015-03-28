@@ -73,7 +73,16 @@ module Twterm
         end
       end
 
-      def delete_status(status_id)
+      def destroy_status
+        status = highlighted_status
+
+        Client.current.destroy_status(status) do
+          delete(status.id)
+          refresh
+        end
+      end
+
+      def delete(status_id)
         @status_ids.delete(status_id)
         refresh
       end
@@ -195,6 +204,8 @@ module Twterm
         case key
         when 'c'
           show_conversation
+        when 'D'
+          destroy_status
         when 'F'
           favorite
         when 'o'
