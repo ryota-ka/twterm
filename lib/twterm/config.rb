@@ -22,13 +22,8 @@ module Twterm
     private
 
     def save
-      begin
-        file = File.open(CONFIG_FILE, 'w', 0600)
-        file.write @config.to_yaml
-      rescue
-        puts 'exception raised'
-      ensure
-        file.close
+      File.open(CONFIG_FILE, 'w', 0600) do |f|
+        f.write @config.to_yaml
       end
     end
 
