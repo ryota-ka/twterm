@@ -9,13 +9,6 @@ module Twterm
         super
 
         @status_ids = []
-
-        Thread.new do
-          loop do
-            statuses.take(100).each(&:touch!)
-            sleep 60
-          end
-        end
       end
 
       def statuses
@@ -109,6 +102,10 @@ module Twterm
 
       def fetch
         fail NotImplementedError, 'fetch method must be implemented'
+      end
+
+      def touch_statuses
+        statuses.take(100).each(&:touch!)
       end
 
       def update
