@@ -116,6 +116,9 @@ module Twterm
         count = MAX_CACHED_STATUSES_COUNT
         return if @@instances.count < count
 
+        TabManager.instance.each_tab do |tab|
+          tab.touch_statuses if tab.is_a?(Tab::StatusesTab)
+        end
         statuses = @@instances.values.sort_by(&:touched_at).take(count)
         status_ids = statuses.map(&:id)
         @@instances = status_ids.zip(statuses).to_h
