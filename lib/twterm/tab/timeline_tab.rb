@@ -12,7 +12,7 @@ module Twterm
         @title = 'Timeline'
 
         fetch { move_to_top }
-        auto_reload(180) { fetch }
+        @auto_reloader = Scheduler.new(180) { fetch }
       end
 
       def fetch

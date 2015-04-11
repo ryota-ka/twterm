@@ -17,7 +17,7 @@ module Twterm
         @title = 'Mentions'
 
         fetch { move_to_top }
-        auto_reload(300) { fetch }
+        @auto_reloader = Scheduler.new(300) { fetch }
       end
 
       def fetch

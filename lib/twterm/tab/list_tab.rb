@@ -13,7 +13,7 @@ module Twterm
         @list = list
         @title = @list.full_name
         fetch { move_to_top }
-        auto_reload(300) { fetch }
+        @auto_reloader = Scheduler.new(300) { fetch }
       end
 
       def fetch
@@ -23,6 +23,11 @@ module Twterm
           sort
           yield if block_given?
         end
+      end
+
+      def close
+        @auto_reloader.kill
+        super
       end
 
       def ==(other)
