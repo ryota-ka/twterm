@@ -1,4 +1,4 @@
-class ScheduledExecution
+class Scheduler
   def initialize(interval, &block)
     fail ArgumentError, 'Interval must be a real number' unless interval.is_a?(Numeric) && interval.real?
     fail RangeError, 'Interval must be greater than zero' unless interval > 0
