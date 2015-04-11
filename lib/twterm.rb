@@ -9,6 +9,7 @@ require 'readline'
 require 'singleton'
 require 'tweetstream'
 require 'twitter'
+require 'twitter-text'
 require 'yaml'
 
 require 'extentions'

@@ -47,16 +47,32 @@ module Twterm
         end
 
         loop do
-          msg = @in_reply_to.nil? || !@status.empty? ? '> ' : "> @#{in_reply_to.user.screen_name} "
-          line = (readline(msg, true) || '').strip
-          break if line.empty?
+          loop do
+            msg = @in_reply_to.nil? || !@status.empty? ? '> ' : "> @#{in_reply_to.user.screen_name} "
+            line = (readline(msg, true) || '').strip
+            break if line.empty?
 
-          if line.end_with?('\\')
-            @status << line.chop.lstrip + "\n"
+            if line.end_with?('\\')
+              @status << line.chop.lstrip + "\n"
+            else
+              @status << line
+              break
+            end
+          end
+
+          puts "\n"
+
+          case validate
+          when :too_long
+            puts "Status is too long (#{length} / 140 characters)"
+          when :invalid_characters
+            puts 'Status contains invalid characters'
           else
-            @status << line
             break
           end
+
+          puts "\n"
+          clear
         end
 
         resetter.call
@@ -74,10 +90,18 @@ module Twterm
     end
 
     def post
-      return if @status.nil? || @status.empty?
+      return if validate
 
       Client.current.post(@status, @in_reply_to)
       clear
+    end
+
+    def validate
+      Twitter::Validation.tweet_invalid?(@status)
+    end
+
+    def length
+      Twitter::Validation.tweet_length(@status)
     end
 
     def clear
