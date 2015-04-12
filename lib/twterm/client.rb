@@ -173,6 +173,17 @@ module Twterm
       end
     end
 
+    def destroy_status(status)
+      send_request do
+        begin
+          @rest_client.destroy_status(status.id)
+          yield if block_given?
+        rescue Twitter::Error::NotFound, Twitter::Error::Forbidden
+          Notifier.instance.show_error 'You cannot destroy that status'
+        end
+      end
+    end
+
     def on_timeline_status(&block)
       fail ArgumentError, 'no block given' unless block_given?
       on(:timeline_status, &block)

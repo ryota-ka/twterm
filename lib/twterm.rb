@@ -9,6 +9,7 @@ require 'readline'
 require 'singleton'
 require 'tweetstream'
 require 'twitter'
+require 'twitter-text'
 require 'yaml'
 
 require 'extentions'
@@ -26,10 +27,10 @@ require 'twterm/notification/message'
 require 'twterm/notification/error'
 require 'twterm/notifier'
 require 'twterm/screen'
+require 'twterm/scheduler'
 require 'twterm/status'
 require 'twterm/tab_manager'
 require 'twterm/tab/base'
-require 'twterm/tab/auto_reloadable'
 require 'twterm/tab/exceptions'
 require 'twterm/tab/scrollable'
 require 'twterm/tab/statuses_tab'
@@ -50,6 +51,6 @@ require 'twterm/version'
 
 module Twterm
   class Conf
-    REQUIRE_VERSION = '1.0.4'
+    REQUIRE_VERSION = '1.0.6'
   end
 end

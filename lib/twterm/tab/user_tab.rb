@@ -14,7 +14,7 @@ module Twterm
         @title = "@#{user.screen_name}"
 
         fetch { move_to_top }
-        auto_reload(120) { fetch }
+        @auto_reloader = Scheduler.new(120) { fetch }
       end
 
       def fetch
@@ -23,6 +23,11 @@ module Twterm
           sort
           yield if block_given?
         end
+      end
+
+      def close
+        @auto_reloader.kill
+        super
       end
 
       def ==(other)

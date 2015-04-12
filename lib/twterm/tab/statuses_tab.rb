@@ -3,19 +3,11 @@ module Twterm
     module StatusesTab
       include Base
       include Scrollable
-      include AutoReloadable
 
       def initialize
         super
 
         @status_ids = []
-
-        Thread.new do
-          loop do
-            statuses.take(100).each(&:touch!)
-            sleep 60
-          end
-        end
       end
 
       def statuses
@@ -73,7 +65,16 @@ module Twterm
         end
       end
 
-      def delete_status(status_id)
+      def destroy_status
+        status = highlighted_status
+
+        Client.current.destroy_status(status) do
+          delete(status.id)
+          refresh
+        end
+      end
+
+      def delete(status_id)
         @status_ids.delete(status_id)
         refresh
       end
@@ -100,6 +101,10 @@ module Twterm
 
       def fetch
         fail NotImplementedError, 'fetch method must be implemented'
+      end
+
+      def touch_statuses
+        statuses.take(100).each(&:touch!)
       end
 
       def update
@@ -195,6 +200,8 @@ module Twterm
         case key
         when 'c'
           show_conversation
+        when 'D'
+          destroy_status
         when 'F'
           favorite
         when 'o'
