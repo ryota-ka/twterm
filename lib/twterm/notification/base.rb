@@ -4,7 +4,7 @@ module Twterm
       attr_reader :time, :fg_color, :bg_color
 
       def initialize(message)
-        @message = message
+        @message = CGI.unescapeHTML(message)
         @time = Time.now
       end
 
