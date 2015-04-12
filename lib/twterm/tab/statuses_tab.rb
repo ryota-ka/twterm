@@ -3,7 +3,6 @@ module Twterm
     module StatusesTab
       include Base
       include Scrollable
-      include AutoReloadable
 
       def initialize
         super
