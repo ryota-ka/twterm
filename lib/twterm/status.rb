@@ -104,6 +104,10 @@ module Twterm
     end
 
     class << self
+      def all
+        @@instances.values
+      end
+
       def find(id)
         @@instances[id]
       end
