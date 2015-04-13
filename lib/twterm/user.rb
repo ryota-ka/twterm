@@ -1,17 +1,21 @@
 module Twterm
   class User
-    attr_reader :id, :name, :screen_name, :description, :location, :website, :following, :protected, :statuses_count, :friends_count, :followers_count
-    attr_reader :color
+    attr_reader :id, :name, :screen_name, :description, :location, :website,
+                :following, :protected, :statuses_count, :friends_count,
+                :followers_count, :touched_at, :color
     alias_method :following?, :following
     alias_method :protected?, :protected
+    class << self
+      alias_method :create, :new
+    end
 
+    MAX_CACHED_TIME = 3600
     COLORS = [:red, :blue, :green, :cyan, :yellow, :magenta]
 
-    @@instances = []
+    @@instances = {}
 
     def self.new(user)
-      detector = -> (instance) { instance.id == user.id }
-      instance = @@instances.find(&detector)
+      instance = find(user.id)
       instance.nil? ? super : instance.update!(user)
     end
 
@@ -19,8 +23,13 @@ module Twterm
       @id = user.id
       update!(user)
       @color = COLORS[@id % 6]
+      touch!
 
-      @@instances << self
+      @@instances[@id] = self
+    end
+
+    def touch!
+      @touched_at = Time.now
     end
 
     def update!(user)
@@ -38,6 +47,24 @@ module Twterm
       History::ScreenName.instance.add(user.screen_name)
 
       self
+    end
+
+    def self.all
+      @@instances.values
+    end
+
+    def self.find(id)
+      @@instances[id]
+    end
+
+    def self.cleanup
+      referenced_users = Status.all.map(&:user)
+      referenced_users.each(&:touch!)
+
+      cond = -> (user) { user.touched_at > Time.now - MAX_CACHED_TIME }
+      users = all.select(&cond)
+      user_ids = users.map(&:id)
+      @@instances = user_ids.zip(users).to_h
     end
   end
 end
