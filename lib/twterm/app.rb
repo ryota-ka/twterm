@@ -51,7 +51,10 @@ module Twterm
     private
 
     def run_periodic_cleanup
-      Scheduler.new(300) { Status.cleanup }
+      Scheduler.new(300) do
+        Status.cleanup
+        User.cleanup
+      end
     end
   end
 end
