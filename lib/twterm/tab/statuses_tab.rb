@@ -104,7 +104,7 @@ module Twterm
       end
 
       def touch_statuses
-        statuses.take(100).each(&:touch!)
+        statuses.reverse.take(100).each(&:touch!)
       end
 
       def update
@@ -246,6 +246,7 @@ module Twterm
       end
 
       def sort
+        @status_ids &= Status.all.map(&:id)
         @status_ids.sort_by! { |id| Status.find(id).created_at_for_sort }
       end
 

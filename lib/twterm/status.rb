@@ -1,8 +1,8 @@
 module Twterm
   class Status
-    MAX_CACHED_STATUSES_COUNT = 1000
+    MAX_CACHED_TIME = 3600
 
-    attr_reader :id, :text, :created_at, :created_at_for_sort, :retweet_count, :favorite_count, :in_reply_to_status_id, :favorited, :retweeted, :user, :retweeted_by, :urls, :media, :touched_at
+    attr_reader :id, :text, :created_at, :created_at_for_sort, :retweet_count, :favorite_count, :in_reply_to_status_id, :favorited, :retweeted, :user_id, :retweeted_by_user_id, :urls, :media, :touched_at
     alias_method :favorited?, :favorited
     alias_method :retweeted?, :retweeted
 
@@ -15,7 +15,8 @@ module Twterm
 
     def initialize(tweet)
       unless tweet.retweeted_status.is_a? Twitter::NullObject
-        @retweeted_by = User.new(tweet.user)
+        @retweeted_by_user_id = tweet.user.id
+        User.create(tweet.user)
         retweeted_at = Status.parse_time(tweet.created_at)
         tweet = tweet.retweeted_status
       end
@@ -34,7 +35,8 @@ module Twterm
       @media = tweet.media
       @urls = tweet.urls
 
-      @user = User.new(tweet.user)
+      @user_id = tweet.user.id
+      User.create(tweet.user)
 
       @splitted_text = {}
 
@@ -95,8 +97,16 @@ module Twterm
       Client.current.show_status(@in_reply_to_status_id, &block)
     end
 
+    def retweeted_by
+      User.find(@retweeted_by_user_id)
+    end
+
     def touch!
       @touched_at = Time.now
+    end
+
+    def user
+      User.find(user_id)
     end
 
     def ==(other)
@@ -104,6 +114,10 @@ module Twterm
     end
 
     class << self
+      def all
+        @@instances.values
+      end
+
       def find(id)
         @@instances[id]
       end
@@ -113,13 +127,11 @@ module Twterm
       end
 
       def cleanup
-        count = MAX_CACHED_STATUSES_COUNT
-        return if @@instances.count < count
-
         TabManager.instance.each_tab do |tab|
           tab.touch_statuses if tab.is_a?(Tab::StatusesTab)
         end
-        statuses = @@instances.values.sort_by(&:touched_at).take(count)
+        cond = -> (status) { status.touched_at > Time.now - MAX_CACHED_TIME }
+        statuses = all.select(&cond)
         status_ids = statuses.map(&:id)
         @@instances = status_ids.zip(statuses).to_h
       end

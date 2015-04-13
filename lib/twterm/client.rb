@@ -32,6 +32,10 @@ module Twterm
     end
 
     def stream
+      @stream_client.on_friends do
+        Notifier.instance.show_message 'Connection established'
+      end
+
       @stream_client.on_timeline_status do |tweet|
         status = Status.new(tweet)
         invoke_callbacks(:timeline_status, status)
@@ -57,18 +61,16 @@ module Twterm
 
     def connect_stream
       @stream_client.stop_stream
-      @streaming_thread.kill if @streaming_thread.is_a? Thread
 
-      Notifier.instance.show_message 'Trying to connect to Twitter...'
       @streaming_thread = Thread.new do
         begin
+          Notifier.instance.show_message 'Trying to connect to Twitter...'
           @stream_client.userstream
         rescue EventMachine::ConnectionError
           Notifier.instance.show_error 'Connection failed'
           sleep 30
           retry
         end
-        Notifier.instance.show_message 'Connection established'
       end
     end
 
