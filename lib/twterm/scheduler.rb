@@ -7,8 +7,10 @@ class Scheduler
     @paused = false
 
     @thread = Thread.new do
-      sleep @interval
-      run
+      loop do
+        sleep @interval
+        run
+      end
     end
   end
 
