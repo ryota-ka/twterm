@@ -30,21 +30,7 @@ module Twterm
           puts "\nReply to @#{@in_reply_to.user.screen_name}'s tweet: \"#{@in_reply_to.text}\""
         end
 
-        Readline.completion_append_character = ' '
-        Readline.basic_word_break_characters = " \t\n\"\\'`$><=;|&{("
-        Readline.completion_proc = proc do |str|
-          if str.start_with?('#')
-            History::Hashtag.instance.history
-              .map { |tag| "##{tag}" }
-              .select { |tag| tag.downcase.start_with?(str.downcase) }
-          elsif str.start_with?('@')
-            History::ScreenName.instance.history
-              .map { |name| "@#{name}" }
-              .select! { |name| name.downcase.start_with?(str.downcase) }
-          else
-            []
-          end
-        end
+        CompletionManager.instance.set_default_mode!
 
         loop do
           loop do
