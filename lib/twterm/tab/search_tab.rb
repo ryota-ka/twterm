@@ -13,7 +13,7 @@ module Twterm
         @title = "\"#{@query}\""
 
         fetch { move_to_top }
-        @auto_reloader = Schedule.new(300) { fetch }
+        @auto_reloader = Scheduler.new(300) { fetch }
       end
 
       def fetch
