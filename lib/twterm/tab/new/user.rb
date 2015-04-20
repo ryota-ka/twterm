@@ -23,6 +23,8 @@ module Twterm
             Screen.instance.refresh
           end
 
+          CompletionManager.instance.set_screen_name_mode!
+
           input_thread = Thread.new do
             close_screen
             puts "\nSearch user"

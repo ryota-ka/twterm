@@ -12,12 +12,15 @@ require 'twitter'
 require 'twitter-text'
 require 'yaml'
 
-require 'extentions'
 require 'twterm/app'
 require 'twterm/auth'
 require 'twterm/client'
 require 'twterm/color_manager'
+require 'twterm/completion_mamanger'
 require 'twterm/config'
+require 'twterm/extensions/curses/window'
+require 'twterm/extensions/integer'
+require 'twterm/extensions/string'
 require 'twterm/history/base'
 require 'twterm/history/hashtag'
 require 'twterm/history/screen_name'
@@ -51,6 +54,6 @@ require 'twterm/version'
 
 module Twterm
   class Conf
-    REQUIRE_VERSION = '1.0.6'
+    REQUIRE_VERSION = '1.0.8'
   end
 end

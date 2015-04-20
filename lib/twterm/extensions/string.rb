@@ -28,24 +28,3 @@ class String
     chunks
   end
 end
-
-class Integer
-  def format
-    to_s.gsub(/(\d)(?=(\d{3})+(?!\d))/, '\1,')
-  end
-end
-
-class Curses::Window
-  def bold(&block)
-    attron(Curses::A_BOLD)
-    block.call
-    attroff(Curses::A_BOLD)
-  end
-
-  def with_color(fg, bg = :black, &block)
-    color_pair_index = Twterm::ColorManager.instance.get_color_pair_index(fg, bg)
-    attron(Curses.color_pair(color_pair_index))
-    block.call
-    attroff(Curses.color_pair(color_pair_index))
-  end
-end
