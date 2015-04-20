@@ -29,7 +29,7 @@ module Twterm
 
       @callbacks = {}
 
-      @mute_filter = -> { true }
+      @mute_filter = -> _ { true }
       fetch_muted_users do |muted_user_ids|
         @mute_filter = lambda do |status|
           !muted_user_ids.include?(status.user.id) &&
