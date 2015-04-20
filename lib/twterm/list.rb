@@ -20,6 +20,8 @@ module Twterm
       @description = list.description.is_a?(Twitter::NullObject) ? '' : list.description
       @member_count = list.member_count
       @subscriber_count = list.subscriber_count
+
+      self
     end
 
     def ==(other)
