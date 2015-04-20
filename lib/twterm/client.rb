@@ -43,7 +43,10 @@ module Twterm
 
     def stream
       @stream_client.on_friends do
+        break if @stream_connected
+
         Notifier.instance.show_message 'Connection established'
+        @stream_connected = true
       end
 
       @stream_client.on_timeline_status do |tweet|
@@ -63,6 +66,7 @@ module Twterm
       end
 
       @stream_client.on_no_data_received do
+        @stream_connected = false
         connect_stream
       end
 
