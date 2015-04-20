@@ -31,15 +31,18 @@ module Twterm
             screen_name = (readline('> @') || '').strip
             resetter.call
 
-            Client.current.show_user(screen_name) do |user|
-              if screen_name.nil? || screen_name.empty? || user.nil?
-                Notifier.instance.show_error 'User not found' if user.nil?
-                tab = Tab::New::Start.new
-              else
-                tab = Tab::UserTab.new(user)
+            if screen_name.nil? || screen_name.empty?
+              TabManager.instance.switch(Tab::New::Start.new)
+            else
+              Client.current.show_user(screen_name) do |user|
+                if user.nil?
+                  Notifier.instance.show_error 'User not found'
+                  tab = Tab::New::Start.new
+                else
+                  tab = Tab::UserTab.new(user.id)
+                end
+                TabManager.instance.switch(tab)
               end
-
-              TabManager.instance.switch(tab)
             end
           end
 
