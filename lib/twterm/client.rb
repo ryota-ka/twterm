@@ -249,9 +249,11 @@ module Twterm
         begin
           block.call
         rescue Twitter::Error => e
-          Notifier.instance.show_error 'Failed to send request'
-          sleep 10
-          retry if e.message == 'getaddrinfo: nodename nor servname provided, or not known'
+          Notifier.instance.show_error "Failed to send request: #{e.message}"
+          if e.message == 'getaddrinfo: nodename nor servname provided, or not known'
+            sleep 10
+            retry
+          end
         end
       end
     end
