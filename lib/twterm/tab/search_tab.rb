@@ -2,6 +2,7 @@ module Twterm
   module Tab
     class SearchTab
       include StatusesTab
+      include Dumpable
 
       attr_reader :query
 
@@ -23,6 +24,10 @@ module Twterm
 
       def ==(other)
         other.is_a?(self.class) && query == other.query
+      end
+
+      def dump
+        @query
       end
     end
   end

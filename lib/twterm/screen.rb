@@ -44,7 +44,7 @@ module Twterm
         Tweetbox.instance.compose
         return
       when 'Q'
-        exit
+        App.instance.quit
       when '/'
         # filter
       else

@@ -19,7 +19,7 @@ module Twterm
           case key
           when 10
             return true if current_list.nil?
-            list_tab = Tab::ListTab.new(current_list)
+            list_tab = Tab::ListTab.new(current_list.id)
             TabManager.instance.switch(list_tab)
           else
             return false

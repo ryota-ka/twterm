@@ -132,6 +132,13 @@ module Twterm
         @@instances[id]
       end
 
+      def find_or_fetch(id)
+        instance = find(id)
+        (yield(instance) && return) if instance
+
+        Client.current.show_status(id) { |status| yield status }
+      end
+
       def parse_time(time)
         (time.is_a?(String) ? Time.parse(time) : time.dup).localtime
       end

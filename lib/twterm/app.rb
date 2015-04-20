@@ -19,6 +19,7 @@ module Twterm
 
       mentions_tab = Tab::MentionsTab.new(client)
       TabManager.instance.add(mentions_tab)
+      TabManager.instance.recover_tabs
 
       Screen.instance.refresh
 
@@ -37,15 +38,17 @@ module Twterm
 
     def register_interruption_handler(&block)
       fail ArgumentError, 'no block given' unless block_given?
-      Signal.trap(:INT) do
-        block.call
-      end
+      Signal.trap(:INT) { block.call }
     end
 
     def reset_interruption_handler
-      Signal.trap(:INT) do
-        exit
-      end
+      Signal.trap(:INT) { App.instance.quit }
+    end
+
+    def quit
+      Curses.close_screen
+      TabManager.instance.dump_tabs
+      exit
     end
 
     private

@@ -57,6 +57,13 @@ module Twterm
       @@instances[id]
     end
 
+    def self.find_or_fetch(id)
+      instance = find(id)
+      (yield(instance) && return) if instance
+
+      Client.current.show_user(id) { |user| yield user }
+    end
+
     def self.cleanup
       referenced_users = Status.all.map(&:user)
       referenced_users.each(&:touch!)
