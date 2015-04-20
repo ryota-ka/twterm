@@ -108,7 +108,7 @@ module Twterm
             0
           else
             height = @window.maxy
-            [height * (last - index + 1) / count, 1].max
+            [height * (last - offset + 1) / count, 1].max
           end
       end
 

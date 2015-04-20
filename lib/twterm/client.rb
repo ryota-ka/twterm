@@ -43,9 +43,7 @@ module Twterm
 
     def stream
       @stream_client.on_friends do
-        break if @stream_connected
-
-        Notifier.instance.show_message 'Connection established'
+        Notifier.instance.show_message 'Connection established' unless @stream_connected
         @stream_connected = true
       end
 
