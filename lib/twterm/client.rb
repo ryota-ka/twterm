@@ -43,9 +43,7 @@ module Twterm
 
     def stream
       @stream_client.on_friends do
-        break if @stream_connected
-
-        Notifier.instance.show_message 'Connection established'
+        Notifier.instance.show_message 'Connection established' unless @stream_connected
         @stream_connected = true
       end
 
@@ -117,13 +115,19 @@ module Twterm
       end
     end
 
+    def list(list_id)
+      send_request do
+        yield List.new(@rest_client.list(list_id))
+      end
+    end
+
     def lists
       send_request do
         yield @rest_client.lists.map { |list| List.new(list) }
       end
     end
 
-    def list(list)
+    def list_timeline(list)
       fail ArgumentError, 'argument must be an instance of List class' unless list.is_a? List
       send_request do
         yield @rest_client.list_timeline(list.id, count: 100).select(&@mute_filter).map(&CREATE_STATUS_PROC)
@@ -144,11 +148,12 @@ module Twterm
 
     def show_user(query)
       send_request do
-        begin
-          user = User.new(@rest_client.user(query))
-        rescue Twitter::Error::NotFound
-          user = nil
-        end
+        user =
+          begin
+            User.new(@rest_client.user(query))
+          rescue Twitter::Error::NotFound
+            nil
+          end
         yield user
       end
     end
@@ -249,9 +254,11 @@ module Twterm
         begin
           block.call
         rescue Twitter::Error => e
-          Notifier.instance.show_error 'Failed to send request'
-          sleep 10
-          retry if e.message == 'getaddrinfo: nodename nor servname provided, or not known'
+          Notifier.instance.show_error "Failed to send request: #{e.message}"
+          if e.message == 'getaddrinfo: nodename nor servname provided, or not known'
+            sleep 10
+            retry
+          end
         end
       end
     end

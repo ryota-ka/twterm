@@ -25,8 +25,9 @@ module Twterm
 
           input_thread = Thread.new do
             close_screen
+            CompletionManager.instance.set_default_mode!
             puts "\ninput search query"
-            query = (readline('input query > ') || '').strip
+            query = (readline('> ') || '').strip
             resetter.call
 
             tab = query.nil? || query.empty? ? Tab::New::Start.new : Tab::SearchTab.new(query)

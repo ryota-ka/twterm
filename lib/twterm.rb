@@ -34,6 +34,7 @@ require 'twterm/scheduler'
 require 'twterm/status'
 require 'twterm/tab_manager'
 require 'twterm/tab/base'
+require 'twterm/tab/dumpable'
 require 'twterm/tab/exceptions'
 require 'twterm/tab/scrollable'
 require 'twterm/tab/statuses_tab'
@@ -54,6 +55,6 @@ require 'twterm/version'
 
 module Twterm
   class Conf
-    REQUIRE_VERSION = '1.0.8'
+    REQUIRE_VERSION = '1.0.9'
   end
 end

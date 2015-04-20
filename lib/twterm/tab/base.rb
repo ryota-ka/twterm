@@ -3,7 +3,7 @@ module Twterm
     module Base
       include Curses
 
-      attr_reader :title
+      attr_accessor :title
 
       def initialize
         @window = stdscr.subwin(stdscr.maxy - 5, stdscr.maxx - 30, 3, 0)

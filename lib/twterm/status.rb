@@ -89,12 +89,22 @@ module Twterm
     end
 
     def in_reply_to_status(&block)
-      block.call(nil) if @in_reply_to_status_id.nil?
+      if @in_reply_to_status_id.nil?
+        block.call(nil)
+        return
+      end
 
       status = Status.find(@in_reply_to_status_id)
-      block.call(status) unless status.nil?
+      unless status.nil?
+        block.call(status)
+        return
+      end
 
       Client.current.show_status(@in_reply_to_status_id, &block)
+    end
+
+    def replies
+      Status.all.select { |s| s.in_reply_to_status_id == id }
     end
 
     def retweeted_by
@@ -120,6 +130,13 @@ module Twterm
 
       def find(id)
         @@instances[id]
+      end
+
+      def find_or_fetch(id)
+        instance = find(id)
+        (yield(instance) && return) if instance
+
+        Client.current.show_status(id) { |status| yield status }
       end
 
       def parse_time(time)

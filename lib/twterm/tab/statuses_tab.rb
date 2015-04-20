@@ -82,7 +82,7 @@ module Twterm
       def show_user
         return if highlighted_status.nil?
         user = highlighted_status.user
-        user_tab = Tab::UserTab.new(user)
+        user_tab = Tab::UserTab.new(user.id)
         TabManager.instance.add_and_show(user_tab)
       end
 
@@ -95,7 +95,7 @@ module Twterm
 
       def show_conversation
         return if highlighted_status.nil?
-        tab = Tab::ConversationTab.new(highlighted_status)
+        tab = Tab::ConversationTab.new(highlighted_status.id)
         TabManager.instance.add_and_show(tab)
       end
 
@@ -111,6 +111,8 @@ module Twterm
         current_line = 0
 
         @window.clear
+
+        return if offset < 0
 
         statuses.reverse.drop(offset).each.with_index(offset) do |status, i|
           formatted_lines = status.split(@window.maxx - 4).count

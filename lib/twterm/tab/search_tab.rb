@@ -2,6 +2,7 @@ module Twterm
   module Tab
     class SearchTab
       include StatusesTab
+      include Dumpable
 
       attr_reader :query
 
@@ -12,6 +13,7 @@ module Twterm
         @title = "\"#{@query}\""
 
         fetch { move_to_top }
+        @auto_reloader = Scheduler.new(300) { fetch }
       end
 
       def fetch
@@ -21,8 +23,17 @@ module Twterm
         end
       end
 
+      def close
+        @auto_reloader.kill if @auto_reloader
+        super
+      end
+
       def ==(other)
         other.is_a?(self.class) && query == other.query
+      end
+
+      def dump
+        @query
       end
     end
   end

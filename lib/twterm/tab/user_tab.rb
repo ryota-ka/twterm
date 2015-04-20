@@ -2,19 +2,21 @@ module Twterm
   module Tab
     class UserTab
       include StatusesTab
+      include Dumpable
 
       attr_reader :user
 
-      def initialize(user)
-        fail ArgumentError, 'argument must be an instance of User class' unless user.is_a? User
-
+      def initialize(user_id)
         super()
 
-        @user = user
-        @title = "@#{user.screen_name}"
+        User.find_or_fetch(user_id) do |user|
+          @user = user
+          @title = "@#{@user.screen_name}"
+          TabManager.instance.refresh_window
 
-        fetch { move_to_top }
-        @auto_reloader = Scheduler.new(120) { fetch }
+          fetch { move_to_top }
+          @auto_reloader = Scheduler.new(120) { fetch }
+        end
       end
 
       def fetch
@@ -26,12 +28,16 @@ module Twterm
       end
 
       def close
-        @auto_reloader.kill
+        @auto_reloader.kill if @auto_reloader
         super
       end
 
       def ==(other)
         other.is_a?(self.class) && user == other.user
+      end
+
+      def dump
+        @user.id
       end
     end
   end
