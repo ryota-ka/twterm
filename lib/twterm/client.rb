@@ -117,13 +117,19 @@ module Twterm
       end
     end
 
+    def list(list_id)
+      send_request do
+        yield List.new(@rest_client.list(list_id))
+      end
+    end
+
     def lists
       send_request do
         yield @rest_client.lists.map { |list| List.new(list) }
       end
     end
 
-    def list(list)
+    def list_timeline(list)
       fail ArgumentError, 'argument must be an instance of List class' unless list.is_a? List
       send_request do
         yield @rest_client.list_timeline(list.id, count: 100).select(&@mute_filter).map(&CREATE_STATUS_PROC)
@@ -144,11 +150,12 @@ module Twterm
 
     def show_user(query)
       send_request do
-        begin
-          user = User.new(@rest_client.user(query))
-        rescue Twitter::Error::NotFound
-          user = nil
-        end
+        user =
+          begin
+            User.new(@rest_client.user(query))
+          rescue Twitter::Error::NotFound
+            nil
+          end
         yield user
       end
     end

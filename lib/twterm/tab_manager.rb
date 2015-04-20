@@ -3,6 +3,8 @@ module Twterm
     include Singleton
     include Curses
 
+    DUMPED_TABS_FILE = "#{ENV['HOME']}/.twterm/dumped_tabs"
+
     def initialize
       @tabs = []
       @index = 0
@@ -75,6 +77,28 @@ module Twterm
     def each_tab(&block)
       @tabs.each do |tab|
         block.call(tab)
+      end
+    end
+
+    def recover_tabs
+      return unless File.exist? DUMPED_TABS_FILE
+
+      data = YAML.load(File.read(DUMPED_TABS_FILE))
+      data.each do |klass, title, arg|
+        tab = klass.recover(title, arg)
+        add(tab)
+      end
+    rescue
+      Notifier.instance.show_error 'Failed to recover tabs'
+    end
+
+    def dump_tabs
+      data = @tabs.each_with_object([]) do |tab, arr|
+        next unless tab.is_a? Tab::Dumpable
+        arr << [tab.class, tab.title, tab.dump]
+      end
+      File.open(DUMPED_TABS_FILE, 'w', 0600) do |f|
+        f.write data.to_yaml
       end
     end
 

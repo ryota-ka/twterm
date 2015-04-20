@@ -82,7 +82,7 @@ module Twterm
       def show_user
         return if highlighted_status.nil?
         user = highlighted_status.user
-        user_tab = Tab::UserTab.new(user)
+        user_tab = Tab::UserTab.new(user.id)
         TabManager.instance.add_and_show(user_tab)
       end
 
@@ -95,7 +95,7 @@ module Twterm
 
       def show_conversation
         return if highlighted_status.nil?
-        tab = Tab::ConversationTab.new(highlighted_status)
+        tab = Tab::ConversationTab.new(highlighted_status.id)
         TabManager.instance.add_and_show(tab)
       end
 

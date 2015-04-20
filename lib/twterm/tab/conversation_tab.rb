@@ -2,19 +2,22 @@ module Twterm
   module Tab
     class ConversationTab
       include StatusesTab
+      include Dumpable
 
       attr_reader :status
 
-      def initialize(status)
-        fail ArgumentError, 'argument must be an instance of Status class' unless status.is_a? Status
-
+      def initialize(status_id)
         @title = 'Conversation'
-
         super()
-        append(status)
-        move_to_top
-        Thread.new { fetch_in_reply_to_status(status) }
-        Thread.new { fetch_replies(status) }
+
+        Status.find_or_fetch(status_id) do |status|
+          @status = status
+
+          append(status)
+          move_to_top
+          Thread.new { fetch_in_reply_to_status(status) }
+          Thread.new { fetch_replies(status) }
+        end
       end
 
       def fetch_in_reply_to_status(status)
@@ -36,6 +39,10 @@ module Twterm
 
       def ==(other)
         other.is_a?(self.class) && status == other.status
+      end
+
+      def dump
+        @status.id
       end
     end
   end
