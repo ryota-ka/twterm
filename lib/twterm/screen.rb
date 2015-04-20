@@ -10,6 +10,7 @@ module Twterm
       curs_set(0)
       stdscr.keypad(true)
       start_color
+      use_default_colors
     end
 
     def wait

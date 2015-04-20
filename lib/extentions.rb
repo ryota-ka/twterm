@@ -42,7 +42,7 @@ class Curses::Window
     attroff(Curses::A_BOLD)
   end
 
-  def with_color(fg, bg = :black, &block)
+  def with_color(fg, bg = :transparent, &block)
     color_pair_index = Twterm::ColorManager.instance.get_color_pair_index(fg, bg)
     attron(Curses.color_pair(color_pair_index))
     block.call
