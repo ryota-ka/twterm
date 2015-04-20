@@ -11,15 +11,26 @@ module Twterm
         @title = 'Conversation'
 
         super()
-        prepend(status)
-        Thread.new { fetch_reply(status) }
+        append(status)
+        move_to_top
+        Thread.new { fetch_in_reply_to_status(status) }
+        Thread.new { fetch_replies(status) }
       end
 
-      def fetch_reply(status)
-        status.in_reply_to_status do |reply|
-          return if reply.nil?
-          append(reply)
-          fetch_reply(reply)
+      def fetch_in_reply_to_status(status)
+        status.in_reply_to_status do |in_reply_to|
+          return if in_reply_to.nil?
+          append(in_reply_to)
+          sort
+          Thread.new { fetch_in_reply_to_status(in_reply_to) }
+        end
+      end
+
+      def fetch_replies(status)
+        status.replies.each do |reply|
+          prepend(reply)
+          sort
+          Thread.new { fetch_replies(reply) }
         end
       end
 
