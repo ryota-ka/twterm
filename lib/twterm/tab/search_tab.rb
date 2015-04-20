@@ -13,6 +13,7 @@ module Twterm
         @title = "\"#{@query}\""
 
         fetch { move_to_top }
+        @auto_reloader = Schedule.new(300) { fetch }
       end
 
       def fetch
@@ -20,6 +21,11 @@ module Twterm
           statuses.reverse.each { |status| prepend(status) }
           yield if block_given?
         end
+      end
+
+      def close
+        @auto_reloader.kill if @auto_reloader
+        super
       end
 
       def ==(other)
