@@ -28,6 +28,16 @@ module Twterm
       @stream_client = TweetStream::Client.new
 
       @callbacks = {}
+
+      @mute_filter = -> { true }
+      fetch_muted_users do |muted_user_ids|
+        @mute_filter = lambda do |status|
+          !muted_user_ids.include?(status.user.id) &&
+            !(status.retweeted_status.is_a?(Twitter::NullObject) &&
+            muted_user_ids.include?(status.retweeted_status.user.id))
+        end
+      end
+
       @@instances << self
     end
 
@@ -87,19 +97,19 @@ module Twterm
 
     def home_timeline
       send_request do
-        yield @rest_client.home_timeline(count: 100).map(&CREATE_STATUS_PROC)
+        yield @rest_client.home_timeline(count: 100).select(&@mute_filter).map(&CREATE_STATUS_PROC)
       end
     end
 
     def mentions
       send_request do
-        yield @rest_client.mentions(count: 100).map(&CREATE_STATUS_PROC)
+        yield @rest_client.mentions(count: 100).select(&@mute_filter).map(&CREATE_STATUS_PROC)
       end
     end
 
     def user_timeline(user_id)
       send_request do
-        yield @rest_client.user_timeline(user_id, count: 100).map(&CREATE_STATUS_PROC)
+        yield @rest_client.user_timeline(user_id, count: 100).select(&@mute_filter).map(&CREATE_STATUS_PROC)
       end
     end
 
@@ -112,13 +122,13 @@ module Twterm
     def list(list)
       fail ArgumentError, 'argument must be an instance of List class' unless list.is_a? List
       send_request do
-        yield @rest_client.list_timeline(list.id, count: 100).map(&CREATE_STATUS_PROC)
+        yield @rest_client.list_timeline(list.id, count: 100).select(&@mute_filter).map(&CREATE_STATUS_PROC)
       end
     end
 
     def search(query)
       send_request do
-        yield @rest_client.search(query, count: 100).map(&CREATE_STATUS_PROC)
+        yield @rest_client.search(query, count: 100).select(&@mute_filter).map(&CREATE_STATUS_PROC)
       end
     end
 
@@ -183,6 +193,13 @@ module Twterm
         rescue Twitter::Error::NotFound, Twitter::Error::Forbidden
           Notifier.instance.show_error 'You cannot destroy that status'
         end
+      end
+    end
+
+    def fetch_muted_users
+      send_request do
+        @muted_user_ids = @rest_client.muted_ids.to_a
+        yield @muted_user_ids if block_given?
       end
     end
 
