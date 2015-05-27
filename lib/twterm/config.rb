@@ -1,32 +1,37 @@
 module Twterm
-  module Config
-    CONFIG_FILE = "#{App::DATA_DIR}/config"
-
+  class Config
     def [](key)
-      @config[key]
+      config[key]
     end
 
     def []=(key, value)
-      @config[key] = value
-      save
-    end
-
-    def load
-      unless File.exist? CONFIG_FILE
-        @config = {}
-        return
-      end
-      @config = YAML.load(File.read(CONFIG_FILE)) || {}
+      return if config[key] == value
+      save_config_to_file
+      config[key] = value
     end
 
     private
 
-    def save
-      File.open(CONFIG_FILE, 'w', 0600) do |f|
-        f.write @config.to_yaml
+    def config
+      @config ||= exist_config_file? ? load_config_file : {}
+    end
+
+    def save_config_to_file
+      File.open(config_file_path, 'w', 0600) do |f|
+        f.write config.to_yaml
       end
     end
 
-    module_function :[], :[]=, :load, :save
+    def load_config_file
+      YAML.load_file(config_file_path)
+    end
+
+    def exist_config_file?
+      File.exist?(config_file_path)
+    end
+
+    def config_file_path
+      "#{App::DATA_DIR}/config".freeze
+    end
   end
 end
