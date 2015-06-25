@@ -16,7 +16,7 @@ module Twterm
 
         @title = 'Mentions'
 
-        fetch { move_to_top }
+        fetch { scroll_manager.move_to_top }
         @auto_reloader = Scheduler.new(300) { fetch }
       end
 
