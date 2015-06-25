@@ -2,7 +2,6 @@ module Twterm
   module Tab
     module StatusesTab
       include Base
-      include Scrollable
 
       def initialize
         super
@@ -24,7 +23,7 @@ module Twterm
         @status_ids << status.id
         status.split(@window.maxx - 4)
         status.touch!
-        item_prepended
+        scroll_manager.item_prepended!
         refresh
       end
 
@@ -36,7 +35,7 @@ module Twterm
         @status_ids.unshift(status.id)
         status.split(@window.maxx - 4)
         status.touch!
-        item_appended
+        scroll_manager.item_appended!
         refresh
       end
 
@@ -112,12 +111,15 @@ module Twterm
 
         @window.clear
 
+        offset = scroll_manager.offset
+        index = scroll_manager.index
+
         return if offset < 0
 
         statuses.reverse.drop(offset).each.with_index(offset) do |status, i|
           formatted_lines = status.split(@window.maxx - 4).count
           if current_line + formatted_lines + 2 > @window.maxy
-            @scrollable_last = i
+            scroll_manager.last = i
             break
           end
 
@@ -197,15 +199,23 @@ module Twterm
       end
 
       def respond_to_key(key)
-        return true if super
-
         case key
         when 'c'
           show_conversation
+        when 'd'
+          10.times { scroll_manager.move_down }
         when 'D'
           destroy_status
         when 'F'
           favorite
+        when 'g'
+          scroll_manager.move_to_top
+        when 'G'
+          scroll_manager.move_to_bottom
+        when 'j'
+          scroll_manager.move_down
+        when 'k'
+          scroll_manager.move_up
         when 'o'
           open_link
         when 'r'
@@ -214,6 +224,8 @@ module Twterm
           retweet
         when 18
           fetch
+        when 'u'
+          10.times { scroll_manager.move_up }
         when 'U'
           show_user
         else
@@ -225,7 +237,7 @@ module Twterm
       private
 
       def highlighted_status
-        id = @status_ids[count - index - 1]
+        id = @status_ids[scroll_manager.count - scroll_manager.index - 1]
         Status.find(id)
       end
 
@@ -250,6 +262,16 @@ module Twterm
       def sort
         @status_ids &= Status.all.map(&:id)
         @status_ids.sort_by! { |id| Status.find(id).created_at_for_sort }
+      end
+
+      def scroll_manager
+        return @scroll_manager unless @scroll_manager.nil?
+
+        @scroll_manager = ScrollManager.new
+        @scroll_manager.register_count_tracker { statuses.count }
+        @scroll_manager.register_offset_from_bottom_tracker { offset_from_bottom }
+        @scroll_manager.after_move { refresh }
+        @scroll_manager
       end
 
       def show_help
