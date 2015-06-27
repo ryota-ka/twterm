@@ -119,6 +119,11 @@ module Twterm
       User.find(user_id)
     end
 
+    def grepped_with?(query)
+      [text, user.screen_name, user.name]
+        .any? { |x| x.downcase.include?(query.downcase) }
+    end
+
     def ==(other)
       other.is_a?(self.class) && id == other.id
     end
