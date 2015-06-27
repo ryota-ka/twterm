@@ -190,8 +190,6 @@ module Twterm
           current_line += 2
         end
 
-        draw_scroll_bar
-
         @window.refresh
 
         UserWindow.instance.update(highlighted_status.user) unless highlighted_status.nil?
