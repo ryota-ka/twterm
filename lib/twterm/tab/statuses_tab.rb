@@ -12,7 +12,12 @@ module Twterm
       def statuses
         statuses = @status_ids.map { |id| Status.find(id) }.reject(&:nil?)
         @status_ids = statuses.map(&:id)
-        statuses
+
+        if @grep_query.nil? || @grep_query.empty?
+          statuses
+        else
+          statuses.select { |s| s.grepped_with?(@grep_query) }
+        end
       end
 
       def prepend(status)
@@ -106,6 +111,34 @@ module Twterm
         statuses.reverse.take(100).each(&:touch!)
       end
 
+      def grep
+        reset_grep
+
+        Curses.echo
+        Curses.setpos(stdscr.maxy - 1, 0)
+        Curses.stdscr.addch '/'
+        @grep_query = Curses.getstr.chomp
+        Curses.noecho
+
+        count = statuses.count
+
+        if @grep_query.empty?
+          # do nothing
+        elsif count == 0
+          Notifier.instance.show_error "No matches found: \"#{@grep_query}\""
+          @grep_query = ''
+        else
+          Notifier.instance.show_message "#{count} statuses found: \"#{@grep_query}\""
+        end
+
+        refresh
+      end
+
+      def reset_grep
+        @grep_query = ''
+        refresh
+      end
+
       def update
         current_line = 0
 
@@ -190,8 +223,6 @@ module Twterm
           current_line += 2
         end
 
-        draw_scroll_bar
-
         @window.refresh
 
         UserWindow.instance.update(highlighted_status.user) unless highlighted_status.nil?
@@ -228,6 +259,10 @@ module Twterm
           10.times { scroll_manager.move_up }
         when 'U'
           show_user
+        when '/'
+          grep
+        when 'q'
+          reset_grep
         else
           return false
         end

@@ -45,8 +45,6 @@ module Twterm
         return
       when 'Q'
         App.instance.quit
-      when '/'
-        # filter
       else
       end
     end

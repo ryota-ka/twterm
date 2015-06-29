@@ -3,7 +3,6 @@ module Twterm
     module New
       class List
         include Base
-        include Scrollable
 
         @@lists = nil
 
@@ -50,13 +49,11 @@ module Twterm
             Client.current.lists do |lists|
               @@lists = lists.sort_by(&:full_name)
               show_lists
-              update_scrollbar_length
               @window.refresh if TabManager.instance.current_tab == self
             end
           end if @@lists.nil?
 
           show_lists
-          draw_scroll_bar
 
           @window.refresh
         end
