@@ -52,7 +52,7 @@ module Twterm
 
     def client
       @client ||= Client.new(
-        config[:user_id],
+        config[:user_id].to_i,
         config[:screen_name],
         config[:access_token],
         config[:access_token_secret]
