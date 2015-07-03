@@ -2,9 +2,9 @@ module Twterm
   class Status
     MAX_CACHED_TIME = 3600
 
-    attr_reader :created_at, :created_at_for_sort, :favorite_count, :favorited,
-      :id, :in_reply_to_status_id, :media, :retweet_count,
-      :retweeted_by_user_id, :text, :touched_at, :urls, :user_id
+    attr_reader :appeared_at, :created_at, :favorite_count, :favorited, :id,
+      :in_reply_to_status_id, :media, :retweet_count, :retweeted_by_user_id,
+      :text, :touched_at, :urls, :user_id
     alias_method :favorited?, :favorited
     alias_method :retweeted?, :retweeted
 
@@ -60,7 +60,7 @@ module Twterm
       @id = tweet.id
       @text = CGI.unescapeHTML(tweet.full_text.dup)
       @created_at = Status.parse_time(tweet.created_at)
-      @created_at_for_sort = retweeted_at || @created_at
+      @appeared_at = retweeted_at || @created_at
       @retweet_count = tweet.retweet_count
       @favorite_count = tweet.favorite_count
       @in_reply_to_status_id = tweet.in_reply_to_status_id

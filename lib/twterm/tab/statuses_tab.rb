@@ -296,7 +296,7 @@ module Twterm
 
       def sort
         @status_ids &= Status.all.map(&:id)
-        @status_ids.sort_by! { |id| Status.find(id).created_at_for_sort }
+        @status_ids.sort_by! { |id| Status.find(id).appeared_at }
       end
 
       def scroll_manager
