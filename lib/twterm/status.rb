@@ -3,8 +3,8 @@ module Twterm
     MAX_CACHED_TIME = 3600
 
     attr_reader :appeared_at, :created_at, :favorite_count, :favorited, :id,
-      :in_reply_to_status_id, :media, :retweet_count, :retweeted_by_user_id,
-      :text, :touched_at, :urls, :user_id
+      :in_reply_to_status_id, :media, :retweet_count, :retweeted,
+      :retweeted_by_user_id, :text, :touched_at, :urls, :user_id
     alias_method :favorited?, :favorited
     alias_method :retweeted?, :retweeted
 
