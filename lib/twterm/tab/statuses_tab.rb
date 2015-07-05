@@ -17,7 +17,7 @@ module Twterm
       end
 
       def count
-        @status_ids.count
+        grep_query.empty? ? @status_ids.count : statuses.count
       end
 
       def delete(status_id)
