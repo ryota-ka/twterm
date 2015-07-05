@@ -91,6 +91,8 @@ module Twterm
     def post
       validate_text!
       Client.current.post(text, in_reply_to)
+    rescue EmptyTextError
+      # do nothing
     rescue InvalidCharactersError
       Notifier.instance.show_error 'Text contains invalid characters'
     rescue TextTooLongError
