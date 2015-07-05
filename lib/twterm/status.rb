@@ -52,7 +52,7 @@ module Twterm
     def initialize(tweet)
       unless tweet.retweeted_status.is_a? Twitter::NullObject
         @retweeted_by_user_id = tweet.user.id
-        User.create(tweet.user)
+        User.new(tweet.user)
         retweeted_at = Status.parse_time(tweet.created_at)
         tweet = tweet.retweeted_status
       end
@@ -72,7 +72,7 @@ module Twterm
       @urls = tweet.urls
 
       @user_id = tweet.user.id
-      User.create(tweet.user)
+      User.new(tweet.user)
 
       @splitted_text = {}
 

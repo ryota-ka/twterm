@@ -5,19 +5,11 @@ module Twterm
                 :followers_count, :touched_at, :color
     alias_method :following?, :following
     alias_method :protected?, :protected
-    class << self
-      alias_method :create, :new
-    end
 
     MAX_CACHED_TIME = 3600
     COLORS = [:red, :blue, :green, :cyan, :yellow, :magenta]
 
     @@instances = {}
-
-    def self.new(user)
-      instance = find(user.id)
-      instance.nil? ? super : instance.update!(user)
-    end
 
     def initialize(user)
       @id = user.id
@@ -72,6 +64,11 @@ module Twterm
       users = all.select(&cond)
       user_ids = users.map(&:id)
       @@instances = user_ids.zip(users).to_h
+    end
+
+    def self.new(user)
+      instance = find(user.id)
+      instance.nil? ? super : instance.update!(user)
     end
   end
 end
