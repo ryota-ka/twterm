@@ -1,8 +1,17 @@
 module Twterm
   module Tab
     class ScrollManager
+      extend Forwardable
+
       attr_reader :index, :offset
       attr_accessor :last
+
+      attr_accessor :delegate
+      def_delegators :delegate, :count, :offset_from_bottom
+
+      def after_move(&block)
+        add_hook(:after_move, &block)
+      end
 
       def initialize
         @index = 0
@@ -10,22 +19,14 @@ module Twterm
         @last = 0
       end
 
-      def after_move(&block)
-        add_hook(:after_move, &block)
-      end
-
-      def count
-        @count_tracker.call
+      def item_appended!
+        @index -= 1
+        @offset -= 1 if @offset > 0
       end
 
       def item_prepended!
         @index += 1
         @offset += 1
-      end
-
-      def item_appended!
-        @index -= 1
-        @offset -= 1 if @offset > 0
       end
 
       def move_down
@@ -37,15 +38,6 @@ module Twterm
           count - 1,
           count - offset_from_bottom
         ].min if index > last - 4
-
-        hook :after_move
-      end
-
-      def move_up
-        return if count == 0 || index == 0
-
-        @index = [index - 1, 0].max
-        @offset = [offset - 1, 0].max if index - 4 < offset
 
         hook :after_move
       end
@@ -68,16 +60,13 @@ module Twterm
         hook :after_move
       end
 
-      def offset_from_bottom
-        @offset_from_bottom_tracker.call
-      end
+      def move_up
+        return if count == 0 || index == 0
 
-      def register_count_tracker(&block)
-        @count_tracker = block
-      end
+        @index = [index - 1, 0].max
+        @offset = [offset - 1, 0].max if index - 4 < offset
 
-      def register_offset_from_bottom_tracker(&block)
-        @offset_from_bottom_tracker = block
+        hook :after_move
       end
 
       private

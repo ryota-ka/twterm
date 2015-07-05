@@ -3,6 +3,7 @@ $:.include?(File.dirname(__FILE__)) || $:.include?(File.expand_path(File.dirname
 
 require 'cgi'
 require 'curses'
+require 'forwardable'
 require 'launchy'
 require 'oauth'
 require 'readline'

@@ -296,8 +296,7 @@ module Twterm
         return @scroll_manager unless @scroll_manager.nil?
 
         @scroll_manager = ScrollManager.new
-        @scroll_manager.register_count_tracker { count }
-        @scroll_manager.register_offset_from_bottom_tracker { offset_from_bottom }
+        @scroll_manager.delegate = self
         @scroll_manager.after_move { refresh }
         @scroll_manager
       end
