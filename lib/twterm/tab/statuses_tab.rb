@@ -264,7 +264,6 @@ module Twterm
         end
 
         UserWindow.instance.update(highlighted_status.user) unless highlighted_status.nil?
-        show_help
       end
 
       private
@@ -295,10 +294,6 @@ module Twterm
         @scroll_manager.delegate = self
         @scroll_manager.after_move { refresh }
         @scroll_manager
-      end
-
-      def show_help
-        Notifier.instance.show_help '[n] Compose  [r] Reply  [F] Favorite  [R] Retweet  [U] Show user  [N] Open new tab  [w] Close tab  [Q] Quit'
       end
 
       def sort
