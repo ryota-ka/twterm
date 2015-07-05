@@ -108,37 +108,37 @@ module Twterm
 
       def respond_to_key(key)
         case key
-        when 'c'
+        when ?c
           show_conversation
-        when 'd'
+        when ?d
           10.times { scroll_manager.move_down }
-        when 'D'
+        when ?D
           destroy_status
-        when 'F'
+        when ?F
           favorite
-        when 'g'
+        when ?g
           scroll_manager.move_to_top
-        when 'G'
+        when ?G
           scroll_manager.move_to_bottom
-        when 'j'
+        when ?j, 14, Curses::Key::DOWN
           scroll_manager.move_down
-        when 'k'
+        when ?k, 16, Curses::Key::UP
           scroll_manager.move_up
-        when 'o'
+        when ?o
           open_link
-        when 'r'
+        when ?r
           reply
-        when 'R'
+        when ?R
           retweet
         when 18
           fetch
-        when 'u'
+        when ?u
           10.times { scroll_manager.move_up }
-        when 'U'
+        when ?U
           show_user
-        when '/'
+        when ?/
           grep
-        when 'q'
+        when ?q
           reset_grep
         else
           return false
