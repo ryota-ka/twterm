@@ -52,12 +52,13 @@ module Twterm
 
           begin
             validate_text!
+            break
           rescue EmptyTextError
             break
           rescue InvalidCharactersError
-            puts 'Status contains invalid characters'
+            puts 'Text contains invalid characters'
           rescue TextTooLongError
-            puts "Status is too long (#{text_length} / 140 characters)"
+            puts "Text is too long (#{text_length} / 140 characters)"
           end
 
           puts "\n"
@@ -90,8 +91,10 @@ module Twterm
     def post
       validate_text!
       Client.current.post(text, in_reply_to)
-    rescue
-      puts 'Some exception'
+    rescue InvalidCharactersError
+      Notifier.instance.show_error 'Text contains invalid characters'
+    rescue TextTooLongError
+      Notifier.instance.show_error "Text is too long (#{text_length} / 140 characters)"
     ensure
       clear
     end
