@@ -13,20 +13,32 @@ module Twterm
       use_default_colors
     end
 
-    def wait
-      @thread = Thread.new do
-        loop do
-          scan
-        end
-      end
-      @thread.join
-    end
-
     def refresh
       TabManager.instance.refresh_window
       TabManager.instance.current_tab.refresh
       UserWindow.instance.refresh_window
       Notifier.instance.show
+    end
+
+    def respond_to_key(key)
+      case key
+      when 'n'
+        Tweetbox.instance.compose
+        return
+      when 'Q'
+        App.instance.quit
+      else
+        return false
+      end
+
+      true
+    end
+
+    def wait
+      @thread = Thread.new do
+        loop { scan }
+      end
+      @thread.join
     end
 
     private
@@ -38,15 +50,7 @@ module Twterm
 
       return if TabManager.instance.current_tab.respond_to_key(key)
       return if TabManager.instance.respond_to_key(key)
-
-      case key
-      when 'n'
-        Tweetbox.instance.compose
-        return
-      when 'Q'
-        App.instance.quit
-      else
-      end
+      respond_to_key(key)
     end
   end
 end

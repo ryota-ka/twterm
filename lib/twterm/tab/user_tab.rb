@@ -6,6 +6,27 @@ module Twterm
 
       attr_reader :user
 
+      def ==(other)
+        other.is_a?(self.class) && user == other.user
+      end
+
+      def close
+        @auto_reloader.kill if @auto_reloader
+        super
+      end
+
+      def dump
+        @user.id
+      end
+
+      def fetch
+        Client.current.user_timeline(@user.id) do |statuses|
+          statuses.reverse.each(&method(:prepend))
+          sort
+          yield if block_given?
+        end
+      end
+
       def initialize(user_id)
         super()
 
@@ -17,27 +38,6 @@ module Twterm
           fetch { scroll_manager.move_to_top }
           @auto_reloader = Scheduler.new(120) { fetch }
         end
-      end
-
-      def fetch
-        Client.current.user_timeline(@user.id) do |statuses|
-          statuses.reverse.each(&method(:prepend))
-          sort
-          yield if block_given?
-        end
-      end
-
-      def close
-        @auto_reloader.kill if @auto_reloader
-        super
-      end
-
-      def ==(other)
-        other.is_a?(self.class) && user == other.user
-      end
-
-      def dump
-        @user.id
       end
     end
   end

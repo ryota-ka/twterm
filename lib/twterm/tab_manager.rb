@@ -5,16 +5,9 @@ module Twterm
 
     DUMPED_TABS_FILE = "#{ENV['HOME']}/.twterm/dumped_tabs"
 
-    def initialize
-      @tabs = []
-      @index = 0
-      @history = []
-
-      @window = stdscr.subwin(3, stdscr.maxx - 30, 0, 0)
-    end
-
     def add(tab_to_add)
       fail ArgumentError, 'argument must be an instance of Tab::Base' unless tab_to_add.is_a? Tab::Base
+
       @tabs.each.with_index do |tab, i|
         next unless tab == tab_to_add
         @index = i
@@ -35,28 +28,6 @@ module Twterm
       result
     end
 
-    def current_tab
-      @history.unshift(@index).uniq!
-      @tabs[@index]
-    end
-
-    def show_next
-      @index = (@index + 1) % @tabs.count
-      current_tab.refresh
-      refresh_window
-    end
-
-    def show_previous
-      @index = (@index - 1) % @tabs.count
-      current_tab.refresh
-      refresh_window
-    end
-
-    def open_new
-      tab = Tab::New::Start.new
-      add_and_show(tab)
-    end
-
     def close
       current_tab.close
       @tabs.delete_at(@index)
@@ -69,15 +40,38 @@ module Twterm
       Notifier.instance.show_error 'This tab cannot be closed'
     end
 
-    def switch(tab)
-      close
-      add_and_show(tab)
+    def current_tab
+      @history.unshift(@index).uniq!
+      @tabs[@index]
+    end
+
+    def dump_tabs
+      data = @tabs.each_with_object([]) do |tab, arr|
+        next unless tab.is_a? Tab::Dumpable
+        arr << [tab.class, tab.title, tab.dump]
+      end
+      File.open(DUMPED_TABS_FILE, 'w', 0600) do |f|
+        f.write data.to_yaml
+      end
     end
 
     def each_tab(&block)
       @tabs.each do |tab|
         block.call(tab)
       end
+    end
+
+    def initialize
+      @tabs = []
+      @index = 0
+      @history = []
+
+      @window = stdscr.subwin(3, stdscr.maxx - 30, 0, 0)
+    end
+
+    def open_new
+      tab = Tab::New::Start.new
+      add_and_show(tab)
     end
 
     def recover_tabs
@@ -90,16 +84,6 @@ module Twterm
       end
     rescue
       Notifier.instance.show_error 'Failed to recover tabs'
-    end
-
-    def dump_tabs
-      data = @tabs.each_with_object([]) do |tab, arr|
-        next unless tab.is_a? Tab::Dumpable
-        arr << [tab.class, tab.title, tab.dump]
-      end
-      File.open(DUMPED_TABS_FILE, 'w', 0600) do |f|
-        f.write data.to_yaml
-      end
     end
 
     def refresh_window
@@ -136,6 +120,23 @@ module Twterm
         return false
       end
       true
+    end
+
+    def show_next
+      @index = (@index + 1) % @tabs.count
+      current_tab.refresh
+      refresh_window
+    end
+
+    def show_previous
+      @index = (@index - 1) % @tabs.count
+      current_tab.refresh
+      refresh_window
+    end
+
+    def switch(tab)
+      close
+      add_and_show(tab)
     end
   end
 end

@@ -4,6 +4,10 @@ module Twterm
 
     @@instances = {}
 
+    def ==(other)
+      other.is_a?(self.class) && id == other.id
+    end
+
     def initialize(list)
       @id = list.id
       update!(list)
@@ -24,13 +28,8 @@ module Twterm
       self
     end
 
-    def ==(other)
-      other.is_a?(self.class) && id == other.id
-    end
-
-    def self.new(list)
-      instance = find(list.id)
-      instance.nil? ? super : instance.update!(list)
+    def self.all
+      @@instances.values
     end
 
     def self.find(id)
@@ -44,8 +43,9 @@ module Twterm
       Client.current.list(id) { |list| yield list }
     end
 
-    def self.all
-      @@instances.values
+    def self.new(list)
+      instance = find(list.id)
+      instance.nil? ? super : instance.update!(list)
     end
   end
 end

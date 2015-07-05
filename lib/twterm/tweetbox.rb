@@ -1,14 +1,16 @@
 module Twterm
   class Tweetbox
+    class EmptyTextError < StandardError; end
+    class InvalidCharactersError < StandardError; end
+    class TextTooLongError < StandardError; end
+
     include Singleton
     include Readline
     include Curses
 
-    def initialize
-      @status = ''
-    end
-
     def compose(in_reply_to = nil)
+      @text = ''
+
       if in_reply_to.is_a? Status
         @in_reply_to = in_reply_to
       else
@@ -24,37 +26,38 @@ module Twterm
       thread = Thread.new do
         close_screen
 
-        if @in_reply_to.nil?
+        if in_reply_to.nil?
           puts "\nCompose new tweet:"
         else
-          puts "\nReply to @#{@in_reply_to.user.screen_name}'s tweet: \"#{@in_reply_to.text}\""
+          puts "\nReply to @#{in_reply_to.user.screen_name}'s tweet: \"#{in_reply_to.text}\""
         end
 
         CompletionManager.instance.set_default_mode!
 
         loop do
           loop do
-            msg = @in_reply_to.nil? || !@status.empty? ? '> ' : "> @#{in_reply_to.user.screen_name} "
+            msg = in_reply_to.nil? || !text.empty? ? '> ' : "> @#{in_reply_to.user.screen_name} "
             line = (readline(msg, true) || '').strip
             break if line.empty?
 
             if line.end_with?('\\')
-              @status << line.chop.lstrip + "\n"
+              @text << line.chop.rstrip + "\n"
             else
-              @status << line
+              @text << line
               break
             end
           end
 
           puts "\n"
 
-          case validate
-          when :too_long
-            puts "Status is too long (#{length} / 140 characters)"
-          when :invalid_characters
-            puts 'Status contains invalid characters'
-          else
+          begin
+            validate_text!
+          rescue EmptyTextError
             break
+          rescue InvalidCharactersError
+            puts 'Status contains invalid characters'
+          rescue TextTooLongError
+            puts "Status is too long (#{text_length} / 140 characters)"
           end
 
           puts "\n"
@@ -68,30 +71,48 @@ module Twterm
       App.instance.register_interruption_handler do
         thread.kill
         clear
-        puts "\ncanceled"
+        puts "\nCanceled"
         resetter.call
       end
 
       thread.join
     end
 
-    def post
-      return if validate
+    private
 
-      Client.current.post(@status, @in_reply_to)
+    attr_reader :in_reply_to
+
+    def clear
+      @text = ''
+      @in_reply_to = nil
+    end
+
+    def post
+      validate_text!
+      Client.current.post(text, in_reply_to)
+    rescue
+      puts 'Some exception'
+    ensure
       clear
     end
 
-    def validate
-      Twitter::Validation.tweet_invalid?(@status)
+    def text
+      @text || ''
     end
 
-    def length
-      Twitter::Validation.tweet_length(@status)
+    def text_length
+      Twitter::Validation.tweet_length(text)
     end
 
-    def clear
-      @status = ''
+    def validate_text!
+      case Twitter::Validation.tweet_invalid?(text)
+      when :empty
+        fail EmptyTextError
+      when :invalid_characters
+        fail InvalidCharactersError
+      when :too_long
+        fail TextTooLongError
+      end
     end
   end
 end
