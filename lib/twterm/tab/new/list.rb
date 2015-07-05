@@ -14,6 +14,7 @@ module Twterm
           super
 
           @title = 'New tab'
+          refresh
         end
 
         def respond_to_key(key)
@@ -54,17 +55,17 @@ module Twterm
           return if @@lists.nil?
 
           @@lists.each.with_index(0) do |list, i|
-            @window.with_color(:black, :magenta) do
-              @window.setpos(i * 3 + 5, 4)
-              @window.addstr(' ')
-              @window.setpos(i * 3 + 6, 4)
-              @window.addstr(' ')
+            window.with_color(:black, :magenta) do
+              window.setpos(i * 3 + 5, 4)
+              window.addstr(' ')
+              window.setpos(i * 3 + 6, 4)
+              window.addstr(' ')
             end if i == scroll_manager.index
 
-            @window.setpos(i * 3 + 5, 6)
-            @window.addstr("#{list.full_name} (#{list.member_count} members / #{list.subscriber_count} subscribers)")
-            @window.setpos(i * 3 + 6, 8)
-            @window.addstr(list.description)
+            window.setpos(i * 3 + 5, 6)
+            window.addstr("#{list.full_name} (#{list.member_count} members / #{list.subscriber_count} subscribers)")
+            window.setpos(i * 3 + 6, 8)
+            window.addstr(list.description)
           end
         end
 
@@ -78,25 +79,19 @@ module Twterm
         end
 
         def update
-          @window.clear
-
-          @window.bold do
-            @window.setpos(2, 3)
-            @window.addstr('Open list tab')
-          end
+          window.setpos(2, 3)
+          window.bold { window.addstr('Open list tab') }
 
           Thread.new do
             Notifier.instance.show_message('Loading lists ...')
             Client.current.lists do |lists|
               @@lists = lists.sort_by(&:full_name)
               show_lists
-              @window.refresh if TabManager.instance.current_tab == self
+              window.refresh if TabManager.instance.current_tab == self
             end
           end if @@lists.nil?
 
           show_lists
-
-          @window.refresh
         end
       end
     end
