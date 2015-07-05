@@ -13,7 +13,6 @@ module Twterm
           super
 
           @title = 'New tab'
-          @window.refresh
         end
 
         def invoke_input

@@ -3,6 +3,7 @@ module Twterm
     module Base
       include Curses
 
+      attr_reader :window
       attr_accessor :title
 
       def ==(other)
@@ -10,7 +11,7 @@ module Twterm
       end
 
       def close
-        @window.close
+        window.close
       end
 
       def initialize
@@ -21,7 +22,11 @@ module Twterm
         return unless refreshable?
 
         Thread.new do
-          refresh_mutex.synchronize { update }
+          refresh_mutex.synchronize do
+            window.clear
+            update
+            window.refresh
+          end
         end
       end
 

@@ -10,7 +10,7 @@ module Twterm
         return if @status_ids.include?(status.id)
 
         @status_ids.unshift(status.id)
-        status.split(@window.maxx - 4)
+        status.split(window.maxx - 4)
         status.touch!
         scroll_manager.item_appended!
         refresh
@@ -90,7 +90,7 @@ module Twterm
         return if @status_ids.include?(status.id)
 
         @status_ids << status.id
-        status.split(@window.maxx - 4)
+        status.split(window.maxx - 4)
         status.touch!
         scroll_manager.item_prepended!
         refresh
@@ -184,16 +184,14 @@ module Twterm
       def update
         current_line = 0
 
-        @window.clear
-
         offset = scroll_manager.offset
         index = scroll_manager.index
 
         return if offset < 0
 
         statuses.reverse.drop(offset).each.with_index(offset) do |status, i|
-          formatted_lines = status.split(@window.maxx - 4).count
-          if current_line + formatted_lines + 2 > @window.maxy
+          formatted_lines = status.split(window.maxx - 4).count
+          if current_line + formatted_lines + 2 > window.maxy
             scroll_manager.last = i
             break
           end
@@ -201,71 +199,69 @@ module Twterm
           posy = current_line
 
           if index == i
-            @window.with_color(:black, :magenta) do
+            window.with_color(:black, :magenta) do
               (formatted_lines + 1).times do |j|
-                @window.setpos(posy + j, 0)
-                @window.addch(' ')
+                window.setpos(posy + j, 0)
+                window.addch(' ')
               end
             end
           end
 
-          @window.setpos(current_line, 2)
+          window.setpos(current_line, 2)
 
-          @window.bold do
-            @window.with_color(status.user.color) do
-              @window.addstr(status.user.name)
+          window.bold do
+            window.with_color(status.user.color) do
+              window.addstr(status.user.name)
             end
           end
 
-          @window.addstr(" (@#{status.user.screen_name}) [#{status.date}] ")
+          window.addstr(" (@#{status.user.screen_name}) [#{status.date}] ")
 
           unless status.retweeted_by.nil?
-            @window.addstr('(retweeted by ')
-            @window.bold do
-              @window.addstr("@#{status.retweeted_by.screen_name}")
+            window.addstr('(retweeted by ')
+            window.bold do
+              window.addstr("@#{status.retweeted_by.screen_name}")
             end
-            @window.addstr(') ')
+            window.addstr(') ')
           end
 
           if status.favorited?
-            @window.with_color(:black, :yellow) do
-              @window.addch(' ')
+            window.with_color(:black, :yellow) do
+              window.addch(' ')
             end
 
-            @window.addch(' ')
+            window.addch(' ')
           end
 
           if status.retweeted?
-            @window.with_color(:black, :green) do
-              @window.addch(' ')
+            window.with_color(:black, :green) do
+              window.addch(' ')
             end
-            @window.addch(' ')
+            window.addch(' ')
           end
 
           if status.favorite_count > 0
-            @window.with_color(:yellow) do
-              @window.addstr("#{status.favorite_count}fav#{status.favorite_count > 1 ? 's' : ''}")
+            window.with_color(:yellow) do
+              window.addstr("#{status.favorite_count}fav#{status.favorite_count > 1 ? 's' : ''}")
             end
-            @window.addch(' ')
+            window.addch(' ')
           end
 
           if status.retweet_count > 0
-            @window.with_color(:green) do
-              @window.addstr("#{status.retweet_count}RT#{status.retweet_count > 1 ? 's' : ''}")
+            window.with_color(:green) do
+              window.addstr("#{status.retweet_count}RT#{status.retweet_count > 1 ? 's' : ''}")
             end
-            @window.addch(' ')
+            window.addch(' ')
           end
 
-          status.split(@window.maxx - 4).each do |line|
+          status.split(window.maxx - 4).each do |line|
             current_line += 1
-            @window.setpos(current_line, 2)
-            @window.addstr(line)
+            window.setpos(current_line, 2)
+            window.addstr(line)
           end
 
           current_line += 2
         end
-
-        @window.refresh
 
         UserWindow.instance.update(highlighted_status.user) unless highlighted_status.nil?
         show_help
@@ -283,8 +279,8 @@ module Twterm
 
         height = 0
         statuses.each.with_index(-1) do |status, i|
-          height += status.split(@window.maxx - 4).count + 2
-          if height >= @window.maxy
+          height += status.split(window.maxx - 4).count + 2
+          if height >= window.maxy
             @offset_from_bottom = i
             return i
           end
