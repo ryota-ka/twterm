@@ -55,15 +55,15 @@ module Twterm
         Curses.noecho
 
         if grep_query.empty?
-          # do nothing
+          reset_grep
         elsif count == 0
           Notifier.instance.show_error "No matches found: \"#{grep_query}\""
-          @grep_query = ''
+          reset_grep
         else
           Notifier.instance.show_message "#{count} statuses found: \"#{grep_query}\""
+          scroll_manager.move_to_top
+          refresh
         end
-
-        refresh
       end
 
       def grep_query
@@ -102,6 +102,10 @@ module Twterm
       end
 
       def reset_grep
+        # TODO: replace with more general way (issue #170)
+        stdscr.clear
+        Screen.instance.refresh
+
         @grep_query = ''
         refresh
       end
