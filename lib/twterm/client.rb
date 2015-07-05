@@ -3,8 +3,8 @@ module Twterm
     attr_reader :user_id, :screen_name
 
     CREATE_STATUS_PROC = -> (s) { Status.new(s) }
-    CONSUMER_KEY = 'vLNSVFgXclBJQJRZ7VLMxL9lA'
-    CONSUMER_SECRET = 'OFLKzrepRG2p1hq0nUB9j2S9ndFQoNTPheTpmOY0GYw55jGgS5'
+    CONSUMER_KEY = 'vLNSVFgXclBJQJRZ7VLMxL9lA'.freeze
+    CONSUMER_SECRET = 'OFLKzrepRG2p1hq0nUB9j2S9ndFQoNTPheTpmOY0GYw55jGgS5'.freeze
 
     @@instances = []
 
