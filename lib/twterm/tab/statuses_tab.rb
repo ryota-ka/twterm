@@ -114,7 +114,7 @@ module Twterm
         case key
         when ?c
           show_conversation
-        when ?d
+        when ?d, 4
           10.times { scroll_manager.move_down }
         when ?D
           destroy_status
@@ -136,7 +136,7 @@ module Twterm
           retweet
         when 18
           fetch
-        when ?u
+        when ?u, 21
           10.times { scroll_manager.move_up }
         when ?U
           show_user
