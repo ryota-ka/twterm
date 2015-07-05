@@ -22,11 +22,14 @@ module Twterm
 
     def respond_to_key(key)
       case key
-      when 'n'
+      when ?n
         Tweetbox.instance.compose
         return
-      when 'Q'
+      when ?Q
         App.instance.quit
+      when ??
+        tab = Tab::KeyboardShortcutCheatsheet.new
+        TabManager.instance.add_and_show tab
       else
         return false
       end
