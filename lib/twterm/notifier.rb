@@ -17,14 +17,14 @@ module Twterm
       end
     end
 
-    def show_message(message)
-      notification = Notification::Message.new(message)
+    def show_error(message)
+      notification = Notification::Error.new(message)
       @queue.push(notification)
       self
     end
 
-    def show_error(message)
-      notification = Notification::Error.new(message)
+    def show_message(message)
+      notification = Notification::Message.new(message)
       @queue.push(notification)
       self
     end

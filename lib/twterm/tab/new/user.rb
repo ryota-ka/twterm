@@ -5,15 +5,15 @@ module Twterm
         include Base
         include Readline
 
+        def ==(other)
+          other.is_a?(self.class)
+        end
+
         def initialize
           super
 
           @title = 'New tab'
           @window.refresh
-        end
-
-        def respond_to_key(_)
-          false
         end
 
         def invoke_input
@@ -54,6 +54,10 @@ module Twterm
           end
 
           input_thread.join
+        end
+
+        def respond_to_key(_)
+          false
         end
 
         private
