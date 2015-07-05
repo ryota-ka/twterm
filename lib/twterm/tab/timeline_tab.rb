@@ -3,6 +3,18 @@ module Twterm
     class TimelineTab
       include StatusesTab
 
+      def close
+        fail NotClosableError
+      end
+
+      def fetch
+        @client.home_timeline do |statuses|
+          statuses.each(&method(:prepend))
+          sort
+          yield if block_given?
+        end
+      end
+
       def initialize(client)
         fail ArgumentError, 'argument must be an instance of Client class' unless client.is_a? Client
 
@@ -13,20 +25,6 @@ module Twterm
 
         fetch { scroll_manager.move_to_top }
         @auto_reloader = Scheduler.new(180) { fetch }
-      end
-
-      def fetch
-        Thread.new do
-          @client.home_timeline do |statuses|
-            statuses.each(&method(:prepend))
-            sort
-            yield if block_given?
-          end
-        end
-      end
-
-      def close
-        fail NotClosableError
       end
     end
   end
