@@ -6,6 +6,26 @@ module Twterm
 
       attr_reader :query
 
+      def ==(other)
+        other.is_a?(self.class) && query == other.query
+      end
+
+      def close
+        @auto_reloader.kill if @auto_reloader
+        super
+      end
+
+      def dump
+        @query
+      end
+
+      def fetch
+        Client.current.search(@query) do |statuses|
+          statuses.reverse.each(&method(:prepend))
+          yield if block_given?
+        end
+      end
+
       def initialize(query)
         super()
 
@@ -14,26 +34,6 @@ module Twterm
 
         fetch { scroll_manager.move_to_top }
         @auto_reloader = Scheduler.new(300) { fetch }
-      end
-
-      def fetch
-        Client.current.search(@query) do |statuses|
-          statuses.reverse.each { |status| prepend(status) }
-          yield if block_given?
-        end
-      end
-
-      def close
-        @auto_reloader.kill if @auto_reloader
-        super
-      end
-
-      def ==(other)
-        other.is_a?(self.class) && query == other.query
-      end
-
-      def dump
-        @query
       end
     end
   end
