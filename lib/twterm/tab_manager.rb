@@ -75,7 +75,11 @@ module Twterm
     end
 
     def recover_tabs
-      return unless File.exist? DUMPED_TABS_FILE
+      unless File.exist? DUMPED_TABS_FILE
+        tab = Tab::KeyAssignmentsCheatsheet.new
+        add(tab)
+        return
+      end
 
       data = YAML.load(File.read(DUMPED_TABS_FILE))
       data.each do |klass, title, arg|
