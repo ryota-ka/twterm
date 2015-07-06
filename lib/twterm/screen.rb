@@ -28,7 +28,7 @@ module Twterm
       when ?Q
         App.instance.quit
       when ??
-        tab = Tab::KeyboardShortcutCheatsheet.new
+        tab = Tab::KeyAssignmentsCheatsheet.new
         TabManager.instance.add_and_show tab
       else
         return false

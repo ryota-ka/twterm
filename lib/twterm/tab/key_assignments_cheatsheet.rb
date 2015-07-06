@@ -1,6 +1,6 @@
 module Twterm
   module Tab
-    class KeyboardShortcutCheatsheet
+    class KeyAssignmentsCheatsheet
       include Base
 
       def ==(other)
@@ -43,14 +43,14 @@ module Twterm
       end
 
       def title
-        'Keyboard shortcuts'.freeze
+        'Key assignments'.freeze
       end
 
       def update
         current_line = 2
 
         window.setpos(current_line, 3)
-        window.bold { window.addstr('Keyboard shortcuts') }
+        window.bold { window.addstr('Key assignments') }
 
         SHORTCUTS.each do |category, shortcuts|
           current_line += 3
