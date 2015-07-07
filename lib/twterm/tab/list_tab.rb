@@ -13,7 +13,7 @@ module Twterm
           @list = list
           @title = @list.full_name
           TabManager.instance.refresh_window
-          fetch { move_to_top }
+          fetch { scroll_manager.move_to_top }
           @auto_reloader = Scheduler.new(300) { fetch }
         end
       end

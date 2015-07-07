@@ -3,6 +3,18 @@ module Twterm
     class MentionsTab
       include StatusesTab
 
+      def close
+        fail NotClosableError
+      end
+
+      def fetch
+        @client.mentions do |statuses|
+          statuses.reverse.each(&method(:prepend))
+          sort
+          yield if block_given?
+        end
+      end
+
       def initialize(client)
         fail ArgumentError, 'argument must be an instance of Client class' unless client.is_a? Client
 
@@ -16,20 +28,8 @@ module Twterm
 
         @title = 'Mentions'
 
-        fetch { move_to_top }
+        fetch { scroll_manager.move_to_top }
         @auto_reloader = Scheduler.new(300) { fetch }
-      end
-
-      def fetch
-        @client.mentions do |statuses|
-          statuses.reverse.each(&method(:prepend))
-          sort
-          yield if block_given?
-        end
-      end
-
-      def close
-        fail NotClosableError
       end
     end
   end

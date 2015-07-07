@@ -6,21 +6,8 @@ module Twterm
 
       attr_reader :query
 
-      def initialize(query)
-        super()
-
-        @query = query
-        @title = "\"#{@query}\""
-
-        fetch { move_to_top }
-        @auto_reloader = Scheduler.new(300) { fetch }
-      end
-
-      def fetch
-        Client.current.search(@query) do |statuses|
-          statuses.reverse.each { |status| prepend(status) }
-          yield if block_given?
-        end
+      def ==(other)
+        other.is_a?(self.class) && query == other.query
       end
 
       def close
@@ -28,12 +15,25 @@ module Twterm
         super
       end
 
-      def ==(other)
-        other.is_a?(self.class) && query == other.query
-      end
-
       def dump
         @query
+      end
+
+      def fetch
+        Client.current.search(@query) do |statuses|
+          statuses.reverse.each(&method(:prepend))
+          yield if block_given?
+        end
+      end
+
+      def initialize(query)
+        super()
+
+        @query = query
+        @title = "\"#{@query}\""
+
+        fetch { scroll_manager.move_to_top }
+        @auto_reloader = Scheduler.new(300) { fetch }
       end
     end
   end

@@ -1,6 +1,6 @@
 module Twterm
   module Auth
-    def authenticate_user
+    def authenticate_user(config)
       consumer = OAuth::Consumer.new(
         'vLNSVFgXclBJQJRZ7VLMxL9lA',
         'OFLKzrepRG2p1hq0nUB9j2S9ndFQoNTPheTpmOY0GYw55jGgS5',
@@ -17,10 +17,10 @@ module Twterm
       pin = (STDIN.gets || '').strip
       access_token = request_token.get_access_token(oauth_verifier: pin)
 
-      Config[:access_token] = access_token.token
-      Config[:access_token_secret] = access_token.secret
-      Config[:screen_name] = access_token.params[:screen_name]
-      Config[:user_id] = access_token.params[:user_id]
+      config[:access_token] = access_token.token
+      config[:access_token_secret] = access_token.secret
+      config[:screen_name] = access_token.params[:screen_name]
+      config[:user_id] = access_token.params[:user_id]
     end
 
     module_function :authenticate_user

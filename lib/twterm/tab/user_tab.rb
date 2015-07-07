@@ -6,17 +6,17 @@ module Twterm
 
       attr_reader :user
 
-      def initialize(user_id)
-        super()
+      def ==(other)
+        other.is_a?(self.class) && user == other.user
+      end
 
-        User.find_or_fetch(user_id) do |user|
-          @user = user
-          @title = "@#{@user.screen_name}"
-          TabManager.instance.refresh_window
+      def close
+        @auto_reloader.kill if @auto_reloader
+        super
+      end
 
-          fetch { move_to_top }
-          @auto_reloader = Scheduler.new(120) { fetch }
-        end
+      def dump
+        @user.id
       end
 
       def fetch
@@ -27,17 +27,17 @@ module Twterm
         end
       end
 
-      def close
-        @auto_reloader.kill if @auto_reloader
-        super
-      end
+      def initialize(user_id)
+        super()
 
-      def ==(other)
-        other.is_a?(self.class) && user == other.user
-      end
+        User.find_or_fetch(user_id) do |user|
+          @user = user
+          @title = "@#{@user.screen_name}"
+          TabManager.instance.refresh_window
 
-      def dump
-        @user.id
+          fetch { scroll_manager.move_to_top }
+          @auto_reloader = Scheduler.new(120) { fetch }
+        end
       end
     end
   end

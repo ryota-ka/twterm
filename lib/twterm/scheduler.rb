@@ -7,10 +7,7 @@ class Scheduler
     @paused = false
 
     @thread = Thread.new do
-      loop do
-        sleep @interval
-        run
-      end
+      loop { sleep(@interval) && run }
     end
   end
 
@@ -22,11 +19,11 @@ class Scheduler
     @paused = true
   end
 
-  def run
-    @block.call unless @paused
+  def resume
+    @paused = false
   end
 
-  def unpause
-    @paused = false
+  def run
+    @block.call unless @paused
   end
 end

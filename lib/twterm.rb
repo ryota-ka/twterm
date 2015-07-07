@@ -3,6 +3,7 @@ $:.include?(File.dirname(__FILE__)) || $:.include?(File.expand_path(File.dirname
 
 require 'cgi'
 require 'curses'
+require 'forwardable'
 require 'launchy'
 require 'oauth'
 require 'readline'
@@ -36,9 +37,10 @@ require 'twterm/tab_manager'
 require 'twterm/tab/base'
 require 'twterm/tab/dumpable'
 require 'twterm/tab/exceptions'
-require 'twterm/tab/scrollable'
+require 'twterm/tab/scroll_manager'
 require 'twterm/tab/statuses_tab'
 require 'twterm/tab/conversation_tab'
+require 'twterm/tab/key_assignments_cheatsheet'
 require 'twterm/tab/list_tab'
 require 'twterm/tab/mentions_tab'
 require 'twterm/tab/new/start'
@@ -55,6 +57,6 @@ require 'twterm/version'
 
 module Twterm
   class Conf
-    REQUIRE_VERSION = '1.0.9'
+    REQUIRE_VERSION = '1.0.10'
   end
 end

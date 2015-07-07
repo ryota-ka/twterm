@@ -6,18 +6,8 @@ module Twterm
 
       attr_reader :status
 
-      def initialize(status_id)
-        @title = 'Conversation'
-        super()
-
-        Status.find_or_fetch(status_id) do |status|
-          @status = status
-
-          append(status)
-          move_to_top
-          Thread.new { fetch_in_reply_to_status(status) }
-          Thread.new { fetch_replies(status) }
-        end
+      def ==(other)
+        other.is_a?(self.class) && status == other.status
       end
 
       def fetch_in_reply_to_status(status)
@@ -37,12 +27,22 @@ module Twterm
         end
       end
 
-      def ==(other)
-        other.is_a?(self.class) && status == other.status
-      end
-
       def dump
         @status.id
+      end
+
+      def initialize(status_id)
+        @title = 'Conversation'
+        super()
+
+        Status.find_or_fetch(status_id) do |status|
+          @status = status
+
+          append(status)
+          scroll_manager.move_to_top
+          Thread.new { fetch_in_reply_to_status(status) }
+          Thread.new { fetch_replies(status) }
+        end
       end
     end
   end

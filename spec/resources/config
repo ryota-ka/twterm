@@ -1,0 +1,4 @@
+---
+:access_token: token
+:access_token_secret: secret
+:screen_name: name

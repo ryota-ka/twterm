@@ -7,12 +7,9 @@ module Twterm
     def initialize
       Dir.mkdir(DATA_DIR, 0700) unless File.directory?(DATA_DIR)
 
-      Config.load
-      Auth.authenticate_user if Config[:screen_name].nil?
+      Auth.authenticate_user(config) if config[:screen_name].nil?
 
       Screen.instance
-
-      client = Client.new(Config[:user_id], Config[:screen_name], Config[:access_token], Config[:access_token_secret])
 
       timeline = Tab::TimelineTab.new(client)
       TabManager.instance.add_and_show(timeline)
@@ -52,6 +49,19 @@ module Twterm
     end
 
     private
+
+    def client
+      @client ||= Client.new(
+        config[:user_id].to_i,
+        config[:screen_name],
+        config[:access_token],
+        config[:access_token_secret]
+      )
+    end
+
+    def config
+      @config ||= Config.new
+    end
 
     def run_periodic_cleanup
       Scheduler.new(300) do
