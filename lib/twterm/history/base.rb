@@ -11,7 +11,11 @@ module Twterm
           return
         end
 
-        @history = YAML.load(File.read(history_file)) || []
+        begin
+          @history = YAML.load(File.read(history_file)) || []
+        rescue
+          @history = []
+        end
       end
 
       def add(hashtag)
