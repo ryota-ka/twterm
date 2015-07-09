@@ -175,6 +175,12 @@ module Twterm
       end
     end
 
+    def saved_search
+      send_request do
+        yield rest_client.saved_searches
+      end
+    end
+
     def search(query)
       send_request do
         statuses = rest_client
