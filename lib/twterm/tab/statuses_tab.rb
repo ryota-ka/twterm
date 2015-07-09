@@ -2,6 +2,7 @@ module Twterm
   module Tab
     module StatusesTab
       include Base
+      include FilterableList
       include Scrollable
 
       def append(status)
@@ -50,28 +51,6 @@ module Twterm
         fail NotImplementedError, 'fetch method must be implemented'
       end
 
-      def grep
-        reset_grep
-
-        Curses.echo
-        Curses.setpos(stdscr.maxy - 1, 0)
-        Curses.stdscr.addch '/'
-        @grep_query = Curses.getstr.chomp
-        Curses.noecho
-
-        if grep_query.empty?
-          reset_grep
-        elsif total_item_count == 0
-          query = grep_query
-          reset_grep
-          Notifier.instance.show_error "No matches found: \"#{query}\""
-        else
-          Notifier.instance.show_message "#{total_item_count} statuses found: \"#{grep_query}\""
-          scroller.move_to_top
-          refresh
-        end
-      end
-
       def initialize
         super
 
@@ -107,15 +86,6 @@ module Twterm
         Tweetbox.instance.compose(highlighted_status)
       end
 
-      def reset_grep
-        # TODO: replace with more general way (issue #170)
-        stdscr.clear
-        Screen.instance.refresh
-
-        @grep_query = ''
-        refresh
-      end
-
       def respond_to_key(key)
         case key
         when ?c
@@ -147,9 +117,9 @@ module Twterm
         when ?U
           show_user
         when ?/
-          grep
+          filter
         when ?q
-          reset_grep
+          reset_filter
         else
           return false
         end
@@ -180,10 +150,10 @@ module Twterm
         statuses = @status_ids.map { |id| Status.find(id) }.reject(&:nil?)
         @status_ids = statuses.map(&:id)
 
-        if grep_query.empty?
+        if filter_query.empty?
           statuses
         else
-          statuses.select { |s| s.grepped_with?(grep_query) }
+          statuses.select { |s| s.matches?(filter_query) }
         end
       end
 
@@ -192,7 +162,7 @@ module Twterm
       end
 
       def total_item_count
-        grep_query.empty? ? @status_ids.count : statuses.count
+        filter_query.empty? ? @status_ids.count : statuses.count
       end
 
       def update
@@ -267,10 +237,6 @@ module Twterm
       end
 
       private
-
-      def grep_query
-        @grep_query || ''
-      end
 
       def highlighted_status
         statuses[scroller.count - scroller.index - 1]

@@ -16,6 +16,10 @@ module Twterm
       self
     end
 
+    def matches?(query)
+      [full_name, description].any? { |x| x.downcase.include?(query.downcase) }
+    end
+
     def update!(list)
       @name = list.name
       @slug = list.slug

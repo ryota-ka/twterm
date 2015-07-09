@@ -3,6 +3,7 @@ module Twterm
     module New
       class List
         include Base
+        include FilterableList
         include Scrollable
 
         @@lists = nil
@@ -23,7 +24,7 @@ module Twterm
         end
 
         def items
-          @@lists
+          (@@lists || []).select { |l| l.matches?(filter_query) }
         end
 
         def respond_to_key(key)
@@ -40,6 +41,10 @@ module Twterm
             TabManager.instance.switch(list_tab)
           when ?k, 16, Curses::Key::UP
             scroller.move_up
+          when ?q
+            reset_filter
+          when ?/
+            filter
           else
             return false
           end
@@ -47,7 +52,7 @@ module Twterm
         end
 
         def total_item_count
-          @@lists.nil? ? 0 : @@lists.count
+          items.count
         end
 
         private

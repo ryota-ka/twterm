@@ -4,6 +4,7 @@ module Twterm
       class Search
         include Base
         include Readline
+        include FilterableList
         include Scrollable
 
         @@queries = []
@@ -53,7 +54,11 @@ module Twterm
         end
 
         def items
-          ['<Input search query>'] + @@queries
+          if filter_query.empty?
+            ['<Input search query>'] + @@queries
+          else
+            @@queries.select { |q| q.matches?(filter_query) }
+          end
         end
 
         def respond_to_key(key)
@@ -72,6 +77,10 @@ module Twterm
             scroller.move_up
           when ?u, 21
             10.times { scroller.move_up }
+          when ?q
+            reset_filter
+          when ?/
+            filter
           else
             return false
           end
@@ -80,7 +89,7 @@ module Twterm
         end
 
         def total_item_count
-          @@queries.count + 1
+          items.count
         end
 
         private
@@ -90,10 +99,10 @@ module Twterm
         def open_search_tab_with_current_query
           index = scroller.index
 
-          if index == 0
+          if filter_query.empty? && index.zero?
             invoke_input
           else
-            query = @@queries[index - 1]
+            query = items[index]
             tab = Tab::SearchTab.new(query)
             TabManager.instance.switch(tab)
           end
