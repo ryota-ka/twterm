@@ -3,6 +3,10 @@ class String
     each_char.map { |c| c.bytesize == 1 ? 1 : 2 }.reduce(0, &:+)
   end
 
+  def matches?(query)
+    downcase.include?(query.downcase)
+  end
+
   def split_by_width(width)
     cnt = 0
     str = ''
