@@ -13,7 +13,7 @@ module Twterm
         end
 
         def drawable_item_count
-          (window.maxy - 2).div(3)
+          (window.maxy - 6).div(3)
         end
 
         def initialize
