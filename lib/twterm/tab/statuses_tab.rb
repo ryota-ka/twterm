@@ -260,6 +260,8 @@ module Twterm
           end
 
           line += 2
+
+          UserWindow.instance.update(highlighted_status.user)
         end
       end
 
