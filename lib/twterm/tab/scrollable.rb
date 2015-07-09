@@ -33,9 +33,14 @@ module Twterm
           index == offset + i
         end
 
+        def cursor_free?
+          !!@cursor_free
+        end
+
         def initialize
           @index = 0
           @offset = 0
+          @cursor_free_mode = false
         end
 
         def drawable_items
@@ -57,7 +62,7 @@ module Twterm
           # return when there are no items or cursor is at the bottom
 
           @index += 1
-          @offset += 1 if cursor_on_the_downside? && !last_item_shown?
+          @offset += 1 if (cursor_free? || cursor_on_the_downside?) && !last_item_shown?
 
           hook :after_move
         end
@@ -90,6 +95,14 @@ module Twterm
           @offset -= 1 if cursor_on_the_upside? && !first_item_shown?
 
           hook :after_move
+        end
+
+        def nth_item_drawable?(n)
+          n.between?(offset, offset + drawable_item_count)
+        end
+
+        def set_cursor_free!
+          @cursor_free = true
         end
 
         private
