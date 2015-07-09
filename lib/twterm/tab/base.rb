@@ -19,14 +19,12 @@ module Twterm
       end
 
       def refresh
-        return unless refreshable?
-
         Thread.new do
           refresh_mutex.synchronize do
             window.clear
             update
             window.refresh
-          end
+          end if refreshable?
         end
       end
 
