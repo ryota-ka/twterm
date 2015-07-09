@@ -270,8 +270,7 @@ module Twterm
       end
 
       def highlighted_status
-        id = @status_ids[scroller.count - scroller.index - 1]
-        Status.find(id)
+        statuses[scroller.count - scroller.index - 1]
       end
 
       def sort
