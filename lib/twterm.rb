@@ -23,6 +23,8 @@ require 'twterm/extensions/curses/window'
 require 'twterm/extensions/enumerator/lazy'
 require 'twterm/extensions/integer'
 require 'twterm/extensions/string'
+require 'twterm/filter_query_window'
+require 'twterm/filterable_list'
 require 'twterm/history/base'
 require 'twterm/history/hashtag'
 require 'twterm/history/screen_name'
@@ -58,6 +60,6 @@ require 'twterm/version'
 
 module Twterm
   class Conf
-    REQUIRE_VERSION = '1.0.11'
+    REQUIRE_VERSION = '1.0.12'
   end
 end

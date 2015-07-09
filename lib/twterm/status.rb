@@ -29,7 +29,7 @@ module Twterm
       @favorited = true
     end
 
-    def grepped_with?(query)
+    def matches?(query)
       [text, user.screen_name, user.name]
         .any? { |x| x.downcase.include?(query.downcase) }
     end

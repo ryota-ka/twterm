@@ -3,6 +3,7 @@ module Twterm
     module New
       class List
         include Base
+        include FilterableList
         include Scrollable
 
         @@lists = nil
@@ -12,7 +13,7 @@ module Twterm
         end
 
         def drawable_item_count
-          (window.maxy - 2).div(3)
+          (window.maxy - 6).div(3)
         end
 
         def initialize
@@ -23,11 +24,13 @@ module Twterm
         end
 
         def items
-          @@lists
+          (@@lists || []).select { |l| l.matches?(filter_query) }
         end
 
         def respond_to_key(key)
           case key
+          when ?d, 4
+            10.times { scroller.move_down }
           when ?g
             scroller.move_to_top
           when ?G
@@ -40,6 +43,12 @@ module Twterm
             TabManager.instance.switch(list_tab)
           when ?k, 16, Curses::Key::UP
             scroller.move_up
+          when ?q
+            reset_filter
+          when ?u, 21
+            10.times { scroller.move_up }
+          when ?/
+            filter
           else
             return false
           end
@@ -47,13 +56,13 @@ module Twterm
         end
 
         def total_item_count
-          @@lists.nil? ? 0 : @@lists.count
+          items.count
         end
 
         private
 
         def current_list
-          @@lists.nil? ? nil : @@lists[scroller.index]
+          @@lists.nil? ? nil : items[scroller.index]
         end
 
         def show_lists

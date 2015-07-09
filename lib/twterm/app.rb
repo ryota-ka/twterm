@@ -10,6 +10,7 @@ module Twterm
       Auth.authenticate_user(config) if config[:screen_name].nil?
 
       Screen.instance
+      FilterQueryWindow.instance
 
       timeline = Tab::TimelineTab.new(client)
       TabManager.instance.add_and_show(timeline)
