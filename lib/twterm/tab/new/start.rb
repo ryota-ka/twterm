@@ -22,13 +22,8 @@ module Twterm
           when 'S'
             tab = Tab::New::Search.new
             TabManager.instance.switch(tab)
-            tab.invoke_input
           when 'U'
             tab = Tab::New::User.new
-            TabManager.instance.switch(tab)
-            tab.invoke_input
-          when 'x'
-            tab = Tab::New::Track.new
             TabManager.instance.switch(tab)
             tab.invoke_input
           else

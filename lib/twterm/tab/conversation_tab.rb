@@ -39,7 +39,7 @@ module Twterm
           @status = status
 
           append(status)
-          scroll_manager.move_to_top
+          scroller.move_to_top
           Thread.new { fetch_in_reply_to_status(status) }
           Thread.new { fetch_replies(status) }
         end

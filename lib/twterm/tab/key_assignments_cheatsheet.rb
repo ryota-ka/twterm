@@ -2,6 +2,7 @@ module Twterm
   module Tab
     class KeyAssignmentsCheatsheet
       include Base
+      include Scrollable
 
       def ==(other)
         other.is_a?(self.class)
@@ -38,20 +39,29 @@ module Twterm
         }
       }
 
+      def drawable_item_count
+        window.maxy - 3
+      end
+
+      def initialize
+        super
+        scroller.set_cursor_free!
+      end
+
       def respond_to_key(key)
         case key
         when ?d, 4
-          10.times { scroll_manager.move_down }
+          10.times { scroller.move_down }
         when ?g
-          scroll_manager.move_to_top
+          scroller.move_to_top
         when ?G
-          scroll_manager.move_to_bottom
+          scroller.move_to_bottom
         when ?j, 14, Curses::Key::DOWN
-          scroll_manager.move_down
+          scroller.move_down
         when ?k, 16, Curses::Key::UP
-          scroll_manager.move_up
+          scroller.move_up
         when ?u, 21
-          10.times { scroll_manager.move_up }
+          10.times { scroller.move_up }
         else
           return false
         end
@@ -63,50 +73,33 @@ module Twterm
         'Key assignments'.freeze
       end
 
+      def total_item_count
+        @count ||= SHORTCUTS.count * 4 + SHORTCUTS.values.map(&:count).reduce(0, :+) + 1
+      end
+
       def update
-        top = 2 # begin drawing from line 2
-        draw_cond = -> line { top <= line && line <= window.maxy - top }
+        offset = scroller.offset
+        line = 0
 
-        current_line = top - scroll_manager.offset
-
-        window.setpos(current_line, 3)
-        window.bold { window.addstr('Key assignments') } if draw_cond[current_line]
+        window.setpos(line - offset + 2, 3)
+        window.bold { window.addstr('Key assignments') } if scroller.nth_item_drawable?(line)
 
         SHORTCUTS.each do |category, shortcuts|
-          current_line += 3
-          window.setpos(current_line, 5)
-          window.bold { window.addstr("<#{category}>") } if draw_cond[current_line]
-          current_line += 1
+          line += 3
+          window.setpos(line - offset + 2, 5)
+          window.bold { window.addstr("<#{category}>") } if scroller.nth_item_drawable?(line)
+          line += 1
 
           shortcuts.each do |key, description|
-            current_line += 1
-            next unless draw_cond[current_line]
+            line += 1
+            next unless scroller.nth_item_drawable?(line)
 
-            window.setpos(current_line, 7)
+            window.setpos(line - offset + 2, 7)
             window.bold { window.addstr(key.rjust(17)) }
-            window.setpos(current_line, 25)
+            window.setpos(line - offset + 2, 25)
             window.addstr(": #{description}")
           end
         end
-      end
-
-      private
-
-      def count
-        @count ||= SHORTCUTS.count * 4 + SHORTCUTS.map(&:count).reduce(0, :+) + 1
-      end
-
-      def offset_from_bottom
-        0
-      end
-
-      def scroll_manager
-        return @scroll_manager unless @scroll_manager.nil?
-
-        @scroll_manager = ScrollManager.new
-        @scroll_manager.delegate = self
-        @scroll_manager.after_move { refresh }
-        @scroll_manager
       end
     end
   end

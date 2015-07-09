@@ -2,6 +2,7 @@ module Twterm
   module Tab
     module StatusesTab
       include Base
+      include Scrollable
 
       def append(status)
         fail ArgumentError,
@@ -12,12 +13,8 @@ module Twterm
         @status_ids.unshift(status.id)
         status.split(window.maxx - 4)
         status.touch!
-        scroll_manager.item_appended!
+        scroller.item_appended!
         refresh
-      end
-
-      def count
-        grep_query.empty? ? @status_ids.count : statuses.count
       end
 
       def delete(status_id)
@@ -32,6 +29,14 @@ module Twterm
           delete(status.id)
           refresh
         end
+      end
+
+      def drawable_item_count
+        statuses.reverse.drop(scroller.offset).lazy
+          .map { |s| s.split(window.maxx - 4).count + 2 }
+          .scan(0, :+)
+          .select { |l| l < window.maxy }
+          .count
       end
 
       def favorite
@@ -56,24 +61,24 @@ module Twterm
 
         if grep_query.empty?
           reset_grep
-        elsif count == 0
+        elsif total_item_count == 0
           Notifier.instance.show_error "No matches found: \"#{grep_query}\""
           reset_grep
         else
-          Notifier.instance.show_message "#{count} statuses found: \"#{grep_query}\""
-          scroll_manager.move_to_top
+          Notifier.instance.show_message "#{total_item_count} statuses found: \"#{grep_query}\""
+          scroller.move_to_top
           refresh
         end
-      end
-
-      def grep_query
-        @grep_query || ''
       end
 
       def initialize
         super
 
         @status_ids = []
+      end
+
+      def items
+        statuses.reverse
       end
 
       def open_link
@@ -92,7 +97,7 @@ module Twterm
         @status_ids << status.id
         status.split(window.maxx - 4)
         status.touch!
-        scroll_manager.item_prepended!
+        scroller.item_prepended!
         refresh
       end
 
@@ -115,19 +120,19 @@ module Twterm
         when ?c
           show_conversation
         when ?d, 4
-          10.times { scroll_manager.move_down }
+          10.times { scroller.move_down }
         when ?D
           destroy_status
         when ?F
           favorite
         when ?g
-          scroll_manager.move_to_top
+          scroller.move_to_top
         when ?G
-          scroll_manager.move_to_bottom
+          scroller.move_to_bottom
         when ?j, 14, Curses::Key::DOWN
-          scroll_manager.move_down
+          scroller.move_down
         when ?k, 16, Curses::Key::UP
-          scroll_manager.move_up
+          scroller.move_up
         when ?o
           open_link
         when ?r
@@ -137,7 +142,7 @@ module Twterm
         when 18
           fetch
         when ?u, 21
-          10.times { scroll_manager.move_up }
+          10.times { scroller.move_up }
         when ?U
           show_user
         when ?/
@@ -185,33 +190,23 @@ module Twterm
         statuses.reverse.take(100).each(&:touch!)
       end
 
+      def total_item_count
+        grep_query.empty? ? @status_ids.count : statuses.count
+      end
+
       def update
-        current_line = 0
+        line = 0
 
-        offset = scroll_manager.offset
-        index = scroll_manager.index
-
-        return if offset < 0
-
-        statuses.reverse.drop(offset).each.with_index(offset) do |status, i|
+        scroller.drawable_items.each.with_index(0) do |status, i|
           formatted_lines = status.split(window.maxx - 4).count
-          if current_line + formatted_lines + 2 > window.maxy
-            scroll_manager.last = i
-            break
-          end
-
-          posy = current_line
-
-          if index == i
-            window.with_color(:black, :magenta) do
-              (formatted_lines + 1).times do |j|
-                window.setpos(posy + j, 0)
-                window.addch(' ')
-              end
+          window.with_color(:black, :magenta) do
+            (formatted_lines + 1).times do |j|
+              window.setpos(line + j, 0)
+              window.addch(' ')
             end
-          end
+          end if scroller.current_item?(i)
 
-          window.setpos(current_line, 2)
+          window.setpos(line, 2)
 
           window.bold do
             window.with_color(status.user.color) do
@@ -258,46 +253,24 @@ module Twterm
             window.addch(' ')
           end
 
-          status.split(window.maxx - 4).each do |line|
-            current_line += 1
-            window.setpos(current_line, 2)
-            window.addstr(line)
+          status.split(window.maxx - 4).each do |str|
+            line += 1
+            window.setpos(line, 2)
+            window.addstr(str)
           end
 
-          current_line += 2
+          line += 2
         end
-
-        UserWindow.instance.update(highlighted_status.user) unless highlighted_status.nil?
       end
 
       private
 
+      def grep_query
+        @grep_query || ''
+      end
+
       def highlighted_status
-        id = @status_ids[scroll_manager.count - scroll_manager.index - 1]
-        Status.find(id)
-      end
-
-      def offset_from_bottom
-        return @offset_from_bottom unless @offset_from_bottom.nil?
-
-        height = 0
-        statuses.each.with_index(-1) do |status, i|
-          height += status.split(window.maxx - 4).count + 2
-          if height >= window.maxy
-            @offset_from_bottom = i
-            return i
-          end
-        end
-        count
-      end
-
-      def scroll_manager
-        return @scroll_manager unless @scroll_manager.nil?
-
-        @scroll_manager = ScrollManager.new
-        @scroll_manager.delegate = self
-        @scroll_manager.after_move { refresh }
-        @scroll_manager
+        statuses[scroller.count - scroller.index - 1]
       end
 
       def sort
