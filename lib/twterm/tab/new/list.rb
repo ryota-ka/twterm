@@ -58,7 +58,7 @@ module Twterm
         private
 
         def current_list
-          @@lists.nil? ? nil : @@lists[scroller.index]
+          @@lists.nil? ? nil : items[scroller.index]
         end
 
         def show_lists
