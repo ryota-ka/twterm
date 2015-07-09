@@ -62,8 +62,9 @@ module Twterm
         if grep_query.empty?
           reset_grep
         elsif total_item_count == 0
-          Notifier.instance.show_error "No matches found: \"#{grep_query}\""
+          query = grep_query
           reset_grep
+          Notifier.instance.show_error "No matches found: \"#{query}\""
         else
           Notifier.instance.show_message "#{total_item_count} statuses found: \"#{grep_query}\""
           scroller.move_to_top
