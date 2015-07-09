@@ -41,17 +41,17 @@ module Twterm
       def respond_to_key(key)
         case key
         when ?d, 4
-          10.times { scroll_manager.move_down }
+          10.times { scroller.move_down }
         when ?g
-          scroll_manager.move_to_top
+          scroller.move_to_top
         when ?G
-          scroll_manager.move_to_bottom
+          scroller.move_to_bottom
         when ?j, 14, Curses::Key::DOWN
-          scroll_manager.move_down
+          scroller.move_down
         when ?k, 16, Curses::Key::UP
-          scroll_manager.move_up
+          scroller.move_up
         when ?u, 21
-          10.times { scroll_manager.move_up }
+          10.times { scroller.move_up }
         else
           return false
         end
@@ -67,7 +67,7 @@ module Twterm
         top = 2 # begin drawing from line 2
         draw_cond = -> line { top <= line && line <= window.maxy - top }
 
-        current_line = top - scroll_manager.offset
+        current_line = top - scroller.offset
 
         window.setpos(current_line, 3)
         window.bold { window.addstr('Key assignments') } if draw_cond[current_line]
@@ -98,15 +98,6 @@ module Twterm
 
       def offset_from_bottom
         0
-      end
-
-      def scroll_manager
-        return @scroll_manager unless @scroll_manager.nil?
-
-        @scroll_manager = ScrollManager.new
-        @scroll_manager.delegate = self
-        @scroll_manager.after_move { refresh }
-        @scroll_manager
       end
     end
   end

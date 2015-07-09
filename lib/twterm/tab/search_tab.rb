@@ -32,7 +32,7 @@ module Twterm
         @query = query
         @title = "\"#{@query}\""
 
-        fetch { scroll_manager.move_to_top }
+        fetch { scroller.move_to_top }
         @auto_reloader = Scheduler.new(300) { fetch }
       end
     end

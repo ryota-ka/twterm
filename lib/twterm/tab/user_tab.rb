@@ -35,7 +35,7 @@ module Twterm
           @title = "@#{@user.screen_name}"
           TabManager.instance.refresh_window
 
-          fetch { scroll_manager.move_to_top }
+          fetch { scroller.move_to_top }
           @auto_reloader = Scheduler.new(120) { fetch }
         end
       end
