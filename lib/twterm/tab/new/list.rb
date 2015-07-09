@@ -3,11 +3,16 @@ module Twterm
     module New
       class List
         include Base
+        include Scrollable
 
         @@lists = nil
 
         def ==(other)
           other.is_a?(self.class)
+        end
+
+        def drawable_item_count
+          (window.maxy - 2).div(3)
         end
 
         def initialize
@@ -17,65 +22,58 @@ module Twterm
           refresh
         end
 
+        def items
+          @@lists
+        end
+
         def respond_to_key(key)
           case key
           when ?g
-            scroll_manager.move_to_top
+            scroller.move_to_top
           when ?G
-            scroll_manager.move_to_bottom
+            scroller.move_to_bottom
           when ?j, 14, Curses::Key::DOWN
-            scroll_manager.move_down
+            scroller.move_down
           when 10
             return true if current_list.nil?
             list_tab = Tab::ListTab.new(current_list.id)
             TabManager.instance.switch(list_tab)
           when ?k, 16, Curses::Key::UP
-            scroll_manager.move_up
+            scroller.move_up
           else
             return false
           end
           true
         end
 
-        private
-
-        def count
+        def total_item_count
           @@lists.nil? ? 0 : @@lists.count
         end
 
-        def current_list
-          @@lists.nil? ? nil : @@lists[scroll_manager.index]
-        end
+        private
 
-        def offset_from_bottom
-          0
+        def current_list
+          @@lists.nil? ? nil : @@lists[scroller.index]
         end
 
         def show_lists
           return if @@lists.nil?
 
-          @@lists.each.with_index(0) do |list, i|
+          index, offset = scroller.index, scroller.offset
+
+          drawable_items.each.with_index(0) do |list, i|
             window.with_color(:black, :magenta) do
               window.setpos(i * 3 + 5, 4)
               window.addstr(' ')
               window.setpos(i * 3 + 6, 4)
               window.addstr(' ')
-            end if i == scroll_manager.index
+            end if scroller.current_item?(i)
 
             window.setpos(i * 3 + 5, 6)
             window.addstr("#{list.full_name} (#{list.member_count} members / #{list.subscriber_count} subscribers)")
             window.setpos(i * 3 + 6, 8)
             window.addstr(list.description)
           end
-        end
-
-        def scroll_manager
-          return @scroll_manager unless @scroll_manager.nil?
-
-          @scroll_manager = ScrollManager.new
-          @scroll_manager.delegate = self
-          @scroll_manager.after_move { refresh }
-          @scroll_manager
         end
 
         def update

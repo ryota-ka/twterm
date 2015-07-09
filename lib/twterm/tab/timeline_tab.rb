@@ -23,7 +23,7 @@ module Twterm
         @client.on_timeline_status(&method(:prepend))
         @title = 'Timeline'
 
-        fetch { scroll_manager.move_to_top }
+        fetch { scroller.move_to_top }
         @auto_reloader = Scheduler.new(180) { fetch }
       end
     end
