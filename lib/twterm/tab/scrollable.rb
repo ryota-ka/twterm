@@ -73,7 +73,6 @@ module Twterm
           @index = count - 1
           @offset = [count - drawable_item_count + 1, 0].max
 
-          @offset -= 1 while last_item_shown?
           @offset += 1 until last_item_shown?
 
           hook :after_move
