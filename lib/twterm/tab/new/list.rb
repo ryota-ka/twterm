@@ -29,6 +29,8 @@ module Twterm
 
         def respond_to_key(key)
           case key
+          when ?d, 4
+            10.times { scroller.move_down }
           when ?g
             scroller.move_to_top
           when ?G
@@ -43,6 +45,8 @@ module Twterm
             scroller.move_up
           when ?q
             reset_filter
+          when ?u, 21
+            10.times { scroller.move_up }
           when ?/
             filter
           else
