@@ -1,6 +1,6 @@
 module Twterm
   module Tab
-    class UserTab
+    class UserTimelineTab
       include StatusesTab
       include Dumpable
 
