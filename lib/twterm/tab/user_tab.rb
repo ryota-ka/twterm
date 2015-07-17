@@ -34,26 +34,15 @@ module Twterm
       end
 
       def respond_to_key(key)
+        return true if scroller.respond_to_key(key)
+
         case key
-        when ?f
-        when ?d, 4
-          10.times { scroller.move_down }
         when ?F
           follow
-        when ?g
-          scroller.move_to_top
-        when ?G
-          scroller.move_to_bottom
-        when ?j, 14, Curses::Key::DOWN
-          scroller.move_down
         when 10
           perform_selected_action
-        when ?k, 16, Curses::Key::UP
-          scroller.move_up
         when ?t
           open_timeline_tab
-        when ?u, 21
-          10.times { scroller.move_up }
         when ?W
           open_website
         else

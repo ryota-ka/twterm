@@ -110,6 +110,27 @@ module Twterm
           n.between?(offset, offset + drawable_item_count)
         end
 
+        def respond_to_key(key)
+          case key
+          when ?d, 4
+            10.times { move_down }
+          when ?g
+            move_to_top
+          when ?G
+            move_to_bottom
+          when ?j, 14, Curses::Key::DOWN
+            move_down
+          when ?k, 16, Curses::Key::UP
+            move_up
+          when ?u, 21
+            10.times { move_up }
+          else
+            return false
+          end
+
+          true
+        end
+
         def set_cursor_free!
           @cursor_free = true
         end
