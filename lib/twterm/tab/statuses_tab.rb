@@ -142,7 +142,7 @@ module Twterm
       def show_user
         return if highlighted_status.nil?
         user = highlighted_status.user
-        user_tab = Tab::UserTimelineTab.new(user.id)
+        user_tab = Tab::UserTab.new(user.id)
         TabManager.instance.add_and_show(user_tab)
       end
 

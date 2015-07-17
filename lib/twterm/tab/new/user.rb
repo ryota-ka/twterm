@@ -38,7 +38,7 @@ module Twterm
                   Notifier.instance.show_error 'User not found'
                   tab = Tab::New::Start.new
                 else
-                  tab = Tab::UserTimelineTab.new(user.id)
+                  tab = Tab::UserTab.new(user.id)
                 end
                 TabManager.instance.switch(tab)
               end
