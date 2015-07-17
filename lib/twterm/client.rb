@@ -53,6 +53,13 @@ module Twterm
       end
     end
 
+    def follow(*user_ids)
+      send_request do
+        users = rest_client.follow(*user_ids)
+        yield users.map(& -> u { User.new(u).follow! })
+      end
+    end
+
     def home_timeline
       send_request do
         statuses = rest_client
@@ -260,6 +267,13 @@ module Twterm
         rest_client.unfavorite(status.id)
         status.unfavorite!
         yield status if block_given?
+      end
+    end
+
+    def unfollow(*user_ids)
+      send_request do
+        users = rest_client.unfollow(*user_ids)
+        yield users.map(& -> u { User.new(u).unfollow! })
       end
     end
 
