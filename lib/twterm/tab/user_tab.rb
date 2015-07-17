@@ -65,7 +65,7 @@ module Twterm
       end
 
       def open_timeline_tab
-        tab = Tab::UserTimelineTab.new(user_id)
+        tab = Tab::Statuses::UserTimeline.new(user_id)
         TabManager.instance.add_and_show(tab)
       end
 

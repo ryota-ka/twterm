@@ -39,7 +39,7 @@ module Twterm
             query = (readline('> ') || '').strip
             resetter.call
 
-            tab = query.nil? || query.empty? ? Tab::New::Search.new : Tab::SearchTab.new(query)
+            tab = query.nil? || query.empty? ? Tab::New::Search.new : Tab::Statuses::Search.new(query)
             TabManager.instance.switch(tab)
           end
 
@@ -93,7 +93,7 @@ module Twterm
             invoke_input
           else
             query = items[index]
-            tab = Tab::SearchTab.new(query)
+            tab = Tab::Statuses::Search.new(query)
             TabManager.instance.switch(tab)
           end
         end

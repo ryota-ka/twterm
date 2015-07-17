@@ -33,7 +33,7 @@ module Twterm
           case key
           when 10
             return true if current_list.nil?
-            list_tab = Tab::ListTab.new(current_list.id)
+            list_tab = Tab::Statuses::ListTimeline.new(current_list.id)
             TabManager.instance.switch(list_tab)
           when ?q
             reset_filter

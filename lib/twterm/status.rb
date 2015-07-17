@@ -131,7 +131,7 @@ module Twterm
 
     def self.cleanup
       TabManager.instance.each_tab do |tab|
-        tab.touch_statuses if tab.is_a?(Tab::StatusesTab)
+        tab.touch_statuses if tab.is_a?(Tab::Statuses::Base)
       end
       cond = -> (status) { status.touched_at > Time.now - MAX_CACHED_TIME }
       statuses = all.select(&cond)
