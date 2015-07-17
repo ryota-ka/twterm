@@ -22,7 +22,6 @@ module Twterm
       Screen.instance.refresh
 
       client.stream
-      UserWindow.instance
 
       reset_interruption_handler
     end

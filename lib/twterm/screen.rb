@@ -16,7 +16,6 @@ module Twterm
     def refresh
       TabManager.instance.refresh_window
       TabManager.instance.current_tab.refresh
-      UserWindow.instance.refresh_window
       Notifier.instance.show
     end
 

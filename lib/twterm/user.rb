@@ -11,6 +11,11 @@ module Twterm
 
     @@instances = {}
 
+    def follow!
+      @following = true
+      self
+    end
+
     def initialize(user)
       @id = user.id
       update!(user)
@@ -22,6 +27,11 @@ module Twterm
 
     def touch!
       @touched_at = Time.now
+    end
+
+    def unfollow!
+      @following = false
+      self
     end
 
     def update!(user)

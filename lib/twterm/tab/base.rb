@@ -15,7 +15,7 @@ module Twterm
       end
 
       def initialize
-        @window = stdscr.subwin(stdscr.maxy - 5, stdscr.maxx - 30, 3, 0)
+        @window = stdscr.subwin(stdscr.maxy - 5, stdscr.maxx, 3, 0)
       end
 
       def refresh
