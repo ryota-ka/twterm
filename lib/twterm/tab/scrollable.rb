@@ -15,6 +15,12 @@ module Twterm
         @scroller
       end
 
+      # define default behaviour
+      # overwrite if necessary
+      def total_item_count
+        items.count
+      end
+
       private
 
       class Scroller
@@ -27,6 +33,10 @@ module Twterm
 
         def after_move(&block)
           add_hook(:after_move, &block)
+        end
+
+        def current_item
+          items[index]
         end
 
         def current_item?(i)
@@ -106,8 +116,6 @@ module Twterm
 
         private
 
-        alias_method :count, :total_item_count
-
         def add_hook(name, &block)
           @hooks ||= {}
           @hooks[name] = block
@@ -132,6 +140,8 @@ module Twterm
         def hook(name)
           @hooks[name].call unless @hooks[name].nil?
         end
+
+        alias_method :count, :total_item_count
       end
     end
   end
