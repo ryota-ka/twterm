@@ -66,7 +66,7 @@ module Twterm
       @index = 0
       @history = []
 
-      @window = stdscr.subwin(3, stdscr.maxx - 30, 0, 0)
+      @window = stdscr.subwin(3, stdscr.maxx, 0, 0)
     end
 
     def open_new

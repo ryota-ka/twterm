@@ -55,7 +55,6 @@ require 'twterm/tab/timeline_tab'
 require 'twterm/tab/user_timeline_tab'
 require 'twterm/tweetbox'
 require 'twterm/user'
-require 'twterm/user_window'
 require 'twterm/version'
 
 module Twterm
