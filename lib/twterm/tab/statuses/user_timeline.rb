@@ -33,12 +33,15 @@ module Twterm
 
           User.find_or_fetch(user_id) do |user|
             @user = user
-            @title = "@#{@user.screen_name}"
             TabManager.instance.refresh_window
 
             fetch { scroller.move_to_top }
             @auto_reloader = Scheduler.new(120) { fetch }
           end
+        end
+
+        def title
+          @user.nil? ? 'Loading...' : "@#{@user.screen_name} timeline"
         end
       end
     end
