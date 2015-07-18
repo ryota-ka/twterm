@@ -60,6 +60,34 @@ module Twterm
       end
     end
 
+    def followers(user_id = nil)
+      user_id ||= self.user_id
+
+      m = Mutex.new
+
+      send_request do
+        rest_client.follower_ids(user_id).each_slice(100) do |user_ids|
+          m.synchronize do
+            yield rest_client.users(*user_ids).map(& -> u { User.new(u) })
+          end
+        end
+      end
+    end
+
+    def friends(user_id = nil)
+      user_id ||= self.user_id
+
+      m = Mutex.new
+
+      send_request do
+        rest_client.friend_ids(user_id).each_slice(100) do |user_ids|
+          m.synchronize do
+            yield rest_client.users(*user_ids).map(& -> u { User.new(u) })
+          end
+        end
+      end
+    end
+
     def home_timeline
       send_request do
         statuses = rest_client

@@ -4,7 +4,7 @@ module Twterm
       extend Forwardable
 
       attr_reader :scroller
-      def_delegators :scroller, :drawable_items
+      def_delegators :scroller, :current_item, :drawable_items
 
       def scroller
         return @scroller unless @scroller.nil?

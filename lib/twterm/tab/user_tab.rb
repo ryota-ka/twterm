@@ -28,6 +28,8 @@ module Twterm
       def items
         %i(
           open_timeline_tab
+          show_friends
+          show_followers
           open_website
           follow_or_unfollow
         )
@@ -88,7 +90,21 @@ module Twterm
           open_timeline_tab
         when :open_website
           open_website
+        when :show_followers
+          show_followers
+        when :show_friends
+          show_friends
         end
+      end
+
+      def show_followers
+        tab = Tab::Users::Followers.new(user_id)
+        TabManager.instance.add_and_show(tab)
+      end
+
+      def show_friends
+        tab = Tab::Users::Friends.new(user_id)
+        TabManager.instance.add_and_show(tab)
       end
 
       def unfollow
@@ -114,15 +130,8 @@ module Twterm
           window.with_color(color) { window.addstr(text) }
 
           window.setpos(6, 5)
-          window.addstr("#{user.statuses_count.format} tweets")
-          window.setpos(7, 5)
-          window.addstr("#{user.friends_count.format} following")
-          window.setpos(8, 5)
-          window.addstr("#{user.followers_count.format} followers")
-
-          window.setpos(6, 25)
           window.addstr("Location: #{user.location}")
-          window.setpos(7, 25)
+          window.setpos(7, 5)
           window.addstr("Website: #{user.website}")
 
           current_line = 11
@@ -143,13 +152,17 @@ module Twterm
                 window.bold { window.addch(?F) }
               end
             when :open_timeline_tab
-              window.addstr('[ ] Show tweets')
+              window.addstr("[ ] #{user.statuses_count.format} tweets")
               window.setpos(current_line, 6)
               window.bold { window.addch(?t) }
             when :open_website
-              window.addstr('[ ] Open website')
+              window.addstr("[ ] Open website (#{user.website})")
               window.setpos(current_line, 6)
               window.bold { window.addch(?W) }
+            when :show_followers
+              window.addstr("    #{user.followers_count.format} followers")
+            when :show_friends
+              window.addstr("    #{user.friends_count.format} following")
             end
 
             current_line += 2
