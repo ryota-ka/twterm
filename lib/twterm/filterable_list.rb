@@ -12,7 +12,7 @@ module Twterm
         reset_filter
         Notifier.instance.show_error "No matches found: \"#{query}\""
       else
-        Notifier.instance.show_message "#{total_item_count} statuses found: \"#{filter_query}\""
+        Notifier.instance.show_message "#{total_item_count} items found: \"#{filter_query}\""
         scroller.move_to_top
       end
 
@@ -30,6 +30,7 @@ module Twterm
     def reset_filter
       FilterQueryWindow.instance.clear
       @filter_query = ''
+      refresh
     end
   end
 end
