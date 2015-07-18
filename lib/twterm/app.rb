@@ -12,10 +12,10 @@ module Twterm
       Screen.instance
       FilterQueryWindow.instance
 
-      timeline = Tab::TimelineTab.new(client)
+      timeline = Tab::Statuses::Home.new(client)
       TabManager.instance.add_and_show(timeline)
 
-      mentions_tab = Tab::MentionsTab.new(client)
+      mentions_tab = Tab::Statuses::Mentions.new(client)
       TabManager.instance.add(mentions_tab)
       TabManager.instance.recover_tabs
 

@@ -25,6 +25,10 @@ module Twterm
       @@instances[@id] = self
     end
 
+    def matches?(query)
+      [name, screen_name, description, website].any? { |x| x.to_s.downcase.include? query.downcase }
+    end
+
     def touch!
       @touched_at = Time.now
     end

@@ -49,24 +49,9 @@ module Twterm
       end
 
       def respond_to_key(key)
-        case key
-        when ?d, 4
-          10.times { scroller.move_down }
-        when ?g
-          scroller.move_to_top
-        when ?G
-          scroller.move_to_bottom
-        when ?j, 14, Curses::Key::DOWN
-          scroller.move_down
-        when ?k, 16, Curses::Key::UP
-          scroller.move_up
-        when ?u, 21
-          10.times { scroller.move_up }
-        else
-          return false
-        end
+        return true if scroller.respond_to_key(key)
 
-        true
+        false
       end
 
       def title
