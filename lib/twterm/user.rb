@@ -1,9 +1,13 @@
 module Twterm
   class User
     attr_reader :id, :name, :screen_name, :description, :location, :website,
-                :following, :protected, :statuses_count, :friends_count,
-                :followers_count, :touched_at, :color
+                :blocking, :followed, :following, :muting, :protected,
+                :statuses_count, :friends_count, :followers_count, :touched_at,
+                :color
+    alias_method :blocking?, :blocking
+    alias_method :followed?, :followed
     alias_method :following?, :following
+    alias_method :muting?, :muting
     alias_method :protected?, :protected
 
     MAX_CACHED_TIME = 3600
@@ -11,8 +15,18 @@ module Twterm
 
     @@instances = {}
 
+    def block!
+      @blocking = true
+      self
+    end
+
     def follow!
       @following = true
+      self
+    end
+
+    def followed!
+      @followed = true
       self
     end
 
@@ -29,12 +43,32 @@ module Twterm
       [name, screen_name, description, website].any? { |x| x.to_s.downcase.include? query.downcase }
     end
 
+    def mute!
+      @muting = true
+      self
+    end
+
     def touch!
       @touched_at = Time.now
     end
 
+    def unblock!
+      @blocking = false
+      self
+    end
+
     def unfollow!
       @following = false
+      self
+    end
+
+    def unfollowed!
+      @followed = false
+      self
+    end
+
+    def unmute!
+      @muting = false
       self
     end
 
