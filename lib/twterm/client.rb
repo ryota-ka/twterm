@@ -142,6 +142,23 @@ module Twterm
       end
     end
 
+    def lookup_friendships
+      user_ids = User.all.select { |u| u.followed.nil? }.map(&:id)
+      send_request do
+        user_ids.each_slice(100) do |chunked_user_ids|
+          friendships = rest_client.friendships(*chunked_user_ids)
+          friendships.each do |friendship|
+            user = User.find(friendship.id)
+            conn = friendship.connections
+            conn.include?('blocking')    ? user.block!    : user.unblock!
+            conn.include?('following')   ? user.follow!   : user.unfollow!
+            conn.include?('followed_by') ? user.followed! : user.unfollowed!
+            conn.include?('muting')      ? user.mute!     : user.unmute!
+          end
+        end
+      end
+    end
+
     def mentions
       send_request do
         statuses = rest_client
