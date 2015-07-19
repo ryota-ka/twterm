@@ -68,7 +68,9 @@ module Twterm
       send_request do
         rest_client.follower_ids(user_id).each_slice(100) do |user_ids|
           m.synchronize do
-            yield rest_client.users(*user_ids).map(& -> u { User.new(u) })
+            users = rest_client.users(*user_ids).map(& -> u { User.new(u) })
+            users.each(&:followed!) if user_id == self.user_id
+            yield users
           end
         end
       end
