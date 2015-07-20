@@ -30,15 +30,17 @@ module Twterm
       end
 
       def items
-        %i(
+        items = %i(
           open_timeline_tab
           show_friends
           show_followers
           open_website
-          toggle_follow
-          toggle_mute
-          toggle_block
         )
+        items << :toggle_follow unless myself?
+        items << :toggle_mute   unless myself?
+        items << :toggle_block  unless myself?
+
+        items
       end
 
       def respond_to_key(key)
@@ -90,6 +92,10 @@ module Twterm
           msg = "Muted @#{user.screen_name}"
           Notifier.instance.show_message msg
         end
+      end
+
+      def myself?
+        user_id == Client.current.user_id
       end
 
       def open_timeline_tab
@@ -180,11 +186,15 @@ module Twterm
         window.addstr(" (@#{user.screen_name})")
 
         window.setpos(4, 5)
-        window.with_color(:green) { window.addstr('[following]') } if user.following?
-        window.with_color(:white) { window.addstr('[not following]') } if !user.following? && !user.blocking?
-        window.with_color(:cyan) { window.addstr(' [follows you]') } if user.followed?
-        window.with_color(:red) { window.addstr(' [muting]') } if user.muting?
-        window.with_color(:red) { window.addstr(' [blocking]') } if user.blocking?
+        if myself?
+          window.with_color(:yellow) { window.addstr('[your account]') }
+        else
+          window.with_color(:green) { window.addstr('[following]') } if user.following?
+          window.with_color(:white) { window.addstr('[not following]') } if !user.following? && !user.blocking?
+          window.with_color(:cyan) { window.addstr(' [follows you]') } if user.followed?
+          window.with_color(:red) { window.addstr(' [muting]') } if user.muting?
+          window.with_color(:red) { window.addstr(' [blocking]') } if user.blocking?
+        end
 
         window.setpos(6, 5)
         window.addstr("Location: #{user.location}")
