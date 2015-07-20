@@ -98,10 +98,14 @@ module Twterm
     end
 
     def self.find_or_fetch(id)
-      instance = find(id)
-      (yield(instance) && return) if instance
+      Promise.new do |resolve, reject|
+        instance = find(id)
+        (resolve.(instance) && next) if instance
 
-      Client.current.show_user(id) { |user| yield user }
+        Client.current.show_user(id).then do |user|
+          resolve.(user)
+        end
+      end
     end
 
     def self.cleanup

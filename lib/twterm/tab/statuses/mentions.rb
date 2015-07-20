@@ -9,7 +9,7 @@ module Twterm
         end
 
         def fetch
-          @client.mentions do |statuses|
+          @client.mentions.then do |statuses|
             statuses.reverse.each(&method(:prepend))
             sort
             yield if block_given?

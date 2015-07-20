@@ -82,7 +82,7 @@ module Twterm
 
           Thread.new do
             Notifier.instance.show_message('Loading lists ...')
-            Client.current.lists do |lists|
+            Client.current.lists.then do |lists|
               @@lists = lists.sort_by(&:full_name)
               show_lists
               window.refresh if TabManager.instance.current_tab == self

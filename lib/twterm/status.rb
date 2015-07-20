@@ -35,18 +35,17 @@ module Twterm
     end
 
     def in_reply_to_status(&block)
-      if @in_reply_to_status_id.nil?
-        block.call(nil)
-        return
-      end
+      Promise.new do |resolve, reject|
+        (resolve.(nil) && next) if in_reply_to_status_id.nil?
 
-      status = Status.find(@in_reply_to_status_id)
-      unless status.nil?
-        block.call(status)
-        return
-      end
+        instance = Status.find(in_reply_to_status_id)
+        (resolve.(instance) && next) if instance
 
-      Client.current.show_status(@in_reply_to_status_id, &block)
+        Client.current.show_status(in_reply_to_status_id)
+        .then do |status|
+          resolve.(status)
+        end
+      end
     end
 
     def initialize(tweet)
@@ -144,10 +143,12 @@ module Twterm
     end
 
     def self.find_or_fetch(id)
-      instance = find(id)
-      (yield(instance) && return) if instance
+      Promise.new do |resolve, reject|
+        instance = find(id)
+        (resolve.(instance) && next) if instance
 
-      Client.current.show_status(id) { |status| yield status }
+        Client.current.show_status(id) { |status| resolve.(status) }
+      end
     end
 
     def self.new(tweet)

@@ -21,7 +21,7 @@ module Twterm
         end
 
         def fetch
-          Client.current.user_timeline(@user.id) do |statuses|
+          Client.current.user_timeline(@user.id).then do |statuses|
             statuses.reverse.each(&method(:prepend))
             sort
             yield if block_given?
@@ -31,7 +31,7 @@ module Twterm
         def initialize(user_id)
           super()
 
-          User.find_or_fetch(user_id) do |user|
+          User.find_or_fetch(user_id).then do |user|
             @user = user
             TabManager.instance.refresh_window
 

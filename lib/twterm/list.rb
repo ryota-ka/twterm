@@ -41,10 +41,12 @@ module Twterm
     end
 
     def self.find_or_fetch(id)
-      instance = find(id)
-      (yield(instance) && return) if instance
+      Promise.new do |resolve, reject|
+        instance = find(id)
+        (resolve.(instance) && next) if instance
 
-      Client.current.list(id) { |list| yield list }
+        Client.current.list(id).then { |list| resolve.(list) }
+      end
     end
 
     def self.new(list)

@@ -57,7 +57,7 @@ module Twterm
       private
 
       def follow
-        Client.current.follow(user_id) do |users|
+        Client.current.follow(user_id).then do |users|
           refresh
 
           user = users.first
@@ -108,7 +108,7 @@ module Twterm
       end
 
       def unfollow
-        Client.current.unfollow(user_id) do |users|
+        Client.current.unfollow(user_id).then do |users|
           refresh
 
           user = users.first
@@ -118,60 +118,66 @@ module Twterm
       end
 
       def update
-        User.find_or_fetch(user_id) do |user|
-          @title = "@#{user.screen_name}"
+        if user.nil?
+          User.find_or_fetch(user_id).then { update }
+          return
+        end
 
-          window.setpos(2, 3)
-          window.bold { window.addstr(user.name) }
-          window.addstr(" (@#{user.screen_name})")
+        @title = "@#{user.screen_name}"
 
-          window.setpos(4, 5)
-          text, color = user.following? ? ['[following]', :green] : ['[not following]', :red]
-          window.with_color(color) { window.addstr(text) }
+        window.setpos(2, 3)
+        window.bold { window.addstr(user.name) }
+        window.addstr(" (@#{user.screen_name})")
 
-          window.setpos(6, 5)
-          window.addstr("Location: #{user.location}")
-          window.setpos(7, 5)
-          window.addstr("Website: #{user.website}")
+        window.setpos(4, 5)
+        window.with_color(:green) { window.addstr('[following]') } if user.following?
+        window.with_color(:white) { window.addstr('[not following]') } if !user.following? && !user.blocking?
+        window.with_color(:cyan) { window.addstr(' [follows you]') } if user.followed?
+        window.with_color(:red) { window.addstr(' [muting]') } if user.muting?
+        window.with_color(:red) { window.addstr(' [blocking]') } if user.blocking?
 
-          current_line = 11
-          drawable_items.each.with_index(0) do |item, i|
-            if scroller.current_item? i
-              window.setpos(current_line, 3)
-              window.with_color(:black, :magenta) { window.addch(' ') }
-            end
+        window.setpos(6, 5)
+        window.addstr("Location: #{user.location}")
+        window.setpos(7, 5)
+        window.addstr("Website: #{user.website}")
 
-            window.setpos(current_line, 5)
-            case item
-            when :follow_or_unfollow
-              if user.following?
-                window.addstr('    Unfollow this user')
-              else
-                window.addstr('[ ] Follow this user')
-                window.setpos(current_line, 6)
-                window.bold { window.addch(?F) }
-              end
-            when :open_timeline_tab
-              window.addstr("[ ] #{user.statuses_count.format} tweets")
-              window.setpos(current_line, 6)
-              window.bold { window.addch(?t) }
-            when :open_website
-              window.addstr("[ ] Open website (#{user.website})")
-              window.setpos(current_line, 6)
-              window.bold { window.addch(?W) }
-            when :show_followers
-              window.addstr("    #{user.followers_count.format} followers")
-            when :show_friends
-              window.addstr("    #{user.friends_count.format} following")
-            end
-
-            current_line += 2
+        current_line = 11
+        drawable_items.each.with_index(0) do |item, i|
+          if scroller.current_item? i
+            window.setpos(current_line, 3)
+            window.with_color(:black, :magenta) { window.addch(' ') }
           end
-        end
 
-        def user
-          User.find(user_id)
+          window.setpos(current_line, 5)
+          case item
+          when :follow_or_unfollow
+            if user.following?
+              window.addstr('    Unfollow this user')
+            else
+              window.addstr('[ ] Follow this user')
+              window.setpos(current_line, 6)
+              window.bold { window.addch(?F) }
+            end
+          when :open_timeline_tab
+            window.addstr("[ ] #{user.statuses_count.format} tweets")
+            window.setpos(current_line, 6)
+            window.bold { window.addch(?t) }
+          when :open_website
+            window.addstr("[ ] Open website (#{user.website})")
+            window.setpos(current_line, 6)
+            window.bold { window.addch(?W) }
+          when :show_followers
+            window.addstr("    #{user.followers_count.format} followers")
+          when :show_friends
+            window.addstr("    #{user.friends_count.format} following")
+          end
+
+          current_line += 2
         end
+      end
+
+      def user
+        User.find(user_id)
       end
     end
   end

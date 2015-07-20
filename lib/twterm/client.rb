@@ -24,14 +24,16 @@ module Twterm
     end
 
     def destroy_status(status)
-      send_request do
-        begin
-          rest_client.destroy_status(status.id)
-          yield if block_given?
-        rescue Twitter::Error::NotFound, Twitter::Error::Forbidden
+      send_request_without_catch do
+        rest_client.destroy_status(status.id)
+      end.catch do |reason|
+        case reason
+        when Twitter::Error::NotFound, Twitter::Error::Forbidden
           Notifier.instance.show_error 'You cannot destroy that status'
+        else
+          raise reason
         end
-      end
+      end.catch(&show_error)
     end
 
     def favorite(status)
@@ -39,24 +41,22 @@ module Twterm
 
       send_request do
         rest_client.favorite(status.id)
+      end.then do
         status.favorite!
-        yield status if block_given?
       end
-
-      self
     end
 
     def fetch_muted_users
       send_request do
         @muted_user_ids = rest_client.muted_ids.to_a
-        yield @muted_user_ids if block_given?
       end
     end
 
     def follow(*user_ids)
       send_request do
-        users = rest_client.follow(*user_ids)
-        yield users.map(& -> u { User.new(u).follow! })
+        rest_client.follow(*user_ids)
+      end.then do |users|
+        users.map(& -> u { User.new(u).follow! })
       end
     end
 
@@ -92,11 +92,11 @@ module Twterm
 
     def home_timeline
       send_request do
-        statuses = rest_client
-          .home_timeline(count: 100)
+        rest_client.home_timeline(count: 100)
+      end.then do |statuses|
+        statuses
           .select(&@mute_filter)
           .map(&CREATE_STATUS_PROC)
-        yield statuses
       end
     end
 
@@ -120,7 +120,9 @@ module Twterm
 
     def list(list_id)
       send_request do
-        yield List.new(rest_client.list(list_id))
+        rest_client.list(list_id)
+      end.then do |list|
+        List.new(list)
       end
     end
 
@@ -128,32 +130,36 @@ module Twterm
       fail ArgumentError,
         'argument must be an instance of List class' unless list.is_a? List
       send_request do
-        statuses = rest_client
-          .list_timeline(list.id, count: 100)
+        rest_client.list_timeline(list.id, count: 100)
+      end.then do |statuses|
+        statuses
           .select(&@mute_filter)
           .map(&CREATE_STATUS_PROC)
-        yield statuses
       end
     end
 
     def lists
       send_request do
-        yield rest_client.lists.map { |list| List.new(list) }
+        rest_client.lists
+      end.then do |lists|
+        lists.map { |list| List.new(list) }
       end
     end
 
     def lookup_friendships
-      user_ids = User.all.select { |u| u.followed.nil? }.map(&:id)
-      send_request do
-        user_ids.each_slice(100) do |chunked_user_ids|
-          friendships = rest_client.friendships(*chunked_user_ids)
-          friendships.each do |friendship|
-            user = User.find(friendship.id)
-            conn = friendship.connections
-            conn.include?('blocking')    ? user.block!    : user.unblock!
-            conn.include?('following')   ? user.follow!   : user.unfollow!
-            conn.include?('followed_by') ? user.followed! : user.unfollowed!
-            conn.include?('muting')      ? user.mute!     : user.unmute!
+      Promise.new do
+        user_ids = User.all.select { |u| u.followed.nil? }.map(&:id)
+        send_request do
+          user_ids.each_slice(100) do |chunked_user_ids|
+            friendships = rest_client.friendships(*chunked_user_ids)
+            friendships.each do |friendship|
+              user = User.find(friendship.id)
+              conn = friendship.connections
+              conn.include?('blocking')    ? user.block!    : user.unblock!
+              conn.include?('following')   ? user.follow!   : user.unfollow!
+              conn.include?('followed_by') ? user.followed! : user.unfollowed!
+              conn.include?('muting')      ? user.mute!     : user.unmute!
+            end
           end
         end
       end
@@ -161,11 +167,11 @@ module Twterm
 
     def mentions
       send_request do
-        statuses = rest_client
-          .mentions(count: 100)
+        rest_client.mentions(count: 100)
+      end.then do |statuses|
+        statuses
           .select(&@mute_filter)
           .map(&CREATE_STATUS_PROC)
-        yield statuses
       end
     end
 
@@ -203,63 +209,66 @@ module Twterm
       fail ArgumentError,
         'argument must be an instance of Status class' unless status.is_a? Status
 
-      send_request do
-        begin
-          rest_client.retweet!(status.id)
-          status.retweet!
-          yield status if block_given?
-        rescue => e
-          message =
-            case e
-            when Twitter::Error::AlreadyRetweeted
-              'The status is already retweeted'
-            when Twitter::Error::NotFound
-              'The status is not found'
-            when Twitter::Error::Forbidden
-              if status.user.id == user_id  # when the status is mine
-                'You cannot retweet your own status'
-              else  # when the status is not mine
-                'The status is protected'
-              end
-            else
-              raise e
+      send_request_without_catch do
+        rest_client.retweet!(status.id)
+      end.then do
+        status.retweet!
+      end.catch do |reason|
+        message =
+          case reason
+          when Twitter::Error::AlreadyRetweeted
+            'The status is already retweeted'
+          when Twitter::Error::NotFound
+            'The status is not found'
+          when Twitter::Error::Forbidden
+            if status.user.id == user_id  # when the status is mine
+              'You cannot retweet your own status'
+            else  # when the status is not mine
+              'The status is protected'
             end
-          Notifier.instance.show_error "Retweet attempt failed: #{message}"
-        end
-      end
+          else
+            raise e
+          end
+        Notifier.instance.show_error "Retweet attempt failed: #{message}"
+      end.catch(&show_error)
     end
 
     def saved_search
       send_request do
-        yield rest_client.saved_searches
+        rest_client.saved_searches
       end
     end
 
     def search(query)
       send_request do
-        statuses = rest_client
-          .search(query, count: 100)
+        rest_client.search(query, count: 100)
+      end.then do |statuses|
+        statuses
           .select(&@mute_filter)
           .map(&CREATE_STATUS_PROC)
-        yield statuses
       end
     end
 
     def show_status(status_id)
       send_request do
-        yield Status.new(rest_client.status(status_id))
+        rest_client.status(status_id)
+      end.then do |status|
+        Status.new(status)
       end
     end
 
     def show_user(query)
-      send_request do
-        user =
-          begin
-            User.new(rest_client.user(query))
-          rescue Twitter::Error::NotFound
-            nil
-          end
-        yield user
+      send_request_without_catch do
+        rest_client.user(query)
+      end.catch do |reason|
+        case reason
+        when Twitter::Error::NotFound
+          nil
+        else
+          raise reason
+        end
+      end.catch(&show_error).then do |user|
+        user.nil? ? nil : User.new(user)
       end
     end
 
@@ -312,25 +321,26 @@ module Twterm
 
       send_request do
         rest_client.unfavorite(status.id)
+      end.then do
         status.unfavorite!
-        yield status if block_given?
       end
     end
 
     def unfollow(*user_ids)
       send_request do
         users = rest_client.unfollow(*user_ids)
-        yield users.map(& -> u { User.new(u).unfollow! })
+      end.then do |users|
+        users.map(& -> u { User.new(u).unfollow! })
       end
     end
 
     def user_timeline(user_id)
       send_request do
-        statuses = rest_client
-          .user_timeline(user_id, count: 100)
+        rest_client.user_timeline(user_id, count: 100)
+      end.then do |statuses|
+        statuses
           .select(&@mute_filter)
           .map(&CREATE_STATUS_PROC)
-        yield statuses
       end
     end
 
@@ -346,6 +356,17 @@ module Twterm
 
     private
 
+    def show_error
+      proc do |e|
+        case e
+        when Twitter::Error
+          Notifier.instance.show_error "Failed to send request: #{e.message}"
+        else
+          raise e
+        end
+      end.freeze
+    end
+
     def invoke_callbacks(event, data = nil)
       return if @callbacks[event].nil?
 
@@ -360,15 +381,15 @@ module Twterm
     end
 
     def send_request(&block)
-      Thread.new do
+      send_request_without_catch(&block).catch(&show_error)
+    end
+
+    def send_request_without_catch(&block)
+      Promise.new do |resolve, reject|
         begin
-          block.call
-        rescue Twitter::Error => e
-          Notifier.instance.show_error "Failed to send request: #{e.message}"
-          if e.message == 'getaddrinfo: nodename nor servname provided, or not known'
-            sleep 10
-            retry
-          end
+          resolve.(block.call)
+        rescue Twitter::Error => reason
+          reject.(reason)
         end
       end
     end
