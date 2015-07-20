@@ -35,8 +35,9 @@ module Twterm
           show_friends
           show_followers
           open_website
-          follow_or_unfollow
-          block_or_unblock
+          toggle_follow
+          toggle_mute
+          toggle_block
         )
       end
 
@@ -81,6 +82,16 @@ module Twterm
         end
       end
 
+      def mute
+        Client.current.mute(user_id).then do |users|
+          refresh
+
+          user = users.first
+          msg = "Muted @#{user.screen_name}"
+          Notifier.instance.show_message msg
+        end
+      end
+
       def open_timeline_tab
         tab = Tab::Statuses::UserTimeline.new(user_id)
         TabManager.instance.add_and_show(tab)
@@ -99,10 +110,6 @@ module Twterm
 
       def perform_selected_action
         case scroller.current_item
-        when :block_or_unblock
-          user.blocking? ? unblock : block
-        when :follow_or_unfollow
-          user.following? ? unfollow : follow
         when :open_timeline_tab
           open_timeline_tab
         when :open_website
@@ -111,6 +118,12 @@ module Twterm
           show_followers
         when :show_friends
           show_friends
+        when :toggle_block
+          user.blocking? ? unblock : block
+        when :toggle_follow
+          user.following? ? unfollow : follow
+        when :toggle_mute
+          user.muting? ? unmute : mute
         end
       end
 
@@ -140,6 +153,16 @@ module Twterm
 
           user = users.first
           msg = "Unfollowed @#{user.screen_name}"
+          Notifier.instance.show_message msg
+        end
+      end
+
+      def unmute
+        Client.current.unmute(user_id).then do |users|
+          refresh
+
+          user = users.first
+          msg = "Unmuted @#{user.screen_name}"
           Notifier.instance.show_message msg
         end
       end
@@ -177,19 +200,25 @@ module Twterm
 
           window.setpos(current_line, 5)
           case item
-          when :block_or_unblock
+          when :toggle_block
             if user.blocking?
               window.addstr('    Unblock this user')
             else
               window.addstr('    Block this user')
             end
-          when :follow_or_unfollow
+          when :toggle_follow
             if user.following?
               window.addstr('    Unfollow this user')
             else
               window.addstr('[ ] Follow this user')
               window.setpos(current_line, 6)
               window.bold { window.addch(?F) }
+            end
+          when :toggle_mute
+            if user.muting?
+              window.addstr('    Unmute this user')
+            else
+              window.addstr('    Mute this user')
             end
           when :open_timeline_tab
             window.addstr("[ ] #{user.statuses_count.format} tweets")
