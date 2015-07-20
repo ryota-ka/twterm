@@ -23,6 +23,10 @@ module Twterm
         super()
 
         @user_id = user_id
+
+        User.find_or_fetch(user_id).then do |user|
+          Client.current.lookup_friendships if user.followed?.nil?
+        end
       end
 
       def items

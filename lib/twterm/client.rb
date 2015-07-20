@@ -147,22 +147,27 @@ module Twterm
     end
 
     def lookup_friendships
-      Promise.new do
-        user_ids = User.all.select { |u| u.followed.nil? }.map(&:id)
-        send_request do
-          user_ids.each_slice(100) do |chunked_user_ids|
-            friendships = rest_client.friendships(*chunked_user_ids)
-            friendships.each do |friendship|
-              user = User.find(friendship.id)
-              conn = friendship.connections
-              conn.include?('blocking')    ? user.block!    : user.unblock!
-              conn.include?('following')   ? user.follow!   : user.unfollow!
-              conn.include?('followed_by') ? user.followed! : user.unfollowed!
-              conn.include?('muting')      ? user.mute!     : user.unmute!
-            end
+      user_ids = User.all.select { |u| u.followed.nil? }.map(&:id)
+      send_request_without_catch do
+        user_ids.each_slice(100) do |chunked_user_ids|
+          friendships = rest_client.friendships(*chunked_user_ids)
+          friendships.each do |friendship|
+            user = User.find(friendship.id)
+            conn = friendship.connections
+            conn.include?('blocking')    ? user.block!    : user.unblock!
+            conn.include?('following')   ? user.follow!   : user.unfollow!
+            conn.include?('followed_by') ? user.followed! : user.unfollowed!
+            conn.include?('muting')      ? user.mute!     : user.unmute!
           end
         end
-      end
+      end.catch do |e|
+        case e
+        when Twitter::Error::TooManyRequests
+          # do nothing
+        else
+          raise e
+        end
+      end.catch(&show_error)
     end
 
     def mentions
