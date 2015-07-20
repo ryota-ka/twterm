@@ -9,7 +9,7 @@ module Twterm
         end
 
         def fetch
-          @client.home_timeline do |statuses|
+          @client.home_timeline.then do |statuses|
             statuses.each(&method(:prepend))
             sort
             yield if block_given?

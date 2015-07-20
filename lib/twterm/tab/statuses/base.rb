@@ -27,7 +27,7 @@ module Twterm
         def destroy_status
           status = highlighted_status
 
-          Client.current.destroy_status(status) do
+          Client.current.destroy_status(status).then do
             delete(status.id)
             refresh
           end

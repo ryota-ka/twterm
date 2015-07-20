@@ -10,7 +10,7 @@ module Twterm
         def initialize(list_id)
           super()
 
-          List.find_or_fetch(list_id) do |list|
+          List.find_or_fetch(list_id).then do |list|
             @list = list
             @title = @list.full_name
             TabManager.instance.refresh_window
@@ -20,8 +20,7 @@ module Twterm
         end
 
         def fetch
-          client = Client.current
-          client.list_timeline(@list) do |statuses|
+          Client.current.list_timeline(@list).then do |statuses|
             statuses.reverse.each(&method(:prepend))
             sort
             yield if block_given?

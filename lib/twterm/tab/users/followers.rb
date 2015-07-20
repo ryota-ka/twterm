@@ -13,7 +13,7 @@ module Twterm
 
         def fetch
           Client.current.followers(user_id) do |users|
-            @user_id.concat(users.map(&:id)).uniq!
+            @user_ids.concat(users.map(&:id)).uniq!
             refresh
           end
         end

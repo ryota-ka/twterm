@@ -12,7 +12,7 @@ module Twterm
         end
 
         def fetch_in_reply_to_status(status)
-          status.in_reply_to_status do |in_reply_to|
+          status.in_reply_to_status.then do |in_reply_to|
             return if in_reply_to.nil?
             append(in_reply_to)
             sort
@@ -36,7 +36,7 @@ module Twterm
           @title = 'Conversation'
           super()
 
-          Status.find_or_fetch(status_id) do |status|
+          Status.find_or_fetch(status_id).then do |status|
             @status = status
 
             append(status)

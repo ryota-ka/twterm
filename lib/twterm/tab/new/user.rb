@@ -33,7 +33,7 @@ module Twterm
             if screen_name.nil? || screen_name.empty?
               TabManager.instance.switch(Tab::New::Start.new)
             else
-              Client.current.show_user(screen_name) do |user|
+              Client.current.show_user(screen_name).then do |user|
                 if user.nil?
                   Notifier.instance.show_error 'User not found'
                   tab = Tab::New::Start.new
