@@ -34,8 +34,8 @@ module Twterm
           open_timeline_tab
           show_friends
           show_followers
-          open_website
         )
+        items << :open_website  unless user.website.nil?
         items << :toggle_follow unless myself?
         items << :toggle_mute   unless myself?
         items << :toggle_block  unless myself?
@@ -104,10 +104,7 @@ module Twterm
       end
 
       def open_website
-        if user.website.nil?
-          Notifier.instance.show_error 'No website'
-          return
-        end
+        return if user.website.nil?
 
         Launchy.open(user.website)
       rescue Launchy::CommandNotFoundError
