@@ -36,6 +36,7 @@ module Twterm
           show_followers
           open_website
           follow_or_unfollow
+          block_or_unblock
         )
       end
 
@@ -59,6 +60,16 @@ module Twterm
       end
 
       private
+
+      def block
+        Client.current.block(user_id).then do |users|
+          refresh
+
+          user = users.first
+          msg = "Blocked @#{user.screen_name}"
+          Notifier.instance.show_message msg
+        end
+      end
 
       def follow
         Client.current.follow(user_id).then do |users|
@@ -88,6 +99,8 @@ module Twterm
 
       def perform_selected_action
         case scroller.current_item
+        when :block_or_unblock
+          user.blocking? ? unblock : block
         when :follow_or_unfollow
           user.following? ? unfollow : follow
         when :open_timeline_tab
@@ -109,6 +122,16 @@ module Twterm
       def show_friends
         tab = Tab::Users::Friends.new(user_id)
         TabManager.instance.add_and_show(tab)
+      end
+
+      def unblock
+        Client.current.unblock(user_id).then do |users|
+          refresh
+
+          user = users.first
+          msg = "Unblocked @#{user.screen_name}"
+          Notifier.instance.show_message msg
+        end
       end
 
       def unfollow
@@ -154,6 +177,12 @@ module Twterm
 
           window.setpos(current_line, 5)
           case item
+          when :block_or_unblock
+            if user.blocking?
+              window.addstr('    Unblock this user')
+            else
+              window.addstr('    Block this user')
+            end
           when :follow_or_unfollow
             if user.following?
               window.addstr('    Unfollow this user')
