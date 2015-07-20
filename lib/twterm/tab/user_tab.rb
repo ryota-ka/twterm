@@ -7,6 +7,10 @@ module Twterm
 
       attr_reader :user_id
 
+      def ==(other)
+        other.is_a?(self.class) && user_id == other.user_id
+      end
+
       def dump
         user_id
       end

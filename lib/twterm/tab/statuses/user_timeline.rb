@@ -5,10 +5,10 @@ module Twterm
         include Base
         include Dumpable
 
-        attr_reader :user
+        attr_reader :user, :user_id
 
         def ==(other)
-          other.is_a?(self.class) && user == other.user
+          other.is_a?(self.class) && user_id == other.user_id
         end
 
         def close
@@ -30,6 +30,8 @@ module Twterm
 
         def initialize(user_id)
           super()
+
+          @user_id = user_id
 
           User.find_or_fetch(user_id).then do |user|
             @user = user
