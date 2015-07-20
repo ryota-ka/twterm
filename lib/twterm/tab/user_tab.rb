@@ -35,9 +35,9 @@ module Twterm
           show_friends
           show_followers
           open_website
-          follow_or_unfollow
-          mute_or_unmute
-          block_or_unblock
+          toggle_follow
+          toggle_mute
+          toggle_block
         )
       end
 
@@ -110,12 +110,6 @@ module Twterm
 
       def perform_selected_action
         case scroller.current_item
-        when :block_or_unblock
-          user.blocking? ? unblock : block
-        when :follow_or_unfollow
-          user.following? ? unfollow : follow
-        when :mute_or_unmute
-          user.muting? ? unmute : mute
         when :open_timeline_tab
           open_timeline_tab
         when :open_website
@@ -124,6 +118,12 @@ module Twterm
           show_followers
         when :show_friends
           show_friends
+        when :toggle_block
+          user.blocking? ? unblock : block
+        when :toggle_follow
+          user.following? ? unfollow : follow
+        when :toggle_mute
+          user.muting? ? unmute : mute
         end
       end
 
@@ -200,13 +200,13 @@ module Twterm
 
           window.setpos(current_line, 5)
           case item
-          when :block_or_unblock
+          when :toggle_block
             if user.blocking?
               window.addstr('    Unblock this user')
             else
               window.addstr('    Block this user')
             end
-          when :follow_or_unfollow
+          when :toggle_follow
             if user.following?
               window.addstr('    Unfollow this user')
             else
@@ -214,7 +214,7 @@ module Twterm
               window.setpos(current_line, 6)
               window.bold { window.addch(?F) }
             end
-          when :mute_or_unmute
+          when :toggle_mute
             if user.muting?
               window.addstr('    Unmute this user')
             else
