@@ -8,6 +8,14 @@ module Twterm
 
     @@instances = []
 
+    def block(*user_ids)
+      send_request do
+        rest_client.block(*user_ids)
+      end.then do |users|
+        users.map { |u| User.new(u).block! }
+      end
+    end
+
     def connect_stream
       stream_client.stop_stream
 
@@ -318,6 +326,14 @@ module Twterm
         oauth_token_secret: @access_token_secret,
         auth_method:        :oauth
       )
+    end
+
+    def unblock(*user_ids)
+      send_request do
+        rest_client.unblock(*user_ids)
+      end.then do |users|
+        users.map { |u| User.new(u).unblock! }
+      end
     end
 
     def unfavorite(status)
