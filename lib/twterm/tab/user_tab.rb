@@ -36,6 +36,7 @@ module Twterm
           show_followers
           open_website
           follow_or_unfollow
+          mute_or_unmute
           block_or_unblock
         )
       end
@@ -81,6 +82,16 @@ module Twterm
         end
       end
 
+      def mute
+        Client.current.mute(user_id).then do |users|
+          refresh
+
+          user = users.first
+          msg = "Muted @#{user.screen_name}"
+          Notifier.instance.show_message msg
+        end
+      end
+
       def open_timeline_tab
         tab = Tab::Statuses::UserTimeline.new(user_id)
         TabManager.instance.add_and_show(tab)
@@ -103,6 +114,8 @@ module Twterm
           user.blocking? ? unblock : block
         when :follow_or_unfollow
           user.following? ? unfollow : follow
+        when :mute_or_unmute
+          user.muting? ? unmute : mute
         when :open_timeline_tab
           open_timeline_tab
         when :open_website
@@ -140,6 +153,16 @@ module Twterm
 
           user = users.first
           msg = "Unfollowed @#{user.screen_name}"
+          Notifier.instance.show_message msg
+        end
+      end
+
+      def unmute
+        Client.current.unmute(user_id).then do |users|
+          refresh
+
+          user = users.first
+          msg = "Unmuted @#{user.screen_name}"
           Notifier.instance.show_message msg
         end
       end
@@ -190,6 +213,12 @@ module Twterm
               window.addstr('[ ] Follow this user')
               window.setpos(current_line, 6)
               window.bold { window.addch(?F) }
+            end
+          when :mute_or_unmute
+            if user.muting?
+              window.addstr('    Unmute this user')
+            else
+              window.addstr('    Mute this user')
             end
           when :open_timeline_tab
             window.addstr("[ ] #{user.statuses_count.format} tweets")

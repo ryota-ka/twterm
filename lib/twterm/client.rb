@@ -188,6 +188,14 @@ module Twterm
       end
     end
 
+    def mute(user_ids)
+      send_request do
+        rest_client.mute(*user_ids)
+      end.then do |users|
+        users.map { |u| User.new(u).mute! }
+      end
+    end
+
     def on_mention(&block)
       fail ArgumentError, 'no block given' unless block_given?
       on(:mention, &block)
@@ -352,6 +360,14 @@ module Twterm
         users = rest_client.unfollow(*user_ids)
       end.then do |users|
         users.map(& -> u { User.new(u).unfollow! })
+      end
+    end
+
+    def unmute(user_ids)
+      send_request do
+        rest_client.unmute(*user_ids)
+      end.then do |users|
+        users.map { |u| User.new(u).unmute! }
       end
     end
 
