@@ -1,14 +1,15 @@
 module Twterm
   class User
-    attr_reader :id, :name, :screen_name, :description, :location, :website,
-                :blocking, :followed, :following, :muting, :protected,
-                :statuses_count, :friends_count, :followers_count, :touched_at,
-                :color
+    attr_reader :blocking, :color, :description, :followed, :followers_count,
+                :following, :friends_count, :id, :location, :muting, :name,
+                :protected, :screen_name, :statuses_count, :touched_at,
+                :verified, :website
     alias_method :blocking?, :blocking
     alias_method :followed?, :followed
     alias_method :following?, :following
     alias_method :muting?, :muting
     alias_method :protected?, :protected
+    alias_method :verified?, :verified
 
     MAX_CACHED_TIME = 3600
     COLORS = [:red, :blue, :green, :cyan, :yellow, :magenta]
@@ -83,6 +84,7 @@ module Twterm
       @statuses_count = user.statuses_count
       @friends_count = user.friends_count
       @followers_count = user.followers_count
+      @verified = user.verified?
 
       History::ScreenName.instance.add(user.screen_name)
 
