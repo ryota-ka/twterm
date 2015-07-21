@@ -16,7 +16,7 @@ module Twterm
       end
 
       def drawable_item_count
-        (window.maxy - 12).div(2)
+        (window.maxy - 11 - bio_height).div(2)
       end
 
       def fetch
@@ -67,6 +67,10 @@ module Twterm
       end
 
       private
+
+      def bio_height
+        320.div(window.maxx - 6) + 1
+      end
 
       def block
         Client.current.block(user_id).then do |users|
@@ -189,7 +193,7 @@ module Twterm
         window.with_color(:yellow) { window.addstr(' [protected]') } if user.protected?
         window.with_color(:cyan) { window.addstr(' [verified]') } if user.verified?
 
-        window.setpos(4, 4)
+        window.setpos(5, 4)
         if myself?
           window.with_color(:yellow) { window.addstr(' [your account]') }
         else
@@ -200,12 +204,16 @@ module Twterm
           window.with_color(:red) { window.addstr(' [blocking]') } if user.blocking?
         end
 
-        window.setpos(6, 5)
-        window.addstr("Location: #{user.location}")
-        window.setpos(7, 5)
-        window.addstr("Website: #{user.website}")
+        user.description.split_by_width(window.maxx - 6).each.with_index(7) do |line, i|
+          window.setpos(i, 5)
+          window.addstr(line)
+        end
 
-        current_line = 11
+        window.setpos(8 + bio_height, 5)
+        window.addstr("Location: #{user.location}") unless user.location.nil?
+
+        current_line = 11 + bio_height
+
         drawable_items.each.with_index(0) do |item, i|
           if scroller.current_item? i
             window.setpos(current_line, 3)
