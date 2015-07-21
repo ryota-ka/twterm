@@ -22,6 +22,15 @@ module Twterm
         Thread.new do
           refresh_mutex.synchronize do
             window.clear
+
+            # avoid misalignment caused by some multibyte-characters
+            window.with_color(:black, :transparent) do
+              (0...window.maxy).each do |i|
+                window.setpos(i, 0)
+                window.addch(' ')
+              end
+            end
+
             update
             window.refresh
           end if refreshable?

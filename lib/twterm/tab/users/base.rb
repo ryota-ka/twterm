@@ -67,15 +67,12 @@ module Twterm
           window.bold { window.addstr(title) }
 
           drawable_items.each.with_index(0) do |user, i|
-            color = scroller.current_item?(i) ? :magenta : :transparent
-
-            # also draws transparent cursors to prevent misalignment
-            window.with_color(:black, color) do
+            window.with_color(:black, :magenta) do
               window.setpos(i * 3 + 5, 3)
               window.addch(' ')
               window.setpos(i * 3 + 6, 3)
               window.addch(' ')
-            end
+            end if scroller.current_item?(i)
 
             window.setpos(i * 3 + 5, 5)
             window.bold { window.with_color(user.color) { window.addstr(user.name) } }
