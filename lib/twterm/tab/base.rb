@@ -41,6 +41,11 @@ module Twterm
         fail NotImplementedError, 'respond_to_key method must be implemented'
       end
 
+      def title=(title)
+        @title = title
+        TabManager.instance.refresh_window
+      end
+
       private
 
       def refresh_mutex

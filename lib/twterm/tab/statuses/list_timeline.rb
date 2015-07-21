@@ -10,9 +10,11 @@ module Twterm
         def initialize(list_id)
           super()
 
+          self.title = 'Loading...'.freeze
+
           List.find_or_fetch(list_id).then do |list|
             @list = list
-            @title = @list.full_name
+            self.title = @list.full_name
             TabManager.instance.refresh_window
             fetch { scroller.move_to_top }
             @auto_reloader = Scheduler.new(300) { fetch }
