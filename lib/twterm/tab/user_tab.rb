@@ -186,12 +186,15 @@ module Twterm
         window.bold { window.addstr(user.name) }
         window.addstr(" (@#{user.screen_name})")
 
-        window.setpos(4, 5)
+        window.with_color(:yellow) { window.addstr(' [protected]') } if user.protected?
+        window.with_color(:cyan) { window.addstr(' [verified]') } if user.verified?
+
+        window.setpos(4, 4)
         if myself?
-          window.with_color(:yellow) { window.addstr('[your account]') }
+          window.with_color(:yellow) { window.addstr(' [your account]') }
         else
-          window.with_color(:green) { window.addstr('[following]') } if user.following?
-          window.with_color(:white) { window.addstr('[not following]') } if !user.following? && !user.blocking?
+          window.with_color(:green) { window.addstr(' [following]') } if user.following?
+          window.with_color(:white) { window.addstr(' [not following]') } if !user.following? && !user.blocking?
           window.with_color(:cyan) { window.addstr(' [follows you]') } if user.followed?
           window.with_color(:red) { window.addstr(' [muting]') } if user.muting?
           window.with_color(:red) { window.addstr(' [blocking]') } if user.blocking?
