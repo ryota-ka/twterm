@@ -22,10 +22,13 @@ module Twterm
           super()
           @client = client
           @client.on_timeline_status(&method(:prepend))
-          @title = 'Home'
 
           fetch { scroller.move_to_top }
           @auto_reloader = Scheduler.new(180) { fetch }
+        end
+
+        def title
+          'Home'.freeze
         end
       end
     end

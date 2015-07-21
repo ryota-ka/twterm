@@ -19,7 +19,6 @@ module Twterm
         def initialize
           super
 
-          @title = 'New tab'
           refresh
         end
 
@@ -44,6 +43,10 @@ module Twterm
           end
 
           true
+        end
+
+        def title
+          'New tab'.freeze
         end
 
         def total_item_count

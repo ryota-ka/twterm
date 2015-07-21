@@ -10,7 +10,6 @@ module Twterm
 
         def initialize
           super
-          @title = 'New tab'
           refresh
         end
 
@@ -30,6 +29,10 @@ module Twterm
             return false
           end
           true
+        end
+
+        def title
+          'New tab'.freeze
         end
 
         private

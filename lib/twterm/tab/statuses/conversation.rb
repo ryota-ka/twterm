@@ -33,7 +33,6 @@ module Twterm
         end
 
         def initialize(status_id)
-          @title = 'Conversation'
           super()
 
           Status.find_or_fetch(status_id).then do |status|
@@ -44,6 +43,10 @@ module Twterm
             Thread.new { fetch_in_reply_to_status(status) }
             Thread.new { fetch_replies(status) }
           end
+        end
+
+        def title
+          'Conversation'.freeze
         end
       end
     end

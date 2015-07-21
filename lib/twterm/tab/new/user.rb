@@ -9,12 +9,6 @@ module Twterm
           other.is_a?(self.class)
         end
 
-        def initialize
-          super
-
-          @title = 'New tab'
-        end
-
         def invoke_input
           resetter = proc do
             reset_prog_mode
@@ -57,6 +51,10 @@ module Twterm
 
         def respond_to_key(_)
           false
+        end
+
+        def title
+          'New tab'.freeze
         end
 
         private

@@ -26,10 +26,12 @@ module Twterm
       def initialize(user_id)
         super()
 
+        self.title = 'Loading...'.freeze
         @user_id = user_id
 
         User.find_or_fetch(user_id).then do |user|
           Client.current.lookup_friendships if user.followed?.nil?
+          self.title = "@#{user.screen_name}"
         end
       end
 
@@ -183,8 +185,6 @@ module Twterm
           User.find_or_fetch(user_id).then { update }
           return
         end
-
-        @title = "@#{user.screen_name}"
 
         window.setpos(2, 3)
         window.bold { window.addstr(user.name) }
