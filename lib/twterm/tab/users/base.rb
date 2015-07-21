@@ -80,6 +80,8 @@ module Twterm
             window.setpos(i * 3 + 5, 5)
             window.bold { window.with_color(user.color) { window.addstr(user.name) } }
             window.addstr(" (@#{user.screen_name})")
+            window.with_color(:yellow) { window.addstr(' [protected]') } if user.protected?
+            window.with_color(:cyan) { window.addstr(' [verified]') } if user.verified?
             window.setpos(i * 3 + 6, 7)
             bio_chunks = user.description.gsub(/[\n\r]/, ' ').split_by_width(window.maxx - 10)
             window.addstr(bio_chunks[0] + (bio_chunks[1].nil? ? '' : '...'))
