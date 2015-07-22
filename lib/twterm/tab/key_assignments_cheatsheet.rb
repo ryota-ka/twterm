@@ -16,8 +16,7 @@ module Twterm
           '[j] [C-p] [DOWN]'  => 'Move down',
           '[k] [C-n] [UP]'    => 'Move up',
           '[u] [C-u]'         => 'Scroll up',
-          '[Q]'               => 'Quit twterm',
-          '[?]'               => 'Open key assignments cheatsheet'
+          '[Q]'               => 'Quit twterm'
         },
         'Tabs' => {
           '[h] [C-b] [LEFT]'  => 'Show previous tab',
@@ -36,6 +35,10 @@ module Twterm
           '[r]'               => 'Reply',
           '[R]'               => 'Retweet',
           '[U]'               => 'Show user'
+        },
+        'Others' => {
+          '[P]'               => 'View my profile',
+          '[?]'               => 'Open key assignments cheatsheet'
         }
       }
 
