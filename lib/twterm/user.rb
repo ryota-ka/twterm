@@ -1,9 +1,9 @@
 module Twterm
   class User
-    attr_reader :blocking, :color, :description, :followed, :followers_count,
-                :following, :friends_count, :id, :location, :muting, :name,
-                :protected, :screen_name, :statuses_count, :touched_at,
-                :verified, :website
+    attr_reader :blocking, :color, :description, :favorites_count, :followed,
+                :followers_count, :following, :friends_count, :id, :location,
+                :muting, :name, :protected, :screen_name, :statuses_count,
+                :touched_at, :verified, :website
     alias_method :blocking?, :blocking
     alias_method :followed?, :followed
     alias_method :following?, :following
@@ -82,6 +82,7 @@ module Twterm
       @following = user.following?
       @protected = user.protected?
       @statuses_count = user.statuses_count
+      @favorites_count = user.favorites_count
       @friends_count = user.friends_count
       @followers_count = user.followers_count
       @verified = user.verified?
