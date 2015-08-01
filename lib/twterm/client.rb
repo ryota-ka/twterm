@@ -54,6 +54,16 @@ module Twterm
       end
     end
 
+    def favorites(user_id = nil)
+      user_id ||= self.user_id
+
+      send_request do
+        rest_client.favorites(user_id, count: 100)
+      end.then do |tweets|
+        tweets.map(&CREATE_STATUS_PROC)
+      end
+    end
+
     def fetch_muted_users
       send_request do
         @muted_user_ids = rest_client.muted_ids.to_a
