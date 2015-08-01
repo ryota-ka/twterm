@@ -45,7 +45,8 @@ module Twterm
           return if highlighted_status.nil?
 
           method_name = highlighted_status.favorited ? :unfavorite : :favorite
-          Client.current.method(method_name).call(highlighted_status) { refresh }
+          Client.current.method(method_name).call(highlighted_status)
+            .then { refresh }
         end
 
         def fetch
@@ -119,9 +120,7 @@ module Twterm
 
         def retweet
           return if highlighted_status.nil?
-          Client.current.retweet(highlighted_status) do
-            refresh
-          end
+          Client.current.retweet(highlighted_status).then { refresh }
         end
 
         def show_conversation
