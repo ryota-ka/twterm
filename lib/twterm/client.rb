@@ -58,7 +58,7 @@ module Twterm
       user_id ||= self.user_id
 
       send_request do
-        rest_client.favorites(user_id, count: 100)
+        rest_client.favorites(user_id, count: 200)
       end.then do |tweets|
         tweets.map(&CREATE_STATUS_PROC)
       end
@@ -110,7 +110,7 @@ module Twterm
 
     def home_timeline
       send_request do
-        rest_client.home_timeline(count: 100)
+        rest_client.home_timeline(count: 200)
       end.then do |statuses|
         statuses
           .select(&@mute_filter)
@@ -148,7 +148,7 @@ module Twterm
       fail ArgumentError,
         'argument must be an instance of List class' unless list.is_a? List
       send_request do
-        rest_client.list_timeline(list.id, count: 100)
+        rest_client.list_timeline(list.id, count: 200)
       end.then do |statuses|
         statuses
           .select(&@mute_filter)
@@ -190,7 +190,7 @@ module Twterm
 
     def mentions
       send_request do
-        rest_client.mentions(count: 100)
+        rest_client.mentions(count: 200)
       end.then do |statuses|
         statuses
           .select(&@mute_filter)
@@ -272,7 +272,7 @@ module Twterm
 
     def search(query)
       send_request do
-        rest_client.search(query, count: 100)
+        rest_client.search(query, count: 200)
       end.then do |statuses|
         statuses
           .select(&@mute_filter)
@@ -383,7 +383,7 @@ module Twterm
 
     def user_timeline(user_id)
       send_request do
-        rest_client.user_timeline(user_id, count: 100)
+        rest_client.user_timeline(user_id, count: 200)
       end.then do |statuses|
         statuses
           .select(&@mute_filter)
