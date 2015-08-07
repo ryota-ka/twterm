@@ -1,13 +1,8 @@
 module Twterm
   class User
-    attr_reader :blocking, :color, :description, :favorites_count, :followed,
-                :followers_count, :following, :friends_count, :id, :location,
-                :muting, :name, :protected, :screen_name, :statuses_count,
-                :touched_at, :verified, :website
-    alias_method :blocking?, :blocking
-    alias_method :followed?, :followed
-    alias_method :following?, :following
-    alias_method :muting?, :muting
+    attr_reader :color, :description, :favorites_count, :followers_count,
+                :friends_count, :id, :location, :name, :protected,
+                :screen_name, :statuses_count, :touched_at, :verified, :website
     alias_method :protected?, :protected
     alias_method :verified?, :verified
 
@@ -16,19 +11,20 @@ module Twterm
 
     @@instances = {}
 
-    def block!
-      @blocking = true
-      self
+    def blocked_by?(user_id)
+      Friendship.blocking?(user_id, id)
     end
 
-    def follow!
-      @following = true
-      self
+    def blocking?(user_id)
+      Friendship.blocking?(id, user_id)
     end
 
-    def followed!
-      @followed = true
-      self
+    def followed_by?(user_id)
+      Friendship.following?(user_id, id)
+    end
+
+    def following?(user_id)
+      Friendship.following?(id, user_id)
     end
 
     def initialize(user)
@@ -44,33 +40,16 @@ module Twterm
       [name, screen_name, description, website].any? { |x| x.to_s.downcase.include? query.downcase }
     end
 
-    def mute!
-      @muting = true
-      self
+    def muted_by?(user_id)
+      Friendship.muting?(user_id, id)
+    end
+
+    def muting?(user_id)
+      Friendship.muting?(id, user_id)
     end
 
     def touch!
       @touched_at = Time.now
-    end
-
-    def unblock!
-      @blocking = false
-      self
-    end
-
-    def unfollow!
-      @following = false
-      self
-    end
-
-    def unfollowed!
-      @followed = false
-      self
-    end
-
-    def unmute!
-      @muting = false
-      self
     end
 
     def update!(user)
@@ -79,13 +58,18 @@ module Twterm
       @description = user.description || ''
       @location = user.location.is_a?(Twitter::NullObject) ? '' : user.location
       @website = user.website
-      @following = user.following?
       @protected = user.protected?
       @statuses_count = user.statuses_count
       @favorites_count = user.favorites_count
       @friends_count = user.friends_count
       @followers_count = user.followers_count
       @verified = user.verified?
+
+      if user.following?
+        Friendship.follow(Client.current.user_id, user.id)
+      else
+        Friendship.unfollow(Client.current.user_id, user.id)
+      end
 
       History::ScreenName.instance.add(user.screen_name)
 
@@ -119,6 +103,10 @@ module Twterm
       users = all.select(&cond)
       user_ids = users.map(&:id)
       @@instances = user_ids.zip(users).to_h
+    end
+
+    def self.ids
+      @@instances.keys
     end
 
     def self.new(user)

@@ -30,7 +30,7 @@ module Twterm
         @user_id = user_id
 
         User.find_or_fetch(user_id).then do |user|
-          Client.current.lookup_friendships if user.followed?.nil?
+          Client.current.lookup_friendships
           self.title = "@#{user.screen_name}"
         end
       end
@@ -85,6 +85,10 @@ module Twterm
         end
       end
 
+      def blocking?
+        user.blocked_by?(Client.current.user_id)
+      end
+
       def follow
         Client.current.follow(user_id).then do |users|
           refresh
@@ -95,6 +99,14 @@ module Twterm
         end
       end
 
+      def following?
+        user.followed_by?(Client.current.user_id)
+      end
+
+      def followed?
+        user.followed_by?(Client.current.user_id)
+      end
+
       def mute
         Client.current.mute(user_id).then do |users|
           refresh
@@ -103,6 +115,10 @@ module Twterm
           msg = "Muted @#{user.screen_name}"
           Notifier.instance.show_message msg
         end
+      end
+
+      def muting?
+        user.muted_by?(Client.current.user_id)
       end
 
       def myself?
@@ -135,11 +151,11 @@ module Twterm
         when :show_friends
           show_friends
         when :toggle_block
-          user.blocking? ? unblock : block
+          user.blocked_by?(Client.current.user_id) ? unblock : block
         when :toggle_follow
-          user.following? ? unfollow : follow
+          user.followed_by?(Client.current.user_id) ? unfollow : follow
         when :toggle_mute
-          user.muting? ? unmute : mute
+          user.muted_by?(Client.current.user_id) ? unmute : mute
         end
       end
 
@@ -205,11 +221,11 @@ module Twterm
         if myself?
           window.with_color(:yellow) { window.addstr(' [your account]') }
         else
-          window.with_color(:green) { window.addstr(' [following]') } if user.following?
-          window.with_color(:white) { window.addstr(' [not following]') } if !user.following? && !user.blocking?
-          window.with_color(:cyan) { window.addstr(' [follows you]') } if user.followed?
-          window.with_color(:red) { window.addstr(' [muting]') } if user.muting?
-          window.with_color(:red) { window.addstr(' [blocking]') } if user.blocking?
+          window.with_color(:green) { window.addstr(' [following]') } if following?
+          window.with_color(:white) { window.addstr(' [not following]') } if !following? && !blocking?
+          window.with_color(:cyan) { window.addstr(' [follows you]') } if followed?
+          window.with_color(:red) { window.addstr(' [muting]') } if muting?
+          window.with_color(:red) { window.addstr(' [blocking]') } if blocking?
         end
 
         user.description.split_by_width(window.maxx - 6).each.with_index(7) do |line, i|
@@ -231,13 +247,13 @@ module Twterm
           window.setpos(current_line, 5)
           case item
           when :toggle_block
-            if user.blocking?
+            if blocking?
               window.addstr('    Unblock this user')
             else
               window.addstr('    Block this user')
             end
           when :toggle_follow
-            if user.following?
+            if following?
               window.addstr('    Unfollow this user')
             else
               window.addstr('[ ] Follow this user')
@@ -245,7 +261,7 @@ module Twterm
               window.bold { window.addch(?F) }
             end
           when :toggle_mute
-            if user.muting?
+            if muting?
               window.addstr('    Unmute this user')
             else
               window.addstr('    Mute this user')
