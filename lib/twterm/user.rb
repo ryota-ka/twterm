@@ -27,6 +27,14 @@ module Twterm
       Friendship.following?(id, user_id)
     end
 
+    def following_requested?(user_id)
+      Friendship.following_requested?(id, user_id)
+    end
+
+    def following_requested_by?(user_id)
+      Friendship.following_requested?(user_id, id)
+    end
+
     def initialize(user)
       @id = user.id
       update!(user)

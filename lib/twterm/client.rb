@@ -76,8 +76,12 @@ module Twterm
       send_request do
         rest_client.follow(*user_ids)
       end.then do |users|
-        users.each(&:id).each do |user_id|
-          Friendship.follow(self.user_id, user_id)
+        users.each do |user|
+          if user.protected?
+            Friendship.following_requested(self.user_id, user.id)
+          else
+            Friendship.follow(self.user_id, user.id)
+          end
         end
       end
     end

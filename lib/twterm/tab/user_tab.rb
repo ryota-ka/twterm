@@ -94,17 +94,25 @@ module Twterm
           refresh
 
           user = users.first
-          msg = "Followed @#{user.screen_name}"
+          if user.protected?
+            msg = "Sent following request to @#{user.screen_name}"
+          else
+            msg = "Followed @#{user.screen_name}"
+          end
           Notifier.instance.show_message msg
         end
+      end
+
+      def followed?
+        user.followed_by?(Client.current.user_id)
       end
 
       def following?
         user.followed_by?(Client.current.user_id)
       end
 
-      def followed?
-        user.followed_by?(Client.current.user_id)
+      def following_requested?
+        user.following_requested_by?(Client.current.user_id)
       end
 
       def mute
@@ -151,11 +159,17 @@ module Twterm
         when :show_friends
           show_friends
         when :toggle_block
-          user.blocked_by?(Client.current.user_id) ? unblock : block
+          blocking? ? unblock : block
         when :toggle_follow
-          user.followed_by?(Client.current.user_id) ? unfollow : follow
+          if following?
+            unfollow
+          elsif following_requested?
+            # do nothing
+          else
+            follow
+          end
         when :toggle_mute
-          user.muted_by?(Client.current.user_id) ? unmute : mute
+          muting? ? unmute : mute
         end
       end
 
@@ -222,7 +236,8 @@ module Twterm
           window.with_color(:yellow) { window.addstr(' [your account]') }
         else
           window.with_color(:green) { window.addstr(' [following]') } if following?
-          window.with_color(:white) { window.addstr(' [not following]') } if !following? && !blocking?
+          window.with_color(:white) { window.addstr(' [not following]') } if !following? && !blocking? && !following_requested?
+          window.with_color(:yellow) { window.addstr(' [following requested]') } if following_requested?
           window.with_color(:cyan) { window.addstr(' [follows you]') } if followed?
           window.with_color(:red) { window.addstr(' [muting]') } if muting?
           window.with_color(:red) { window.addstr(' [blocking]') } if blocking?
@@ -255,6 +270,8 @@ module Twterm
           when :toggle_follow
             if following?
               window.addstr('    Unfollow this user')
+            elsif following_requested?
+              window.addstr('    Following request sent')
             else
               window.addstr('[ ] Follow this user')
               window.setpos(current_line, 6)
