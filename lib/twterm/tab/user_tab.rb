@@ -30,6 +30,8 @@ module Twterm
         @user_id = user_id
 
         User.find_or_fetch(user_id).then do |user|
+          refresh
+
           Client.current.lookup_friendships
           self.title = "@#{user.screen_name}"
         end
