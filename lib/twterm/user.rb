@@ -65,10 +65,18 @@ module Twterm
       @followers_count = user.followers_count
       @verified = user.verified?
 
+      client_id = Client.current.user_id
+
       if user.following?
-        Friendship.follow(Client.current.user_id, user.id)
+        Friendship.follow(client_id, user.id)
       else
-        Friendship.unfollow(Client.current.user_id, user.id)
+        Friendship.unfollow(client_id, user.id)
+      end
+
+      if user.follow_request_sent?
+        Friendship.following_requested(client_id, user.id)
+      else
+        Friendship.following_not_requested(client_id, user.id)
       end
 
       History::ScreenName.instance.add(user.screen_name)
