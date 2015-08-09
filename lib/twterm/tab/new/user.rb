@@ -9,12 +9,6 @@ module Twterm
           other.is_a?(self.class)
         end
 
-        def initialize
-          super
-
-          @title = 'New tab'
-        end
-
         def invoke_input
           resetter = proc do
             reset_prog_mode
@@ -33,7 +27,7 @@ module Twterm
             if screen_name.nil? || screen_name.empty?
               TabManager.instance.switch(Tab::New::Start.new)
             else
-              Client.current.show_user(screen_name) do |user|
+              Client.current.show_user(screen_name).then do |user|
                 if user.nil?
                   Notifier.instance.show_error 'User not found'
                   tab = Tab::New::Start.new
@@ -57,6 +51,10 @@ module Twterm
 
         def respond_to_key(_)
           false
+        end
+
+        def title
+          'New tab'.freeze
         end
 
         private

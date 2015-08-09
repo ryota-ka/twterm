@@ -20,8 +20,6 @@ module Twterm
         def initialize
           super
 
-          @title = 'New tab'
-
           update_saved_search
         end
 
@@ -39,7 +37,7 @@ module Twterm
             query = (readline('> ') || '').strip
             resetter.call
 
-            tab = query.nil? || query.empty? ? Tab::New::Search.new : Tab::SearchTab.new(query)
+            tab = query.nil? || query.empty? ? Tab::New::Search.new : Tab::Statuses::Search.new(query)
             TabManager.instance.switch(tab)
           end
 
@@ -62,21 +60,11 @@ module Twterm
         end
 
         def respond_to_key(key)
+          return true if scroller.respond_to_key(key)
+
           case key
-          when ?d, 4
-            10.times { scroller.move_down }
-          when ?g
-            scroller.move_to_top
-          when ?G
-            scroller.move_to_bottom
           when 10
             open_search_tab_with_current_query
-          when ?j, 14, Curses::Key::DOWN
-            scroller.move_down
-          when ?k, 16, Curses::Key::UP
-            scroller.move_up
-          when ?u, 21
-            10.times { scroller.move_up }
           when ?q
             reset_filter
           when ?/
@@ -86,6 +74,10 @@ module Twterm
           end
 
           true
+        end
+
+        def title
+          'New tab'.freeze
         end
 
         def total_item_count
@@ -103,7 +95,7 @@ module Twterm
             invoke_input
           else
             query = items[index]
-            tab = Tab::SearchTab.new(query)
+            tab = Tab::Statuses::Search.new(query)
             TabManager.instance.switch(tab)
           end
         end
@@ -132,7 +124,7 @@ module Twterm
         def update_saved_search
           return unless @@queries.empty?
 
-          Client.current.saved_search do |searches|
+          Client.current.saved_search.then do |searches|
             @@queries = searches.map(&:query)
             refresh
           end

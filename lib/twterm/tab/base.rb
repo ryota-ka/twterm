@@ -15,13 +15,22 @@ module Twterm
       end
 
       def initialize
-        @window = stdscr.subwin(stdscr.maxy - 5, stdscr.maxx - 30, 3, 0)
+        @window = stdscr.subwin(stdscr.maxy - 5, stdscr.maxx, 3, 0)
       end
 
       def refresh
         Thread.new do
           refresh_mutex.synchronize do
             window.clear
+
+            # avoid misalignment caused by some multibyte-characters
+            window.with_color(:black, :transparent) do
+              (0...window.maxy).each do |i|
+                window.setpos(i, 0)
+                window.addch(' ')
+              end
+            end
+
             update
             window.refresh
           end if refreshable?
@@ -30,6 +39,11 @@ module Twterm
 
       def respond_to_key(_)
         fail NotImplementedError, 'respond_to_key method must be implemented'
+      end
+
+      def title=(title)
+        @title = title
+        TabManager.instance.refresh_window
       end
 
       private

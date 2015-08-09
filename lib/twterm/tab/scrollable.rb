@@ -4,7 +4,7 @@ module Twterm
       extend Forwardable
 
       attr_reader :scroller
-      def_delegators :scroller, :drawable_items
+      def_delegators :scroller, :current_item, :drawable_items
 
       def scroller
         return @scroller unless @scroller.nil?
@@ -13,6 +13,12 @@ module Twterm
         @scroller.delegate = self
         @scroller.after_move { refresh }
         @scroller
+      end
+
+      # define default behaviour
+      # overwrite if necessary
+      def total_item_count
+        items.count
       end
 
       private
@@ -27,6 +33,10 @@ module Twterm
 
         def after_move(&block)
           add_hook(:after_move, &block)
+        end
+
+        def current_item
+          items[index]
         end
 
         def current_item?(i)
@@ -54,7 +64,8 @@ module Twterm
 
         def item_prepended!
           @index += 1
-          @offset += 1
+          @offset += 1 unless @index < 4
+          # keep cursor position unless it is on the top
         end
 
         def move_down
@@ -100,13 +111,32 @@ module Twterm
           n.between?(offset, offset + drawable_item_count)
         end
 
+        def respond_to_key(key)
+          case key
+          when ?d, 4
+            10.times { move_down }
+          when ?g
+            move_to_top
+          when ?G
+            move_to_bottom
+          when ?j, 14, Curses::Key::DOWN
+            move_down
+          when ?k, 16, Curses::Key::UP
+            move_up
+          when ?u, 21
+            10.times { move_up }
+          else
+            return false
+          end
+
+          true
+        end
+
         def set_cursor_free!
           @cursor_free = true
         end
 
         private
-
-        alias_method :count, :total_item_count
 
         def add_hook(name, &block)
           @hooks ||= {}
@@ -132,6 +162,8 @@ module Twterm
         def hook(name)
           @hooks[name].call unless @hooks[name].nil?
         end
+
+        alias_method :count, :total_item_count
       end
     end
   end

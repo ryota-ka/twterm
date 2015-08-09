@@ -19,7 +19,6 @@ module Twterm
         def initialize
           super
 
-          @title = 'New tab'
           refresh
         end
 
@@ -28,31 +27,26 @@ module Twterm
         end
 
         def respond_to_key(key)
+          return true if scroller.respond_to_key(key)
+
           case key
-          when ?d, 4
-            10.times { scroller.move_down }
-          when ?g
-            scroller.move_to_top
-          when ?G
-            scroller.move_to_bottom
-          when ?j, 14, Curses::Key::DOWN
-            scroller.move_down
           when 10
             return true if current_list.nil?
-            list_tab = Tab::ListTab.new(current_list.id)
+            list_tab = Tab::Statuses::ListTimeline.new(current_list.id)
             TabManager.instance.switch(list_tab)
-          when ?k, 16, Curses::Key::UP
-            scroller.move_up
           when ?q
             reset_filter
-          when ?u, 21
-            10.times { scroller.move_up }
           when ?/
             filter
           else
             return false
           end
+
           true
+        end
+
+        def title
+          'New tab'.freeze
         end
 
         def total_item_count
@@ -91,7 +85,7 @@ module Twterm
 
           Thread.new do
             Notifier.instance.show_message('Loading lists ...')
-            Client.current.lists do |lists|
+            Client.current.lists.then do |lists|
               @@lists = lists.sort_by(&:full_name)
               show_lists
               window.refresh if TabManager.instance.current_tab == self
