@@ -18,6 +18,7 @@ module Twterm
             list_tab
             search_tab
             user_tab
+            key_assignments_cheatsheet
           ).freeze
         end
 
@@ -64,6 +65,10 @@ module Twterm
           tab.invoke_input
         end
 
+        def open_key_assignments_cheatsheet
+          switch(Tab::KeyAssignmentsCheatsheet.new)
+        end
+
         def perform_selected_action
           case current_item
           when :list_tab
@@ -72,6 +77,8 @@ module Twterm
             open_search_tab
           when :user_tab
             open_user_tab
+          when :key_assignments_cheatsheet
+            open_key_assignments_cheatsheet
           end
         end
 
@@ -100,6 +107,10 @@ module Twterm
               window.addstr('[U] User tab')
               window.setpos(line, 6)
               window.bold { window.addch(?U) }
+            when :key_assignments_cheatsheet
+              window.addstr('[?] Key assignments cheatsheet')
+              window.setpos(line, 6)
+              window.bold { window.addch(??) }
             end
 
             window.with_color(:black, :magenta) do
