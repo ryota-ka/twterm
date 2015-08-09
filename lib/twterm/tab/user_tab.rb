@@ -30,7 +30,9 @@ module Twterm
         @user_id = user_id
 
         User.find_or_fetch(user_id).then do |user|
-          Client.current.lookup_friendships if user.followed?.nil?
+          refresh
+
+          Client.current.lookup_friendships
           self.title = "@#{user.screen_name}"
         end
       end
@@ -85,14 +87,34 @@ module Twterm
         end
       end
 
+      def blocking?
+        user.blocked_by?(Client.current.user_id)
+      end
+
       def follow
         Client.current.follow(user_id).then do |users|
           refresh
 
           user = users.first
-          msg = "Followed @#{user.screen_name}"
+          if user.protected?
+            msg = "Sent following request to @#{user.screen_name}"
+          else
+            msg = "Followed @#{user.screen_name}"
+          end
           Notifier.instance.show_message msg
         end
+      end
+
+      def followed?
+        user.followed_by?(Client.current.user_id)
+      end
+
+      def following?
+        user.followed_by?(Client.current.user_id)
+      end
+
+      def following_requested?
+        user.following_requested_by?(Client.current.user_id)
       end
 
       def mute
@@ -103,6 +125,10 @@ module Twterm
           msg = "Muted @#{user.screen_name}"
           Notifier.instance.show_message msg
         end
+      end
+
+      def muting?
+        user.muted_by?(Client.current.user_id)
       end
 
       def myself?
@@ -135,11 +161,17 @@ module Twterm
         when :show_friends
           show_friends
         when :toggle_block
-          user.blocking? ? unblock : block
+          blocking? ? unblock : block
         when :toggle_follow
-          user.following? ? unfollow : follow
+          if following?
+            unfollow
+          elsif following_requested?
+            # do nothing
+          else
+            follow
+          end
         when :toggle_mute
-          user.muting? ? unmute : mute
+          muting? ? unmute : mute
         end
       end
 
@@ -205,11 +237,12 @@ module Twterm
         if myself?
           window.with_color(:yellow) { window.addstr(' [your account]') }
         else
-          window.with_color(:green) { window.addstr(' [following]') } if user.following?
-          window.with_color(:white) { window.addstr(' [not following]') } if !user.following? && !user.blocking?
-          window.with_color(:cyan) { window.addstr(' [follows you]') } if user.followed?
-          window.with_color(:red) { window.addstr(' [muting]') } if user.muting?
-          window.with_color(:red) { window.addstr(' [blocking]') } if user.blocking?
+          window.with_color(:green) { window.addstr(' [following]') } if following?
+          window.with_color(:white) { window.addstr(' [not following]') } if !following? && !blocking? && !following_requested?
+          window.with_color(:yellow) { window.addstr(' [following requested]') } if following_requested?
+          window.with_color(:cyan) { window.addstr(' [follows you]') } if followed?
+          window.with_color(:red) { window.addstr(' [muting]') } if muting?
+          window.with_color(:red) { window.addstr(' [blocking]') } if blocking?
         end
 
         user.description.split_by_width(window.maxx - 6).each.with_index(7) do |line, i|
@@ -231,21 +264,23 @@ module Twterm
           window.setpos(current_line, 5)
           case item
           when :toggle_block
-            if user.blocking?
+            if blocking?
               window.addstr('    Unblock this user')
             else
               window.addstr('    Block this user')
             end
           when :toggle_follow
-            if user.following?
+            if following?
               window.addstr('    Unfollow this user')
+            elsif following_requested?
+              window.addstr('    Following request sent')
             else
               window.addstr('[ ] Follow this user')
               window.setpos(current_line, 6)
               window.bold { window.addch(?F) }
             end
           when :toggle_mute
-            if user.muting?
+            if muting?
               window.addstr('    Unmute this user')
             else
               window.addstr('    Mute this user')

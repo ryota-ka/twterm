@@ -12,7 +12,9 @@ module Twterm
       send_request do
         rest_client.block(*user_ids)
       end.then do |users|
-        users.map { |u| User.new(u).block! }
+        users.each do |user|
+          Friendship.block(self.user_id, user.id)
+        end
       end
     end
 
@@ -74,7 +76,13 @@ module Twterm
       send_request do
         rest_client.follow(*user_ids)
       end.then do |users|
-        users.map(& -> u { User.new(u).follow! })
+        users.each do |user|
+          if user.protected?
+            Friendship.following_requested(self.user_id, user.id)
+          else
+            Friendship.follow(self.user_id, user.id)
+          end
+        end
       end
     end
 
@@ -87,7 +95,9 @@ module Twterm
         rest_client.follower_ids(user_id).each_slice(100) do |user_ids|
           m.synchronize do
             users = rest_client.users(*user_ids).map(& -> u { User.new(u) })
-            users.each(&:followed!) if user_id == self.user_id
+            users.each do |user|
+              Friendship.follow(user.id, self.user_id)
+            end if user_id == self.user_id
             yield users
           end
         end
@@ -165,17 +175,20 @@ module Twterm
     end
 
     def lookup_friendships
-      user_ids = User.all.select { |u| u.followed.nil? }.map(&:id)
+      user_ids = User.ids.reject { |id| Friendship.already_looked_up?(id) }
       send_request_without_catch do
         user_ids.each_slice(100) do |chunked_user_ids|
           friendships = rest_client.friendships(*chunked_user_ids)
           friendships.each do |friendship|
-            user = User.find(friendship.id)
+            id = friendship.id
+            client_id = user_id
+
             conn = friendship.connections
-            conn.include?('blocking')    ? user.block!    : user.unblock!
-            conn.include?('following')   ? user.follow!   : user.unfollow!
-            conn.include?('followed_by') ? user.followed! : user.unfollowed!
-            conn.include?('muting')      ? user.mute!     : user.unmute!
+            conn.include?('blocking') ? Friendship.block(client_id, id) : Friendship.unblock(client_id, id)
+            conn.include?('following') ? Friendship.follow(client_id, id) : Friendship.unfollow(client_id, id)
+            conn.include?('following_requested') ? Friendship.following_requested(client_id, id) : Friendship.following_not_requested(client_id, id)
+            conn.include?('followed_by') ? Friendship.follow(id, client_id) : Friendship.unfollow(id, client_id)
+            conn.include?('muting') ? Friendship.mute(client_id, id) : Friendship.unmute(client_id, id)
           end
         end
       end.catch do |e|
@@ -202,7 +215,9 @@ module Twterm
       send_request do
         rest_client.mute(*user_ids)
       end.then do |users|
-        users.map { |u| User.new(u).mute! }
+        users.each do |user|
+          Friendship.mute(self.user_id, user.id)
+        end
       end
     end
 
@@ -350,7 +365,9 @@ module Twterm
       send_request do
         rest_client.unblock(*user_ids)
       end.then do |users|
-        users.map { |u| User.new(u).unblock! }
+        users.each do |user|
+          Friendship.unblock(self.user_id, user.id)
+        end
       end
     end
 
@@ -367,9 +384,11 @@ module Twterm
 
     def unfollow(*user_ids)
       send_request do
-        users = rest_client.unfollow(*user_ids)
+        rest_client.unfollow(*user_ids)
       end.then do |users|
-        users.map(& -> u { User.new(u).unfollow! })
+        users.each do |user|
+          Friendship.unfollow(self.user_id, user.id)
+        end
       end
     end
 
@@ -377,7 +396,9 @@ module Twterm
       send_request do
         rest_client.unmute(*user_ids)
       end.then do |users|
-        users.map { |u| User.new(u).unmute! }
+        users.each do |user|
+          Friendship.unmute(self.user_id, user.id)
+        end
       end
     end
 
