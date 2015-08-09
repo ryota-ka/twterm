@@ -64,7 +64,8 @@ module Twterm
 
         def item_prepended!
           @index += 1
-          @offset += 1
+          @offset += 1 unless @index < 4
+          # keep cursor position unless it is on the top
         end
 
         def move_down
