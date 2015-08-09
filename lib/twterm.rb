@@ -67,6 +67,6 @@ require 'twterm/version'
 
 module Twterm
   class Conf
-    REQUIRE_VERSION = '1.0.12'
+    REQUIRE_VERSION = '1.1.0.beta1'
   end
 end
