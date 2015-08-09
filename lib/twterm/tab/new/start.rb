@@ -3,9 +3,23 @@ module Twterm
     module New
       class Start
         include Base
+        include Scrollable
 
         def ==(other)
           other.is_a?(self.class)
+        end
+
+        def drawable_item_count
+          (window.maxy - 1).div(2)
+        end
+
+        def items
+          %i(
+            list_tab
+            search_tab
+            user_tab
+            key_assignments_cheatsheet
+          ).freeze
         end
 
         def initialize
@@ -14,17 +28,17 @@ module Twterm
         end
 
         def respond_to_key(key)
+          return true if scroller.respond_to_key(key)
+
           case key
+          when 10
+            perform_selected_action
           when 'L'
-            tab = Tab::New::List.new
-            TabManager.instance.switch(tab)
+            open_list_tab
           when 'S'
-            tab = Tab::New::Search.new
-            TabManager.instance.switch(tab)
+            open_search_tab
           when 'U'
-            tab = Tab::New::User.new
-            TabManager.instance.switch(tab)
-            tab.invoke_input
+            open_user_tab
           else
             return false
           end
@@ -37,29 +51,73 @@ module Twterm
 
         private
 
+        def open_list_tab
+          switch(Tab::New::List.new)
+        end
+
+        def open_search_tab
+          switch(Tab::New::Search.new)
+        end
+
+        def open_user_tab
+          tab = Tab::New::User.new
+          switch(tab)
+          tab.invoke_input
+        end
+
+        def open_key_assignments_cheatsheet
+          switch(Tab::KeyAssignmentsCheatsheet.new)
+        end
+
+        def perform_selected_action
+          case current_item
+          when :list_tab
+            open_list_tab
+          when :search_tab
+            open_search_tab
+          when :user_tab
+            open_user_tab
+          when :key_assignments_cheatsheet
+            open_key_assignments_cheatsheet
+          end
+        end
+
+        def switch(tab)
+          TabManager.instance.switch(tab)
+        end
+
         def update
           window.setpos(2, 3)
-          window.bold { window.addstr("You've opened a new tab") }
+          window.bold { window.addstr('Open new tab') }
 
-          window.setpos(4, 5)
-          window.addstr('- [L] Open list tab')
-          window.setpos(4, 7)
-          window.bold { window.addstr('[L]') }
+          drawable_items.each.with_index(0) do |item, i|
+            line = 4 + i * 2
+            window.setpos(line, 5)
 
-          window.setpos(6, 5)
-          window.addstr('- [S] Open search tab')
-          window.setpos(6, 7)
-          window.bold { window.addstr('[S]') }
+            case item
+            when :list_tab
+              window.addstr('[L] List tab')
+              window.setpos(line, 6)
+              window.bold { window.addch(?L) }
+            when :search_tab
+              window.addstr('[S] Search tab')
+              window.setpos(line, 6)
+              window.bold { window.addch(?S) }
+            when :user_tab
+              window.addstr('[U] User tab')
+              window.setpos(line, 6)
+              window.bold { window.addch(?U) }
+            when :key_assignments_cheatsheet
+              window.addstr('[?] Key assignments cheatsheet')
+              window.setpos(line, 6)
+              window.bold { window.addch(??) }
+            end
 
-          window.setpos(8, 5)
-          window.addstr('- [U] Open user tab')
-          window.setpos(8, 7)
-          window.bold { window.addstr('[U]') }
-
-          window.setpos(11, 3)
-          window.addstr('To cancel opening a new tab, just press [w] to close this tab.')
-          window.setpos(11, 43)
-          window.bold { window.addstr('[w]') }
+            window.with_color(:black, :magenta) do
+              window.setpos(line, 3)
+              window.addch(' ')
+            end if scroller.current_item?(i)
+          end
         end
       end
     end
