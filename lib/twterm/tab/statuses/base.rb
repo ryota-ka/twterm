@@ -69,6 +69,8 @@ module Twterm
           status = highlighted_status
           urls = status.urls.map(&:expanded_url) + status.media.map(&:expanded_url)
           urls.each(&Launchy.method(:open))
+        rescue Launchy::CommandNotFoundError
+          Notifier.instance.show_error 'Cannot find web browser'
         end
 
         def prepend(status)
