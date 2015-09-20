@@ -49,7 +49,7 @@ module Twterm
 
       def initialize
         super
-        scroller.set_cursor_free!
+        scroller.set_no_cursor_mode!
       end
 
       def respond_to_key(key)
