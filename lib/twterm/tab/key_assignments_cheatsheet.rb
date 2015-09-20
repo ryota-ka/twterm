@@ -19,26 +19,27 @@ module Twterm
           '[Q]'               => 'Quit twterm'
         },
         'Tabs' => {
-          '[h] [C-b] [LEFT]'  => 'Show previous tab',
-          '[l] [C-f] [RIGHT]' => 'Show next tab',
-          '[N]'               => 'Open new tab',
+          '[h] [C-b] [LEFT]'  => 'Previous tab',
+          '[l] [C-f] [RIGHT]' => 'Next tab',
+          '[N]'               => 'New tab',
           '[C-R]'             => 'Reload',
           '[w]'               => 'Close tab',
-          '[q]'               => 'Quit filtering mode',
-          '[/]'               => 'Filter items in tab'
+          '[q]'               => 'Quit filter mode',
+          '[/]'               => 'Filter mode'
         },
         'Tweets' => {
-          '[D]'               => 'Delete tweet',
+          '[c]'               => 'Conversation',
+          '[D]'               => 'Delete',
           '[F]'               => 'Add to favorite',
-          '[n]'               => 'Compose new tweet',
-          '[o]'               => 'Open URLs in tweet',
+          '[n]'               => 'New tweet',
+          '[o]'               => 'Open URLs',
           '[r]'               => 'Reply',
           '[R]'               => 'Retweet',
-          '[U]'               => 'Show user'
+          '[U]'               => 'User'
         },
         'Others' => {
-          '[P]'               => 'View my profile',
-          '[?]'               => 'Open key assignments cheatsheet'
+          '[P]'               => 'My profile',
+          '[?]'               => 'Key assignments cheatsheet'
         }
       }
 
@@ -48,7 +49,7 @@ module Twterm
 
       def initialize
         super
-        scroller.set_cursor_free!
+        scroller.set_no_cursor_mode!
       end
 
       def respond_to_key(key)
