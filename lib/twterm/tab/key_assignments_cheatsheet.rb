@@ -28,6 +28,7 @@ module Twterm
           '[/]'               => 'Filter items in tab'
         },
         'Tweets' => {
+          '[c]'               => 'Display conversation',
           '[D]'               => 'Delete tweet',
           '[F]'               => 'Add to favorite',
           '[n]'               => 'Compose new tweet',
