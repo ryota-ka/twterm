@@ -16,21 +16,22 @@ module Twterm
         rescue
           @history = []
         end
+
+        Scheduler.new(300) { save }
       end
 
       def add(hashtag)
         @history.unshift(hashtag)
         @history = @history.uniq.take(MAX_HISTORY_SIZE)
-        save
       end
-
-      private
 
       def save
         File.open(history_file, 'w', 0600) do |f|
           f.write @history.to_yaml
         end
       end
+
+      private
 
       def history_file
         fail NotImplementedError, 'history_file method must be implemented'

@@ -6,7 +6,7 @@ module Twterm
       private
 
       def history_file
-        "#{App::DATA_DIR}/screen_names"
+        "#{App::DATA_DIR}/screen_names".freeze
       end
     end
   end

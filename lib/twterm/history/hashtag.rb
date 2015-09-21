@@ -6,7 +6,7 @@ module Twterm
       private
 
       def history_file
-        "#{App::DATA_DIR}/hashtags"
+        "#{App::DATA_DIR}/hashtags".freeze
       end
     end
   end
