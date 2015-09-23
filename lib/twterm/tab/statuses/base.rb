@@ -20,7 +20,7 @@ module Twterm
         end
 
         def delete(status_id)
-          @status_ids.delete(status_id)
+          Status.delete(status_id)
           refresh
         end
 
