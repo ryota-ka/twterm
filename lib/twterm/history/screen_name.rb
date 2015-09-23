@@ -3,10 +3,8 @@ module Twterm
     class ScreenName
       include Singleton, Base
 
-      private
-
-      def history_file
-        "#{App::DATA_DIR}/screen_names".freeze
+      def history
+        User.all.map(&:screen_name)
       end
     end
   end

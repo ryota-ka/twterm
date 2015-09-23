@@ -45,8 +45,6 @@ module Twterm
     def quit
       Curses.close_screen
       TabManager.instance.dump_tabs
-      History::Hashtag.instance.save
-      History::ScreenName.instance.save
       exit
     end
 
