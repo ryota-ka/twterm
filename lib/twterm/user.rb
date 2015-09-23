@@ -87,8 +87,6 @@ module Twterm
         Friendship.following_not_requested(client_id, user.id)
       end
 
-      History::ScreenName.instance.add(user.screen_name)
-
       self
     end
 
