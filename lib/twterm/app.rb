@@ -21,7 +21,7 @@ module Twterm
 
       Screen.instance.refresh
 
-      client.stream
+      client.user_stream
 
       reset_interruption_handler
     end

@@ -18,21 +18,6 @@ module Twterm
       end
     end
 
-    def connect_stream
-      stream_client.stop_stream
-
-      @streaming_thread = Thread.new do
-        begin
-          Notifier.instance.show_message 'Trying to connect to Twitter...'
-          stream_client.userstream
-        rescue EventMachine::ConnectionError
-          Notifier.instance.show_error 'Connection failed'
-          sleep 30
-          retry
-        end
-      end
-    end
-
     def destroy_status(status)
       send_request_without_catch do
         rest_client.destroy_status(status.id)
@@ -142,6 +127,13 @@ module Twterm
             muted_user_ids.include?(status.retweeted_status.user.id))
         end
       end
+
+      on(:user_streams_no_data_received) do
+        @stream_connected = false
+        @streaming_thread.kill
+        user_stream
+      end
+      keep_alive!
 
       @@instances << self
     end
@@ -318,47 +310,13 @@ module Twterm
       end
     end
 
-    def stream
-      stream_client.on_friends do
-        Notifier.instance.show_message 'Connection established' unless @stream_connected
-        @stream_connected = true
+    def streaming_client
+      @streaming_client ||= Twitter::Streaming::Client.new do |config|
+        config.consumer_key        = CONSUMER_KEY
+        config.consumer_secret     = CONSUMER_SECRET
+        config.access_token        = @access_token
+        config.access_token_secret = @access_token_secret
       end
-
-      stream_client.on_timeline_status do |tweet|
-        status = Status.new(tweet)
-        invoke_callbacks(:timeline_status, status)
-        invoke_callbacks(:mention, status) if status.text.include? "@#{@screen_name}"
-      end
-
-      stream_client.on_delete do |status_id|
-        timeline.delete_status(status_id)
-      end
-
-      stream_client.on_event(:favorite) do |event|
-        break if event[:source][:screen_name] == @screen_name
-
-        user = event[:source][:screen_name]
-        text = event[:target_object][:text]
-        message = "@#{user} has favorited your tweet: #{text}"
-        Notifier.instance.show_message(message)
-      end
-
-      stream_client.on_no_data_received do
-        @stream_connected = false
-        connect_stream
-      end
-
-      connect_stream
-    end
-
-    def stream_client
-      @stream_client ||= TweetStream::Client.new(
-        consumer_key:       CONSUMER_KEY,
-        consumer_secret:    CONSUMER_SECRET,
-        oauth_token:        @access_token,
-        oauth_token_secret: @access_token_secret,
-        auth_method:        :oauth
-      )
     end
 
     def unblock(*user_ids)
@@ -398,6 +356,51 @@ module Twterm
       end.then do |users|
         users.each do |user|
           Friendship.unmute(self.user_id, user.id)
+        end
+      end
+    end
+
+    def user_stream
+      @streaming_thread = Thread.new do
+        begin
+          Notifier.instance.show_message 'Trying to connect to Twitter...'
+          streaming_client.user do |event|
+            keep_alive!
+
+            case event
+            when Twitter::Tweet
+              status = Status.new(event)
+              invoke_callbacks(:timeline_status, status)
+              invoke_callbacks(:mention, status) if status.text.include? "@#{screen_name}"
+            when Twitter::Streaming::Event
+              case event.name
+              when :favorite
+                break if event.source.screen_name == screen_name
+
+                user = event.source.screen_name
+                text = event.target_object.text
+                message = "@#{user} has favorited your tweet: #{text}"
+                Notifier.instance.show_message(message)
+              end
+            when Twitter::DirectMessage
+            when Twitter::Streaming::FriendList
+              Notifier.instance.show_message 'Connection established' unless @stream_connected
+              @stream_connected = true
+            when Twitter::Streaming::DeletedTweet
+              Status.delete(event.id)
+            when Twitter::Streaming::StallWarning
+            end
+          end
+        rescue Twitter::Error::TooManyRequests
+          Notifier.instance.show_error 'Rate limit exceeded'
+          sleep 60
+          retry
+        rescue Errno::ENETUNREACH, Resolv::ResolvError
+          Notifier.instance.show_error 'Network is unavailable'
+          sleep 30
+          retry
+        rescue Twitter::Error => e
+          Notifier.instance.show_error e.message
         end
       end
     end
@@ -446,6 +449,14 @@ module Twterm
       @callbacks[event] ||= []
       @callbacks[event] << block
       self
+    end
+
+    def keep_alive!
+      @keep_alive_timer.kill if @keep_alive_timer.is_a?(Thread)
+      @keep_alive_timer = Thread.new do
+        sleep(60)
+        invoke_callbacks(:user_streams_no_data_received)
+      end
     end
 
     def send_request(&block)

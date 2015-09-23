@@ -52,13 +52,13 @@ module Twterm
       unless tweet.retweeted_status.is_a? Twitter::NullObject
         @retweeted_by_user_id = tweet.user.id
         User.new(tweet.user)
-        retweeted_at = Status.parse_time(tweet.created_at)
+        retweeted_at = tweet.created_at.dup.localtime
         tweet = tweet.retweeted_status
       end
 
       @id = tweet.id
       @text = CGI.unescapeHTML(tweet.full_text.dup)
-      @created_at = Status.parse_time(tweet.created_at)
+      @created_at = tweet.created_at.dup.localtime
       @appeared_at = retweeted_at || @created_at
       @retweet_count = tweet.retweet_count
       @favorite_count = tweet.favorite_count
@@ -138,6 +138,10 @@ module Twterm
       @@instances = status_ids.zip(statuses).to_h
     end
 
+    def self.delete(id)
+      @@instances.delete(id)
+    end
+
     def self.find(id)
       @@instances[id]
     end
@@ -154,10 +158,6 @@ module Twterm
     def self.new(tweet)
       instance = find(tweet.id)
       instance.nil? ? super : instance.update!(tweet)
-    end
-
-    def self.parse_time(time)
-      (time.is_a?(String) ? Time.parse(time) : time.dup).localtime
     end
   end
 end
