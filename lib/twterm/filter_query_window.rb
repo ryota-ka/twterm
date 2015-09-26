@@ -73,6 +73,11 @@ module Twterm
       stdscr.addstr(' ' * window.maxx)
     end
 
+    def resize
+      @window.resize(1, stdscr.maxx)
+      @window.move(stdscr.maxy - 1, 0)
+    end
+
     private
 
     attr_reader :window

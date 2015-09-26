@@ -16,6 +16,11 @@ module Twterm
       end
     end
 
+    def resize
+      @window.resize(1, stdscr.maxx)
+      @window.move(stdscr.maxy - 2, 0)
+    end
+
     def show_error(message)
       notification = Notification::Error.new(message)
       @queue.push(notification)

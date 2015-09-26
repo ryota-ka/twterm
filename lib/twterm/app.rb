@@ -24,6 +24,8 @@ module Twterm
       client.user_stream
 
       reset_interruption_handler
+
+      Signal.trap(:WINCH) { Screen.instance.resize }
     end
 
     def run

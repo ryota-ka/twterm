@@ -19,6 +19,17 @@ module Twterm
       Notifier.instance.show
     end
 
+    def resize
+      resizeterm(`tput lines`.to_i, `tput cols`.to_i)
+      @screen.resize(`tput lines`.to_i, `tput cols`.to_i)
+
+      TabManager.instance.resize
+      TabManager.instance.current_tab.resize
+      Notifier.instance.resize
+      FilterQueryWindow.instance.resize
+      refresh
+    end
+
     def respond_to_key(key)
       case key
       when ?n

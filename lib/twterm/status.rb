@@ -100,7 +100,7 @@ module Twterm
     end
 
     def split(width)
-      @splitted_text[:width] ||= @text.split_by_width(width)
+      @splitted_text[width] ||= @text.split_by_width(width)
     end
 
     def touch!

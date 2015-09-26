@@ -116,6 +116,11 @@ module Twterm
       @window.refresh
     end
 
+    def resize
+      @window.resize(3, stdscr.maxx)
+      @window.move(0, 0)
+    end
+
     def respond_to_key(key)
       case key
       when ?1..?9
