@@ -37,6 +37,11 @@ module Twterm
         end
       end
 
+      def resize
+        window.resize(stdscr.maxy - 5, stdscr.maxx)
+        window.move(3, 0)
+      end
+
       def respond_to_key(_)
         fail NotImplementedError, 'respond_to_key method must be implemented'
       end
