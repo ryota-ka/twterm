@@ -24,7 +24,7 @@ module Twterm
       @screen.resize(`tput lines`.to_i, `tput cols`.to_i)
 
       TabManager.instance.resize
-      TabManager.instance.current_tab.resize
+      TabManager.instance.each_tab(&:resize)
       Notifier.instance.resize
       FilterQueryWindow.instance.resize
       refresh
