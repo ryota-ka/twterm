@@ -28,6 +28,7 @@ require 'twterm/filter_query_window'
 require 'twterm/filterable_list'
 require 'twterm/friendship'
 require 'twterm/history/base'
+require 'twterm/history/savable'
 require 'twterm/history/hashtag'
 require 'twterm/history/screen_name'
 require 'twterm/list'
@@ -67,6 +68,6 @@ require 'twterm/version'
 
 module Twterm
   class Conf
-    REQUIRE_VERSION = '1.1.0.beta1'
+    REQUIRE_VERSION = '1.1.1'
   end
 end

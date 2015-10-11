@@ -18,21 +18,6 @@ module Twterm
       end
     end
 
-    def connect_stream
-      stream_client.stop_stream
-
-      @streaming_thread = Thread.new do
-        begin
-          Notifier.instance.show_message 'Trying to connect to Twitter...'
-          stream_client.userstream
-        rescue EventMachine::ConnectionError
-          Notifier.instance.show_error 'Connection failed'
-          sleep 30
-          retry
-        end
-      end
-    end
-
     def destroy_status(status)
       send_request_without_catch do
         rest_client.destroy_status(status.id)
@@ -143,7 +128,43 @@ module Twterm
         end
       end
 
+      initialize_user_stream
+
       @@instances << self
+    end
+
+    def initialize_user_stream
+      return if user_stream_initialized?
+
+      streaming_client.on_friends do
+        user_stream_connected!
+      end
+
+      streaming_client.on_timeline_status do |tweet|
+        status = Status.new(tweet)
+        invoke_callbacks(:timeline_status, status)
+        invoke_callbacks(:mention, status) if status.text.include? "@#{@screen_name}"
+      end
+
+      streaming_client.on_delete do |status_id|
+        timeline.delete_status(status_id)
+      end
+
+      streaming_client.on_event(:favorite) do |event|
+        break if event[:source][:screen_name] == @screen_name
+
+        user = event[:source][:screen_name]
+        text = event[:target_object][:text]
+        message = "@#{user} has favorited your tweet: #{text}"
+        Notifier.instance.show_message(message)
+      end
+
+      streaming_client.on_no_data_received do
+        user_stream_disconnected!
+        user_stream
+      end
+
+      user_stream_initialized!
     end
 
     def list(list_id)
@@ -318,41 +339,8 @@ module Twterm
       end
     end
 
-    def stream
-      stream_client.on_friends do
-        Notifier.instance.show_message 'Connection established' unless @stream_connected
-        @stream_connected = true
-      end
-
-      stream_client.on_timeline_status do |tweet|
-        status = Status.new(tweet)
-        invoke_callbacks(:timeline_status, status)
-        invoke_callbacks(:mention, status) if status.text.include? "@#{@screen_name}"
-      end
-
-      stream_client.on_delete do |status_id|
-        timeline.delete_status(status_id)
-      end
-
-      stream_client.on_event(:favorite) do |event|
-        break if event[:source][:screen_name] == @screen_name
-
-        user = event[:source][:screen_name]
-        text = event[:target_object][:text]
-        message = "@#{user} has favorited your tweet: #{text}"
-        Notifier.instance.show_message(message)
-      end
-
-      stream_client.on_no_data_received do
-        @stream_connected = false
-        connect_stream
-      end
-
-      connect_stream
-    end
-
-    def stream_client
-      @stream_client ||= TweetStream::Client.new(
+    def streaming_client
+      @streaming_client ||= TweetStream::Client.new(
         consumer_key:       CONSUMER_KEY,
         consumer_secret:    CONSUMER_SECRET,
         oauth_token:        @access_token,
@@ -400,6 +388,42 @@ module Twterm
           Friendship.unmute(self.user_id, user.id)
         end
       end
+    end
+
+    def user_stream
+      streaming_client.stop_stream
+
+      @streaming_thread = Thread.new do
+        begin
+          Notifier.instance.show_message 'Trying to connect to Twitter...'
+          streaming_client.userstream
+        rescue EventMachine::ConnectionError
+          Notifier.instance.show_error 'Connection failed'
+          sleep 30
+          retry
+        end
+      end
+    end
+
+    def user_stream_connected?
+      @user_stream_connected || false
+    end
+
+    def user_stream_connected!
+      Notifier.instance.show_message 'Connection established' unless user_stream_connected?
+      @user_stream_connected = true
+    end
+
+    def user_stream_disconnected!
+      @user_stream_connected = false
+    end
+
+    def user_stream_initialized?
+      @user_stream_initialized || false
+    end
+
+    def user_stream_initialized!
+      @user_stream_initialized = true
     end
 
     def user_timeline(user_id)

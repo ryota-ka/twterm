@@ -116,8 +116,21 @@ module Twterm
       @window.refresh
     end
 
+    def resize
+      @window.resize(3, stdscr.maxx)
+      @window.move(0, 0)
+    end
+
     def respond_to_key(key)
       case key
+      when ?1..?9
+        @index = key.to_i - 1 if @tabs.count >= key.to_i
+        current_tab.refresh
+        refresh_window
+      when ?0
+        @index = @tabs.count - 1
+        current_tab.refresh
+        refresh_window
       when ?h, 2, Key::LEFT
         show_previous
       when ?l, 6, Key::RIGHT
