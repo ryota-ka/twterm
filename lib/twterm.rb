@@ -9,6 +9,7 @@ require 'oauth'
 require 'readline'
 require 'singleton'
 require 'set'
+require 'tweetstream'
 require 'twitter'
 require 'twitter-text'
 require 'yaml'
@@ -67,6 +68,6 @@ require 'twterm/version'
 
 module Twterm
   class Conf
-    REQUIRE_VERSION = '1.1.0.beta1'
+    REQUIRE_VERSION = '1.1.1'
   end
 end
