@@ -42,7 +42,7 @@ module Twterm
           open_timeline_tab
           show_friends
           show_followers
-          show_favorites
+          show_likes
         )
         items << :open_website  unless user.website.nil?
         items << :toggle_follow unless myself?
@@ -154,8 +154,8 @@ module Twterm
           open_timeline_tab
         when :open_website
           open_website
-        when :show_favorites
-          show_favorites
+        when :show_likes
+          show_likes
         when :show_followers
           show_followers
         when :show_friends
@@ -175,7 +175,7 @@ module Twterm
         end
       end
 
-      def show_favorites
+      def show_likes
         tab = Tab::Statuses::Favorites.new(user_id)
         TabManager.instance.add_and_show(tab)
       end
@@ -293,8 +293,8 @@ module Twterm
             window.addstr("[ ] Open website (#{user.website})")
             window.setpos(current_line, 6)
             window.bold { window.addch(?W) }
-          when :show_favorites
-            window.addstr("    #{user.favorites_count.format} favorites")
+          when :show_likes
+            window.addstr("    #{user.favorites_count.format} likes")
           when :show_followers
             window.addstr("    #{user.followers_count.format} followers")
           when :show_friends
