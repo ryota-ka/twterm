@@ -98,7 +98,7 @@ module Twterm
             show_conversation
           when ?D
             destroy_status
-          when ?F
+          when ?F, ?L
             favorite
           when ?o
             open_link
@@ -188,7 +188,7 @@ module Twterm
             end
 
             if status.favorited?
-              window.with_color(:black, :yellow) do
+              window.with_color(:black, :red) do
                 window.addch(' ')
               end
 
@@ -203,8 +203,8 @@ module Twterm
             end
 
             if status.favorite_count > 0
-              window.with_color(:yellow) do
-                window.addstr("#{status.favorite_count}fav#{status.favorite_count > 1 ? 's' : ''}")
+              window.with_color(:red) do
+                window.addstr("#{status.favorite_count}like#{status.favorite_count > 1 ? 's' : ''}")
               end
               window.addch(' ')
             end

@@ -30,7 +30,7 @@ module Twterm
         'Tweets' => {
           '[c]'               => 'Conversation',
           '[D]'               => 'Delete',
-          '[F]'               => 'Add to favorite',
+          '[L]'               => 'Like',
           '[n]'               => 'New tweet',
           '[o]'               => 'Open URLs',
           '[r]'               => 'Reply',

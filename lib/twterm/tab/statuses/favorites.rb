@@ -37,7 +37,7 @@ module Twterm
         end
 
         def title
-          @user.nil? ? 'Loading...' : "@#{@user.screen_name} favorites"
+          @user.nil? ? 'Loading...' : "@#{@user.screen_name} likes"
         end
       end
     end
