@@ -20,7 +20,7 @@ module Twterm
       config[:access_token] = access_token.token
       config[:access_token_secret] = access_token.secret
       config[:screen_name] = access_token.params[:screen_name]
-      config[:user_id] = access_token.params[:user_id]
+      config[:user_id] = access_token.params[:user_id].to_i
     end
 
     module_function :authenticate_user

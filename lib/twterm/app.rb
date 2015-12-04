@@ -7,7 +7,7 @@ module Twterm
     def initialize
       Dir.mkdir(DATA_DIR, 0700) unless File.directory?(DATA_DIR)
 
-      Auth.authenticate_user(config) if config[:screen_name].nil?
+      Auth.authenticate_user(config) if config[:user_id].nil?
 
       Screen.instance
       FilterQueryWindow.instance
