@@ -6,8 +6,9 @@ module Twterm
 
     def []=(key, value)
       return if config[key] == value
-      save_config_to_file
+
       config[key] = value
+      save_config_to_file
     end
 
     private
