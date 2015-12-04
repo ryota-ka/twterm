@@ -57,7 +57,7 @@ module Twterm
 
         case key
         when ?F
-          follow
+          follow unless myself?
         when 10
           perform_selected_action
         when ?t
