@@ -308,10 +308,10 @@ module Twterm
 
     def search(query)
       send_request do
-        rest_client.search(query, count: 200)
+        rest_client.search(query, count: 100).attrs[:statuses]
       end.then do |statuses|
         statuses
-          .select(&@mute_filter)
+          .map(&Twitter::Tweet.method(:new))
           .map(&CREATE_STATUS_PROC)
       end
     end
