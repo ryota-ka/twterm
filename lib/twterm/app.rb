@@ -26,6 +26,8 @@ module Twterm
       reset_interruption_handler
 
       Signal.trap(:WINCH) { Screen.instance.resize }
+
+      Scheduler.new(60) { Screen.instance.resize }
     end
 
     def run
