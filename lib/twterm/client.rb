@@ -21,6 +21,7 @@ module Twterm
     def destroy_status(status)
       send_request_without_catch do
         rest_client.destroy_status(status.id)
+        Notifier.instance.show_message('Your tweet has been deleted')
       end.catch do |reason|
         case reason
         when Twitter::Error::NotFound, Twitter::Error::Forbidden
@@ -38,6 +39,9 @@ module Twterm
         rest_client.favorite(status.id)
       end.then do
         status.favorite!
+        Notifier.instance.show_message('Successfully liked: @%s "%s"' % [
+          status.user.screen_name, status.text
+        ])
       end
     end
 
@@ -260,6 +264,7 @@ module Twterm
         else
           rest_client.update(text)
         end
+        Notifier.instance.show_message('Your tweet has been posted')
       end
     end
 
@@ -280,6 +285,9 @@ module Twterm
         rest_client.retweet!(status.id)
       end.then do
         status.retweet!
+        Notifier.instance.show_message('Successfully retweeted: @%s "%s"' % [
+          status.user.screen_name, status.text
+        ])
       end.catch do |reason|
         message =
           case reason
@@ -367,6 +375,9 @@ module Twterm
         rest_client.unfavorite(status.id)
       end.then do
         status.unfavorite!
+        Notifier.instance.show_message('Successfully unliked: @%s "%s"' % [
+          status.user.screen_name, status.text
+        ])
       end
     end
 
