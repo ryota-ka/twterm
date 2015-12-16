@@ -2,4 +2,9 @@
 
 require 'twterm'
 
+if ARGV.count == 1 && (%w(-v --version).include?(ARGV.first))
+  puts 'twterm version %s' % Twterm::VERSION
+  exit
+end
+
 Twterm::App.instance.run
