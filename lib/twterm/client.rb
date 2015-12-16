@@ -163,6 +163,13 @@ module Twterm
         Notifier.instance.show_message(message)
       end
 
+      streaming_client.on_event(:follow) do |event|
+        screen_name = event[:source][:screen_name]
+        break if screen_name == @screen_name
+
+        Notifier.instance.show_message('@%s has followed you' % screen_name)
+      end
+
       streaming_client.on_no_data_received do
         user_stream_disconnected!
         user_stream
