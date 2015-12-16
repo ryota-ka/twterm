@@ -20,6 +20,8 @@ module Twterm
     end
 
     def resize
+      return if closed?
+
       resizeterm(`tput lines`.to_i, `tput cols`.to_i)
       @screen.resize(`tput lines`.to_i, `tput cols`.to_i)
 

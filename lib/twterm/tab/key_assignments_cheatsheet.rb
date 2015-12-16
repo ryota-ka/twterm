@@ -25,7 +25,9 @@ module Twterm
           '[C-R]'             => 'Reload',
           '[w]'               => 'Close tab',
           '[q]'               => 'Quit filter mode',
-          '[/]'               => 'Filter mode'
+          '[/]'               => 'Filter mode',
+          '[1] - [9]'         => 'Nth tab',
+          '[0]'               => 'Last tab'
         },
         'Tweets' => {
           '[c]'               => 'Conversation',
