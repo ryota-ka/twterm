@@ -1,3 +1,5 @@
+require 'twterm/utils'
+
 module Twterm
   module Tab
     module Statuses
@@ -5,10 +7,10 @@ module Twterm
         include Tab::Base
         include FilterableList
         include Scrollable
+        include Utils
 
         def append(status)
-          fail ArgumentError,
-            'argument must be an instance of Status class' unless status.is_a? Status
+          check_type Status, status
 
           return if @status_ids.include?(status.id)
 

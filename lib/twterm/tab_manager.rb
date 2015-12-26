@@ -1,12 +1,15 @@
+require 'twterm/utils'
+
 module Twterm
   class TabManager
     include Singleton
     include Curses
+    include Utils
 
     DUMPED_TABS_FILE = "#{ENV['HOME']}/.twterm/dumped_tabs"
 
     def add(tab_to_add)
-      fail ArgumentError, 'argument must be an instance of Tab::Base' unless tab_to_add.is_a? Tab::Base
+      check_type Tab::Base, tab_to_add
 
       @tabs.each.with_index do |tab, i|
         next unless tab == tab_to_add
