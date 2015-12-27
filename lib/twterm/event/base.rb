@@ -3,6 +3,8 @@ require 'twterm/utils'
 module Twterm
   module Event
     class Base
+      include Utils
+
       def initialize(*args)
         fields.zip(args).map(&:flatten).each do |name, type, value|
           check_type type, value

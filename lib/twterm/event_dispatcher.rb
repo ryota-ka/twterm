@@ -1,8 +1,10 @@
 require 'singleton'
+require 'twterm/utils'
 
 module Twterm
   class EventDispatcher
     include Singleton
+    include Utils
 
     def initialize
       @subscriptions = []
@@ -18,6 +20,7 @@ module Twterm
     end
 
     def register_subscription(subscriber_id, event, callback)
+      check_type Class, event
       unless event <= Event::Base
         raise TypeError, 'the second argument must be a subclass of Twterm::Event::Base'
       end

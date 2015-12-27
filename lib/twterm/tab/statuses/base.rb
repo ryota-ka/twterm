@@ -1,3 +1,6 @@
+require 'twterm/event/status/delete'
+require 'twterm/publisher'
+require 'twterm/subscriber'
 require 'twterm/utils'
 
 module Twterm
@@ -6,7 +9,9 @@ module Twterm
       module Base
         include Tab::Base
         include FilterableList
+        include Publisher
         include Scrollable
+        include Subscriber
         include Utils
 
         def append(status)
@@ -19,6 +24,11 @@ module Twterm
           status.touch!
           scroller.item_appended!
           refresh
+        end
+
+        def close
+          super
+          unsubscribe
         end
 
         def delete(status_id)
@@ -59,6 +69,8 @@ module Twterm
           super
 
           @status_ids = []
+
+          subscribe(Event::Status::Delete) { |e| delete(e.status_id) }
         end
 
         def items
@@ -72,7 +84,7 @@ module Twterm
           urls = status.urls.map(&:expanded_url) + status.media.map(&:expanded_url)
           urls.each(&Launchy.method(:open))
         rescue Launchy::CommandNotFoundError
-          Notifier.instance.show_error 'Cannot find web browser'
+          publish(Event::Notification.new(:error, 'Cannot find web browser'))
         end
 
         def prepend(status)

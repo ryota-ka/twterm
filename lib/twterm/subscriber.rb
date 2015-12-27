@@ -12,7 +12,7 @@ module Twterm
                callback.to_proc
              end
            elsif callback.nil?
-             callback = block
+             block
            end
 
       EventDispatcher.instance.register_subscription(object_id, event, cb)

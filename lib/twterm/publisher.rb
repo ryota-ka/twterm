@@ -1,14 +1,15 @@
 require 'twterm/event_dispatcher'
 require 'twterm/event/base'
+require 'twterm/utils'
 
 module Twterm
   module Publisher
-    def publish(event)
-      unless event <= Event::Base
-        raise TypeError, 'argument must be a subclass of Twterm::Event::Base'
-      end
+    include Utils
 
-      EventDispather.instance.dispatch(event)
+    def publish(event)
+      check_type Event::Base, event
+
+      EventDispatcher.instance.dispatch(event)
       event
     end
   end

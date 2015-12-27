@@ -1,3 +1,5 @@
+require 'twterm/event/notification'
+
 module Twterm
   module Tab
     module New
@@ -84,7 +86,7 @@ module Twterm
           window.bold { window.addstr('Open list tab') }
 
           Thread.new do
-            Notifier.instance.show_message('Loading lists ...')
+            publish(Event::Notification.new(:message, 'Loading lists ...'))
             Client.current.lists.then do |lists|
               @@lists = lists.sort_by(&:full_name)
               show_lists

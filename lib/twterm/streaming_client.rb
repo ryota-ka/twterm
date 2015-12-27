@@ -1,4 +1,5 @@
 require 'twterm/event/favorite'
+require 'twterm/event/notification'
 require 'twterm/event/status/mention'
 require 'twterm/event/status/timeline'
 require 'twterm/publisher'
@@ -15,10 +16,10 @@ module Twterm
 
       @streaming_thread = Thread.new do
         begin
-          Notifier.instance.show_message 'Trying to connect to Twitter...'
+          publish(Event::Notification.new(:message, 'Trying to connect to Twitter...'))
           streaming_client.userstream
         rescue EventMachine::ConnectionError
-          Notifier.instance.show_error 'Connection failed'
+          publish(Event::Notification.new(:error, 'Connection failed'))
           sleep 30
           retry
         end
@@ -40,25 +41,22 @@ module Twterm
 
       streaming_client.on_delete do |status_id|
         publish(Event::StatusDeleted.new(status_id))
-        # timeline.delete_status(status_id)
       end
 
       streaming_client.on_event(:favorite) do |event|
-        break if event[:source][:screen_name] == @screen_name
+        user = User.new(Twitter::User.new(event[:source]))
+        status = Status.new(Twitter::Status.new(event[:target]))
 
-        publish(Event::Favorite.new(User.new(event[:source]), Status.new(event[:target])))
-        # user = event[:source][:screen_name]
-        # text = event[:target_object][:text]
-        # message = "@#{user} has favorited your tweet: #{text}"
-        # Notifier.instance.show_message(message)
+        event = Event::Favorite.new(user, status, self)
+        publish(event)
       end
 
       streaming_client.on_event(:follow) do |event|
-        screen_name = event[:source][:screen_name]
-        break if screen_name == @screen_name
+        source = User.new(Twitter::User.new(event[:source]))
+        target = User.new(Twitter::User.new(event[:target]))
 
+        event = Event::Follow.new(source, target, self)
         publish(:followed, event)
-        # Notifier.instance.show_message('@%s has followed you' % screen_name)
       end
 
       streaming_client.on_no_data_received do
@@ -86,7 +84,7 @@ module Twterm
     end
 
     def user_stream_connected!
-      Notifier.instance.show_message 'Connection established' unless user_stream_connected?
+      publish(Event::Notification.new(:message, 'Connection established')) unless user_stream_connected?
       @user_stream_connected = true
     end
 

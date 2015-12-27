@@ -1,9 +1,11 @@
+require 'twterm/publisher'
 require 'twterm/utils'
 
 module Twterm
   class TabManager
     include Singleton
     include Curses
+    include Publisher
     include Utils
 
     DUMPED_TABS_FILE = "#{ENV['HOME']}/.twterm/dumped_tabs"
@@ -40,7 +42,7 @@ module Twterm
       current_tab.refresh
       refresh_window
     rescue Tab::NotClosableError
-      Notifier.instance.show_error 'This tab cannot be closed'
+      publish(Event::Notification.new(:error, 'this tab cannot be closed'))
     end
 
     def current_tab
@@ -96,7 +98,7 @@ module Twterm
         add(tab)
       end
     rescue
-      Notifier.instance.show_error 'Failed to recover tabs'
+      publish(Event::Notification.new(:error, 'Failed to recover tabs'))
     end
 
     def refresh_window

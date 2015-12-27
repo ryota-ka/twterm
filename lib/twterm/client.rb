@@ -39,18 +39,5 @@ module Twterm
     def self.current
       @@instances[0]
     end
-
-    private
-
-    def show_error
-      proc do |e|
-        case e
-        when Twitter::Error
-          Notifier.instance.show_error "Failed to send request: #{e.message}"
-        else
-          raise e
-        end
-      end.freeze
-    end
   end
 end
