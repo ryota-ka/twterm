@@ -13,6 +13,10 @@ module Twterm
           self.class.send(:attr_reader, name)
         end
       end
+
+      def fields
+        []
+      end
     end
   end
 end
