@@ -1,8 +1,12 @@
+require 'twterm/event/open_uri'
+require 'twterm/publisher'
+
 module Twterm
   module Tab
     class UserTab
       include Base
       include Dumpable
+      include Publisher
       include Scrollable
 
       attr_reader :user_id
@@ -141,9 +145,7 @@ module Twterm
       def open_website
         return if user.website.nil?
 
-        Launchy.open(user.website)
-      rescue Launchy::CommandNotFoundError
-        publish(Event::Notification.new(:error, 'Browser not found'))
+        publish(Event::OpenURI.new(user.website))
       end
 
       def perform_selected_action

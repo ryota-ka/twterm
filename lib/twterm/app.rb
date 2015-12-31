@@ -1,3 +1,5 @@
+require 'twterm/uri_opener'
+
 module Twterm
   class App
     include Singleton
@@ -24,6 +26,8 @@ module Twterm
       client.connect_user_stream
 
       reset_interruption_handler
+
+      URIOpener.instance
 
       Signal.trap(:WINCH) { Screen.instance.resize }
 

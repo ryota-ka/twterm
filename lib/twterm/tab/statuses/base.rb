@@ -1,3 +1,4 @@
+require 'twterm/event/open_uri'
 require 'twterm/event/status/delete'
 require 'twterm/publisher'
 require 'twterm/subscriber'
@@ -79,9 +80,9 @@ module Twterm
 
           status = highlighted_status
           urls = status.urls.map(&:expanded_url) + status.media.map(&:expanded_url)
-          urls.each(&Launchy.method(:open))
-        rescue Launchy::CommandNotFoundError
-          publish(Event::Notification.new(:error, 'Cannot find web browser'))
+          urls
+            .map { |url| Event::OpenURI.new(url) }
+            .each { |e| publish(e) }
         end
 
         def prepend(status)
