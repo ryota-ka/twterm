@@ -6,7 +6,7 @@ module Twterm
       cb = if callback.is_a?(Proc)
              callback
            elsif callback.is_a?(Symbol)
-             if self.respond_to?(callback)
+             if self.respond_to?(callback, true)
                self.method(callback)
              else
                callback.to_proc
