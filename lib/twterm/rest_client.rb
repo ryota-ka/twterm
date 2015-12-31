@@ -21,7 +21,8 @@ module Twterm
     def destroy_status(status)
       send_request_without_catch do
         rest_client.destroy_status(status.id)
-        publish(Event::Notification::Base.new('Your tweet has been deleted'))
+        publish(Event::Status::Delete.new(status.id))
+        publish(Event::Notification.new(:message, 'Your tweet has been deleted'))
       end.catch do |reason|
         case reason
         when Twitter::Error::NotFound, Twitter::Error::Forbidden

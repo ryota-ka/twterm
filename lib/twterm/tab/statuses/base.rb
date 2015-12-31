@@ -39,10 +39,7 @@ module Twterm
         def destroy_status
           status = highlighted_status
 
-          Client.current.destroy_status(status).then do
-            delete(status.id)
-            refresh
-          end
+          Client.current.destroy_status(status)
         end
 
         def drawable_item_count
