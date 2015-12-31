@@ -1,12 +1,20 @@
+require 'twterm/event/screen/resize'
+require 'twterm/publisher'
+require 'twterm/subscriber'
+require 'twterm/utils'
+
 module Twterm
   class TabManager
     include Singleton
     include Curses
+    include Publisher
+    include Subscriber
+    include Utils
 
     DUMPED_TABS_FILE = "#{ENV['HOME']}/.twterm/dumped_tabs"
 
     def add(tab_to_add)
-      fail ArgumentError, 'argument must be an instance of Tab::Base' unless tab_to_add.is_a? Tab::Base
+      check_type Tab::Base, tab_to_add
 
       @tabs.each.with_index do |tab, i|
         next unless tab == tab_to_add
@@ -37,7 +45,7 @@ module Twterm
       current_tab.refresh
       refresh_window
     rescue Tab::NotClosableError
-      Notifier.instance.show_error 'This tab cannot be closed'
+      publish(Event::Notification.new(:error, 'this tab cannot be closed'))
     end
 
     def current_tab
@@ -67,6 +75,8 @@ module Twterm
       @history = []
 
       @window = stdscr.subwin(3, stdscr.maxx, 0, 0)
+
+      subscribe(Event::Screen::Resize, :resize)
     end
 
     def open_my_profile
@@ -93,7 +103,7 @@ module Twterm
         add(tab)
       end
     rescue
-      Notifier.instance.show_error 'Failed to recover tabs'
+      publish(Event::Notification.new(:error, 'Failed to recover tabs'))
     end
 
     def refresh_window
@@ -114,11 +124,6 @@ module Twterm
       end
 
       @window.refresh
-    end
-
-    def resize
-      @window.resize(3, stdscr.maxx)
-      @window.move(0, 0)
     end
 
     def respond_to_key(key)
@@ -162,6 +167,13 @@ module Twterm
     def switch(tab)
       close
       add_and_show(tab)
+    end
+
+    private
+
+    def resize(event)
+      @window.resize(3, stdscr.maxx)
+      @window.move(0, 0)
     end
   end
 end

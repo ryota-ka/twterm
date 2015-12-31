@@ -1,14 +1,22 @@
+require 'twterm/event/open_uri'
+require 'twterm/event/status/delete'
+require 'twterm/publisher'
+require 'twterm/subscriber'
+require 'twterm/utils'
+
 module Twterm
   module Tab
     module Statuses
       module Base
         include Tab::Base
         include FilterableList
+        include Publisher
         include Scrollable
+        include Subscriber
+        include Utils
 
         def append(status)
-          fail ArgumentError,
-            'argument must be an instance of Status class' unless status.is_a? Status
+          check_type Status, status
 
           return if @status_ids.include?(status.id)
 
@@ -19,6 +27,11 @@ module Twterm
           refresh
         end
 
+        def close
+          super
+          unsubscribe
+        end
+
         def delete(status_id)
           Status.delete(status_id)
           refresh
@@ -27,10 +40,7 @@ module Twterm
         def destroy_status
           status = highlighted_status
 
-          Client.current.destroy_status(status).then do
-            delete(status.id)
-            refresh
-          end
+          Client.current.destroy_status(status)
         end
 
         def drawable_item_count
@@ -57,6 +67,8 @@ module Twterm
           super
 
           @status_ids = []
+
+          subscribe(Event::Status::Delete) { |e| delete(e.status_id) }
         end
 
         def items
@@ -68,9 +80,9 @@ module Twterm
 
           status = highlighted_status
           urls = status.urls.map(&:expanded_url) + status.media.map(&:expanded_url)
-          urls.each(&Launchy.method(:open))
-        rescue Launchy::CommandNotFoundError
-          Notifier.instance.show_error 'Cannot find web browser'
+          urls
+            .map { |url| Event::OpenURI.new(url) }
+            .each { |e| publish(e) }
         end
 
         def prepend(status)

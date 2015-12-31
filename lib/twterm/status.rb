@@ -135,7 +135,7 @@ module Twterm
       cond = -> (status) { status.touched_at > Time.now - MAX_CACHED_TIME }
       statuses = all.select(&cond)
       status_ids = statuses.map(&:id)
-      @@instances = status_ids.zip(statuses).to_h
+      @@instances = Hash[status_ids.zip(statuses)]
     end
 
     def self.delete(id)

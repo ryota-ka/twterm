@@ -116,7 +116,7 @@ module Twterm
       cond = -> (user) { user.touched_at > Time.now - MAX_CACHED_TIME }
       users = all.select(&cond)
       user_ids = users.map(&:id)
-      @@instances = user_ids.zip(users).to_h
+      @@instances = Hash[user_ids.zip(users)]
     end
 
     def self.ids

@@ -1,8 +1,14 @@
+require 'twterm/subscriber'
+require 'twterm/event/status/timeline'
+require 'twterm/utils'
+
 module Twterm
   module Tab
     module Statuses
       class Home
         include Base
+        include Subscriber
+        include Utils
 
         def close
           fail NotClosableError
@@ -17,11 +23,11 @@ module Twterm
         end
 
         def initialize(client)
-          fail ArgumentError, 'argument must be an instance of Client class' unless client.is_a? Client
+          check_type Client, client
 
           super()
           @client = client
-          @client.on_timeline_status(&method(:prepend))
+          subscribe(Event::Status::Timeline) { |e| prepend e.status }
 
           fetch { scroller.move_to_top }
           @auto_reloader = Scheduler.new(180) { fetch }

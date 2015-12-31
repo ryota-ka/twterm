@@ -1,5 +1,10 @@
+require 'curses'
+require 'twterm/event/screen/resize'
+require 'twterm/uri_opener'
+
 module Twterm
   class App
+    include Publisher
     include Singleton
 
     DATA_DIR = "#{ENV['HOME']}/.twterm"
@@ -21,13 +26,22 @@ module Twterm
 
       Screen.instance.refresh
 
-      client.user_stream
+      client.connect_user_stream
 
       reset_interruption_handler
 
-      Signal.trap(:WINCH) { Screen.instance.resize }
+      URIOpener.instance
 
-      Scheduler.new(60) { Screen.instance.resize }
+      resize = proc do
+        break if Curses.closed?
+
+        lines = `tput lines`.to_i
+        cols = `tput cols`.to_i
+        publish(Event::Screen::Resize.new(lines, cols))
+      end
+
+      Signal.trap(:WINCH, &resize)
+      Scheduler.new(60, &resize)
     end
 
     def run
