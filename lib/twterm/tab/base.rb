@@ -1,7 +1,11 @@
+require 'twterm/event/screen/resize'
+require 'twterm/subscriber'
+
 module Twterm
   module Tab
     module Base
       include Curses
+      include Subscriber
 
       attr_reader :window
       attr_accessor :title
@@ -16,6 +20,8 @@ module Twterm
 
       def initialize
         @window = stdscr.subwin(stdscr.maxy - 5, stdscr.maxx, 3, 0)
+
+        subscribe(Event::Screen::Resize, :resize)
       end
 
       def refresh
@@ -35,11 +41,6 @@ module Twterm
             window.refresh
           end if refreshable?
         end
-      end
-
-      def resize
-        window.resize(stdscr.maxy - 5, stdscr.maxx)
-        window.move(3, 0)
       end
 
       def respond_to_key(_)
@@ -63,6 +64,11 @@ module Twterm
             closed? ||
             TabManager.instance.current_tab.object_id != object_id
         )
+      end
+
+      def resize(event)
+        window.resize(stdscr.maxy - 5, stdscr.maxx)
+        window.move(3, 0)
       end
 
       def update

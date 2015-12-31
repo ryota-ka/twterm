@@ -1,4 +1,6 @@
+require 'twterm/event/screen/resize'
 require 'twterm/publisher'
+require 'twterm/subscriber'
 require 'twterm/utils'
 
 module Twterm
@@ -6,6 +8,7 @@ module Twterm
     include Singleton
     include Curses
     include Publisher
+    include Subscriber
     include Utils
 
     DUMPED_TABS_FILE = "#{ENV['HOME']}/.twterm/dumped_tabs"
@@ -72,6 +75,8 @@ module Twterm
       @history = []
 
       @window = stdscr.subwin(3, stdscr.maxx, 0, 0)
+
+      subscribe(Event::Screen::Resize, :resize)
     end
 
     def open_my_profile
@@ -121,11 +126,6 @@ module Twterm
       @window.refresh
     end
 
-    def resize
-      @window.resize(3, stdscr.maxx)
-      @window.move(0, 0)
-    end
-
     def respond_to_key(key)
       case key
       when ?1..?9
@@ -167,6 +167,13 @@ module Twterm
     def switch(tab)
       close
       add_and_show(tab)
+    end
+
+    private
+
+    def resize(event)
+      @window.resize(3, stdscr.maxx)
+      @window.move(0, 0)
     end
   end
 end

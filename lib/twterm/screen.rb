@@ -1,6 +1,10 @@
+require 'twterm/event/screen/resize'
+require 'twterm/subscriber'
+
 module Twterm
   class Screen
     include Singleton
+    include Subscriber
     include Curses
 
     def initialize
@@ -11,25 +15,14 @@ module Twterm
       stdscr.keypad(true)
       start_color
       use_default_colors
+
+      subscribe(Event::Screen::Resize, :resize)
     end
 
     def refresh
       TabManager.instance.refresh_window
       TabManager.instance.current_tab.refresh
       Notifier.instance.show
-    end
-
-    def resize
-      return if closed?
-
-      resizeterm(`tput lines`.to_i, `tput cols`.to_i)
-      @screen.resize(`tput lines`.to_i, `tput cols`.to_i)
-
-      TabManager.instance.resize
-      TabManager.instance.each_tab(&:resize)
-      Notifier.instance.resize
-      FilterQueryWindow.instance.resize
-      refresh
     end
 
     def respond_to_key(key)
@@ -57,6 +50,16 @@ module Twterm
     end
 
     private
+
+    def resize(event)
+      return if closed?
+
+      lines, cols = event.lines, event.cols
+      resizeterm(lines, cols)
+      @screen.resize(lines, cols)
+
+      refresh
+    end
 
     def scan
       App.instance.reset_interruption_handler

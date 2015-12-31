@@ -1,6 +1,7 @@
 require 'twterm/subscriber'
 require 'twterm/event/favorite'
 require 'twterm/event/notification'
+require 'twterm/event/screen/resize'
 
 module Twterm
   class Notifier
@@ -25,6 +26,8 @@ module Twterm
         queue(e)
       end
 
+      subscribe(Event::Screen::Resize, :resize)
+
       Thread.new do
         while notification = @queue.pop
           show(notification)
@@ -32,11 +35,6 @@ module Twterm
           show
         end
       end
-    end
-
-    def resize
-      @window.resize(1, stdscr.maxx)
-      @window.move(stdscr.maxy - 2, 0)
     end
 
     def show_message(message)
@@ -74,6 +72,11 @@ module Twterm
     def queue(notification)
       @queue.push(notification)
       self
+    end
+
+    def resize(event)
+      @window.resize(1, stdscr.maxx)
+      @window.move(stdscr.maxy - 2, 0)
     end
   end
 end
