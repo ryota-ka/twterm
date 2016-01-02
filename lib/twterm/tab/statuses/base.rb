@@ -27,11 +27,6 @@ module Twterm
           refresh
         end
 
-        def close
-          super
-          unsubscribe
-        end
-
         def delete(status_id)
           Status.delete(status_id)
           refresh

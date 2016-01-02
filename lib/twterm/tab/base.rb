@@ -15,6 +15,7 @@ module Twterm
       end
 
       def close
+        unsubscribe
         window.close
       end
 
