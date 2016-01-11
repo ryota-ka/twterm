@@ -20,12 +20,20 @@ module Twterm
       end
     end
 
-    def direct_messages
-      send_request do
-        rest_client.direct_messages(count: 200).map(&DirectMessage.method(:new))
-
     def direct_message_conversations
       direct_message_manager.conversations
+    end
+
+    def direct_messages_received
+      send_request do
+        rest_client.direct_messages(count: 200).map(&DirectMessage.method(:new))
+      end
+    end
+
+    def direct_messages_sent
+      send_request do
+        rest_client.direct_messages_sent(count: 200).map(&DirectMessage.method(:new))
+      end
     end
 
     def destroy_status(status)
