@@ -1,4 +1,5 @@
 require 'twterm/direct_message'
+require 'twterm/direct_message_manager'
 require 'twterm/publisher'
 require 'twterm/event/notification'
 
@@ -22,7 +23,9 @@ module Twterm
     def direct_messages
       send_request do
         rest_client.direct_messages(count: 200).map(&DirectMessage.method(:new))
-      end
+
+    def direct_message_conversations
+      direct_message_manager.conversations
     end
 
     def destroy_status(status)
@@ -360,6 +363,10 @@ module Twterm
     end
 
     private
+
+    def direct_message_manager
+      @direct_message_manager ||= DirectMessageManager.new(self)
+    end
 
     def show_error
       proc do |e|
