@@ -1,3 +1,4 @@
+require 'twterm/direct_message'
 require 'twterm/publisher'
 require 'twterm/event/notification'
 
@@ -15,6 +16,12 @@ module Twterm
         users.each do |user|
           Friendship.block(self.user_id, user.id)
         end
+      end
+    end
+
+    def direct_messages
+      send_request do
+        rest_client.direct_messages(count: 200).map(&DirectMessage.method(:new))
       end
     end
 
