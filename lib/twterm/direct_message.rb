@@ -18,6 +18,11 @@ module Twterm
       other.is_a?(self.class) && id == other.id
     end
 
+    def date
+      format = Time.now - @created_at < 86_400 ? '%H:%M:%S' : '%Y-%m-%d %H:%M:%S'
+      @created_at.strftime(format)
+    end
+
     def update!(message)
       @created_at = message.created_at.dup.localtime
       @recipient = User.new(message.recipient)
