@@ -1,5 +1,6 @@
 require 'twterm/event/direct_message/fetched'
 require 'twterm/subscriber'
+require 'twterm/tab/direct_message/conversation'
 
 module Twterm
   module Tab
@@ -27,7 +28,14 @@ module Twterm
         def respond_to_key(key)
           return true if scroller.respond_to_key(key)
 
-          false
+          case key
+          when 10
+            open_conversation
+          else
+            return false
+          end
+
+          true
         end
 
         def update
@@ -59,6 +67,15 @@ module Twterm
 
         def title
           'Direct Messages'
+        end
+
+        private
+
+        def open_conversation
+          conversation = scroller.current_item
+
+          tab = Tab::DirectMessage::Conversation.new(conversation)
+          TabManager.instance.add_and_show(tab)
         end
       end
     end
