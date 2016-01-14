@@ -21,6 +21,10 @@ module Twterm
           subscribe(Event::DirectMessage::Fetched) { refresh }
         end
 
+        def ==(other)
+          other.is_a?(self.class)
+        end
+
         def items
           if filter_query.empty?
             Client.current.direct_message_conversations
