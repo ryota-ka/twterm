@@ -27,13 +27,26 @@ module Twterm
         end
 
         def items
-          messages
+          if filter_query.empty?
+            messages
+          else
+            messages.select { |m| m.matches?(filter_query) }
+          end
         end
 
         def respond_to_key(key)
           return true if scroller.respond_to_key(key)
 
-          false
+          case key
+          when ?/
+            filter
+          when ?q
+            reset_filter
+          else
+            return false
+          end
+
+          true
         end
 
         def update

@@ -23,6 +23,14 @@ module Twterm
       @created_at.strftime(format)
     end
 
+    def matches?(q)
+      [
+        sender.name,
+        sender.screen_name,
+        text
+      ].map(&:downcase).any? { |x| x.include?(q) }
+    end
+
     def update!(message)
       @created_at = message.created_at.dup.localtime
       @recipient = User.new(message.recipient)
