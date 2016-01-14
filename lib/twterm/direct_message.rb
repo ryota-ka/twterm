@@ -51,6 +51,14 @@ module Twterm
         self
       end
 
+      def matches?(q)
+        [
+          collocutor.screen_name,
+          collocutor.name,
+          preview
+        ].map(&:downcase).any? { |x| x.include?(q.downcase) }
+      end
+
       def preview
         messages.sort_by(&:created_at).last.text.gsub("\n", ' ')
       end

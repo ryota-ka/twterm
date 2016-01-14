@@ -22,7 +22,11 @@ module Twterm
         end
 
         def items
-          Client.current.direct_message_conversations
+          if filter_query.empty?
+            Client.current.direct_message_conversations
+          else
+            Client.current.direct_message_conversations.select { |c| c.matches?(filter_query) }
+          end
         end
 
         def respond_to_key(key)
@@ -31,6 +35,10 @@ module Twterm
           case key
           when 10
             open_conversation
+          when ?/
+            filter
+          when ?q
+            reset_filter
           else
             return false
           end
