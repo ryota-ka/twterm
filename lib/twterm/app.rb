@@ -33,7 +33,7 @@ module Twterm
       URIOpener.instance
 
       resize = proc do
-        break if Curses.closed?
+        next if Curses.closed?
 
         lines = `tput lines`.to_i
         cols = `tput cols`.to_i
