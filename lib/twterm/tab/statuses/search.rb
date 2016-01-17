@@ -23,7 +23,7 @@ module Twterm
 
         def fetch
           Client.current.search(@query).then do |statuses|
-            statuses.reverse.each(&method(:prepend))
+            statuses.each(&method(:append))
             yield if block_given?
           end
         end
