@@ -21,6 +21,7 @@ module Twterm
       TabManager.instance.add_and_show(timeline)
 
       mentions_tab = Tab::Statuses::Mentions.new(client)
+
       TabManager.instance.add(mentions_tab)
       TabManager.instance.recover_tabs
 
