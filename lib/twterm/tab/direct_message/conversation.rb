@@ -1,3 +1,4 @@
+require 'twterm/direct_message_composer'
 require 'twterm/event/direct_message/fetched'
 require 'twterm/subscriber'
 
@@ -40,6 +41,8 @@ module Twterm
           case key
           when ?/
             filter
+          when ?n, ?r
+            DirectMessageComposer.instance.compose(conversation.collocutor)
           when ?q
             reset_filter
           else

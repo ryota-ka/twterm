@@ -1,3 +1,4 @@
+require 'twterm/direct_message_composer'
 require 'twterm/event/direct_message/fetched'
 require 'twterm/subscriber'
 require 'twterm/tab/direct_message/conversation'
@@ -39,6 +40,9 @@ module Twterm
           case key
           when 10
             open_conversation
+          when ?n, ?r
+            conversation = current_item
+            DirectMessageComposer.instance.compose(conversation.collocutor)
           when ?/
             filter
           when ?q

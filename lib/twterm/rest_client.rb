@@ -20,6 +20,15 @@ module Twterm
       end
     end
 
+    def create_direct_message(recipient, text)
+      send_request do
+        rest_client.create_direct_message(recipient.id, text)
+      end.then do |message|
+        msg = DirectMessage.new(message)
+        publish(Event::Notification.new(:message, 'Your message to @%s has been sent' % msg.recipient.screen_name))
+      end
+    end
+
     def direct_message_conversations
       direct_message_manager.conversations
     end

@@ -48,6 +48,7 @@ module Twterm
           show_followers
           show_likes
         )
+        items << :compose_direct_message unless myself?
         items << :open_website  unless user.website.nil?
         items << :toggle_follow unless myself?
         items << :toggle_mute   unless myself?
@@ -60,6 +61,8 @@ module Twterm
         return true if scroller.respond_to_key(key)
 
         case key
+        when ?D
+          compose_direct_message unless myself?
         when ?F
           follow unless myself?
         when 10
@@ -92,6 +95,10 @@ module Twterm
 
       def blocking?
         user.blocked_by?(Client.current.user_id)
+      end
+
+      def compose_direct_message
+        DirectMessageComposer.instance.compose(user)
       end
 
       def follow
@@ -150,6 +157,8 @@ module Twterm
 
       def perform_selected_action
         case scroller.current_item
+        when :compose_direct_message
+          compose_direct_message
         when :open_timeline_tab
           open_timeline_tab
         when :open_website
@@ -260,6 +269,10 @@ module Twterm
 
           window.setpos(current_line, 5)
           case item
+          when :compose_direct_message
+            window.addstr('[ ] Compose direct message')
+            window.setpos(current_line, 6)
+            window.bold { window.addch(?D) }
           when :toggle_block
             if blocking?
               window.addstr('    Unblock this user')
