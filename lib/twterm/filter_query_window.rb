@@ -1,10 +1,16 @@
+require 'twterm/event/screen/resize'
+require 'twterm/subscriber'
+
 module Twterm
   class FilterQueryWindow
     include Curses
     include Singleton
+    include Subscriber
 
     def initialize
       @window = stdscr.subwin(1, stdscr.maxx, stdscr.maxy - 1, 0)
+
+      subscribe(Event::Screen::Resize, :resize)
     end
 
     def input
@@ -73,13 +79,13 @@ module Twterm
       stdscr.addstr(' ' * window.maxx)
     end
 
-    def resize
-      @window.resize(1, stdscr.maxx)
-      @window.move(stdscr.maxy - 1, 0)
-    end
-
     private
 
     attr_reader :window
+
+    def resize(event)
+      @window.resize(1, stdscr.maxx)
+      @window.move(stdscr.maxy - 1, 0)
+    end
   end
 end

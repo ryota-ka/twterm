@@ -1,8 +1,10 @@
+require 'twterm/tab/base'
+require 'twterm/tab/direct_message/conversation_list'
+
 module Twterm
   module Tab
     module New
-      class Start
-        include Base
+      class Start < Base
         include Scrollable
 
         def ==(other)
@@ -15,6 +17,7 @@ module Twterm
 
         def items
           %i(
+            direct_messages
             list_tab
             search_tab
             user_tab
@@ -31,6 +34,8 @@ module Twterm
           return true if scroller.respond_to_key(key)
 
           case key
+          when 'D'
+            open_direct_messages
           when 10
             perform_selected_action
           when 'L'
@@ -50,6 +55,10 @@ module Twterm
         end
 
         private
+
+        def open_direct_messages
+          switch(Tab::DirectMessage::ConversationList.new)
+        end
 
         def open_list_tab
           switch(Tab::New::List.new)
@@ -71,6 +80,8 @@ module Twterm
 
         def perform_selected_action
           case current_item
+          when :direct_messages
+            open_direct_messages
           when :list_tab
             open_list_tab
           when :search_tab
@@ -95,6 +106,10 @@ module Twterm
             window.setpos(line, 5)
 
             case item
+            when :direct_messages
+              window.addstr('[D] Direct messages')
+              window.setpos(line, 6)
+              window.bold { window.addch(?D) }
             when :list_tab
               window.addstr('[L] List tab')
               window.setpos(line, 6)

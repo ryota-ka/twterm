@@ -1,8 +1,11 @@
+require 'twterm/publisher'
+require 'twterm/tab/base'
+
 module Twterm
   module Tab
     module New
-      class User
-        include Base
+      class User < Base
+        include Publisher
         include Readline
 
         def ==(other)
@@ -29,7 +32,7 @@ module Twterm
             else
               Client.current.show_user(screen_name).then do |user|
                 if user.nil?
-                  Notifier.instance.show_error 'User not found'
+                  publish(Event::Notification.new(:error, 'User not found'))
                   tab = Tab::New::Start.new
                 else
                   tab = Tab::UserTab.new(user.id)

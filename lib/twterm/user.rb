@@ -61,6 +61,8 @@ module Twterm
     end
 
     def update!(user)
+      return self if recently_updated?
+
       @name = user.name
       @screen_name = user.screen_name
       @description = user.description || ''
@@ -86,6 +88,8 @@ module Twterm
       else
         Friendship.following_not_requested(client_id, user.id)
       end
+
+      @updated_at = Time.now
 
       self
     end
@@ -116,7 +120,7 @@ module Twterm
       cond = -> (user) { user.touched_at > Time.now - MAX_CACHED_TIME }
       users = all.select(&cond)
       user_ids = users.map(&:id)
-      @@instances = user_ids.zip(users).to_h
+      @@instances = Hash[user_ids.zip(users)]
     end
 
     def self.ids
@@ -126,6 +130,12 @@ module Twterm
     def self.new(user)
       instance = find(user.id)
       instance.nil? ? super : instance.update!(user)
+    end
+
+    private
+
+    def recently_updated?
+      !@updated_at.nil? && @updated_at + 60 > Time.now
     end
   end
 end

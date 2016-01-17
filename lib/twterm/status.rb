@@ -113,10 +113,15 @@ module Twterm
     end
 
     def update!(tweet)
+      return self if recently_updated?
+
       @retweet_count = tweet.retweet_count
       @favorite_count = tweet.favorite_count
       @retweeted = tweet.retweeted?
       @favorited = tweet.favorited?
+
+      @updated_at = Time.now
+
       self
     end
 
@@ -135,7 +140,7 @@ module Twterm
       cond = -> (status) { status.touched_at > Time.now - MAX_CACHED_TIME }
       statuses = all.select(&cond)
       status_ids = statuses.map(&:id)
-      @@instances = status_ids.zip(statuses).to_h
+      @@instances = Hash[status_ids.zip(statuses)]
     end
 
     def self.delete(id)
@@ -158,6 +163,12 @@ module Twterm
     def self.new(tweet)
       instance = find(tweet.id)
       instance.nil? ? super : instance.update!(tweet)
+    end
+
+    private
+
+    def recently_updated?
+      !@updated_at.nil? && @updated_at + 60 > Time.now
     end
   end
 end

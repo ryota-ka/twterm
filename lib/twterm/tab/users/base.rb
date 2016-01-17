@@ -1,8 +1,9 @@
+require 'twterm/tab/base'
+
 module Twterm
   module Tab
     module Users
-      module Base
-        include Tab::Base
+      class Base < Tab::Base
         include FilterableList
         include Scrollable
 

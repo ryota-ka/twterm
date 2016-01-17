@@ -1,6 +1,11 @@
+require 'twterm/event/notification'
+require 'twterm/publisher'
+
 module Twterm
   module FilterableList
     extend Forwardable
+
+    include Publisher
 
     def filter
       @filter_query = FilterQueryWindow.instance.input
@@ -10,7 +15,7 @@ module Twterm
       elsif items.count == 0
         query = filter_query
         reset_filter
-        Notifier.instance.show_error "No matches found: \"#{query}\""
+        publish(Event::Notification.new(:error, "No matches found: \"#{query}\""))
       else
         Notifier.instance.show_message "#{total_item_count} items found: \"#{filter_query}\""
         scroller.move_to_top

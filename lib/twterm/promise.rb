@@ -11,7 +11,7 @@ module Twterm
 
     def catch(on_rejected = nil, &block)
       if on_rejected.is_a?(Proc) && block_given?
-        fail ArgumentError, 'both proc and block cannot be passed at the same time'
+        fail SyntaxError, 'both block arg and actual block given'
       end
 
       on_rejected ||= block
@@ -48,7 +48,7 @@ module Twterm
 
     def then(on_fulfilled = nil, on_rejected = nil, &block)
       if (on_fulfilled.is_a?(Proc) || on_rejected.is_a?(Proc)) && block_given?
-        fail ArgumentError, 'both procs and block cannot be passed at the same time'
+        fail SyntaxError, 'both block arg and actual block given'
       end
 
       on_fulfilled ||= block

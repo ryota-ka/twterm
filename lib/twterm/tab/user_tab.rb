@@ -1,8 +1,12 @@
+require 'twterm/event/open_uri'
+require 'twterm/publisher'
+require 'twterm/tab/base'
+
 module Twterm
   module Tab
-    class UserTab
-      include Base
+    class UserTab < Base
       include Dumpable
+      include Publisher
       include Scrollable
 
       attr_reader :user_id
@@ -44,6 +48,7 @@ module Twterm
           show_followers
           show_likes
         )
+        items << :compose_direct_message unless myself?
         items << :open_website  unless user.website.nil?
         items << :toggle_follow unless myself?
         items << :toggle_mute   unless myself?
@@ -56,6 +61,8 @@ module Twterm
         return true if scroller.respond_to_key(key)
 
         case key
+        when ?D
+          compose_direct_message unless myself?
         when ?F
           follow unless myself?
         when 10
@@ -82,13 +89,16 @@ module Twterm
           refresh
 
           user = users.first
-          msg = "Blocked @#{user.screen_name}"
-          Notifier.instance.show_message msg
+          publish(Event::Notification.new(:message, 'Blocked @%s' % user.screen_name))
         end
       end
 
       def blocking?
         user.blocked_by?(Client.current.user_id)
+      end
+
+      def compose_direct_message
+        DirectMessageComposer.instance.compose(user)
       end
 
       def follow
@@ -101,7 +111,7 @@ module Twterm
           else
             msg = "Followed @#{user.screen_name}"
           end
-          Notifier.instance.show_message msg
+          publish(Event::Notification.new(:message, msg))
         end
       end
 
@@ -122,8 +132,7 @@ module Twterm
           refresh
 
           user = users.first
-          msg = "Muted @#{user.screen_name}"
-          Notifier.instance.show_message msg
+          publish(Event::Notification.new(:message, 'Muted @%s' % user.screen_name))
         end
       end
 
@@ -143,13 +152,13 @@ module Twterm
       def open_website
         return if user.website.nil?
 
-        Launchy.open(user.website)
-      rescue Launchy::CommandNotFoundError
-        Notifier.instance.show_error 'Browser not found'
+        publish(Event::OpenURI.new(user.website))
       end
 
       def perform_selected_action
         case scroller.current_item
+        when :compose_direct_message
+          compose_direct_message
         when :open_timeline_tab
           open_timeline_tab
         when :open_website
@@ -195,8 +204,7 @@ module Twterm
           refresh
 
           user = users.first
-          msg = "Unblocked @#{user.screen_name}"
-          Notifier.instance.show_message msg
+          publish(Event::Notification.new(:message, 'Unblocked @%s' % user.screen_name))
         end
       end
 
@@ -205,8 +213,7 @@ module Twterm
           refresh
 
           user = users.first
-          msg = "Unfollowed @#{user.screen_name}"
-          Notifier.instance.show_message msg
+          publish(Event::Notification.new(:message, 'Unfollowed @%s' % user.screen_name))
         end
       end
 
@@ -215,8 +222,7 @@ module Twterm
           refresh
 
           user = users.first
-          msg = "Unmuted @#{user.screen_name}"
-          Notifier.instance.show_message msg
+          publish(Event::Notification.new(:message, 'Unmuted @%s' % user.screen_name))
         end
       end
 
@@ -263,6 +269,10 @@ module Twterm
 
           window.setpos(current_line, 5)
           case item
+          when :compose_direct_message
+            window.addstr('[ ] Compose direct message')
+            window.setpos(current_line, 6)
+            window.bold { window.addch(?D) }
           when :toggle_block
             if blocking?
               window.addstr('    Unblock this user')

@@ -1,3 +1,5 @@
+require 'twterm/publisher'
+
 module Twterm
   class Tweetbox
     class EmptyTextError < StandardError; end
@@ -7,6 +9,7 @@ module Twterm
     include Singleton
     include Readline
     include Curses
+    include Publisher
 
     def compose(in_reply_to = nil)
       @text = ''
@@ -94,9 +97,9 @@ module Twterm
     rescue EmptyTextError
       # do nothing
     rescue InvalidCharactersError
-      Notifier.instance.show_error 'Text contains invalid characters'
+      publish(Event::Notification.new(:error, 'Text contains invalid characters'))
     rescue TextTooLongError
-      Notifier.instance.show_error "Text is too long (#{text_length} / 140 characters)"
+      publish(Event::Notification.new(:error, "Text is too long (#{text_length} / 140 characters)"))
     ensure
       clear
     end

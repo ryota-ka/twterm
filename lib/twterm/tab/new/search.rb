@@ -1,8 +1,9 @@
+require 'twterm/tab/base'
+
 module Twterm
   module Tab
     module New
-      class Search
-        include Base
+      class Search < Base
         include Readline
         include FilterableList
         include Scrollable

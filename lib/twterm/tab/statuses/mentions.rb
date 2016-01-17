@@ -1,8 +1,10 @@
+require 'twterm/tab/statuses/base'
+
 module Twterm
   module Tab
     module Statuses
-      class Mentions
-        include Base
+      class Mentions < Base
+        include Subscriber
 
         def close
           fail NotClosableError
@@ -22,10 +24,8 @@ module Twterm
           super()
 
           @client = client
-          @client.on_mention do |status|
-            prepend(status)
-            Notifier.instance.show_message "Mentioned by @#{status.user.screen_name}: #{status.text}"
-          end
+
+          subscribe(Event::Status::Mention) { |e| prepend(e.status) }
 
           fetch { scroller.move_to_top }
           @auto_reloader = Scheduler.new(300) { fetch }
