@@ -7,7 +7,7 @@ module Twterm
     include Publisher
     include Singleton
 
-    DATA_DIR = "#{ENV['HOME']}/.twterm"
+    DATA_DIR = "#{ENV['HOME']}/.twterm".freeze
 
     def initialize
       Dir.mkdir(DATA_DIR, 0700) unless File.directory?(DATA_DIR)
