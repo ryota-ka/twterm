@@ -113,10 +113,15 @@ module Twterm
     end
 
     def update!(tweet)
+      return self if recently_updated?
+
       @retweet_count = tweet.retweet_count
       @favorite_count = tweet.favorite_count
       @retweeted = tweet.retweeted?
       @favorited = tweet.favorited?
+
+      @updated_at = Time.now
+
       self
     end
 
@@ -158,6 +163,12 @@ module Twterm
     def self.new(tweet)
       instance = find(tweet.id)
       instance.nil? ? super : instance.update!(tweet)
+    end
+
+    private
+
+    def recently_updated?
+      !@updated_at.nil? && @updated_at + 60 > Time.now
     end
   end
 end
