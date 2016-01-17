@@ -1,10 +1,10 @@
+require 'twterm/tab/base'
 require 'twterm/tab/direct_message/conversation_list'
 
 module Twterm
   module Tab
     module New
-      class Start
-        include Base
+      class Start < Base
         include Scrollable
 
         def ==(other)

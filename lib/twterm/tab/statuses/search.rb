@@ -1,8 +1,9 @@
+require 'twterm/tab/statuses/base'
+
 module Twterm
   module Tab
     module Statuses
-      class Search
-        include Base
+      class Search < Base
         include Dumpable
 
         attr_reader :query

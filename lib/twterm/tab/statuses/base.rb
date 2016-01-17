@@ -2,13 +2,13 @@ require 'twterm/event/open_uri'
 require 'twterm/event/status/delete'
 require 'twterm/publisher'
 require 'twterm/subscriber'
+require 'twterm/tab/base'
 require 'twterm/utils'
 
 module Twterm
   module Tab
     module Statuses
-      module Base
-        include Tab::Base
+      class Base < Tab::Base
         include FilterableList
         include Publisher
         include Scrollable

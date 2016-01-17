@@ -1,12 +1,12 @@
 require 'twterm/subscriber'
 require 'twterm/event/status/timeline'
+require 'twterm/tab/statuses/base'
 require 'twterm/utils'
 
 module Twterm
   module Tab
     module Statuses
-      class Home
-        include Base
+      class Home < Base
         include Subscriber
         include Utils
 

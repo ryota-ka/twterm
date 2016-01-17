@@ -1,10 +1,10 @@
 require 'twterm/event/open_uri'
 require 'twterm/publisher'
+require 'twterm/tab/base'
 
 module Twterm
   module Tab
-    class UserTab
-      include Base
+    class UserTab < Base
       include Dumpable
       include Publisher
       include Scrollable

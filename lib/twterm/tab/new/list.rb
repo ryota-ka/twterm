@@ -1,10 +1,10 @@
 require 'twterm/event/notification'
+require 'twterm/tab/base'
 
 module Twterm
   module Tab
     module New
-      class List
-        include Base
+      class List < Base
         include FilterableList
         include Scrollable
 

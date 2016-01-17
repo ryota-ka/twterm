@@ -1,8 +1,9 @@
+require 'twterm/tab/statuses/base'
+
 module Twterm
   module Tab
     module Statuses
-      class UserTimeline
-        include Base
+      class UserTimeline < Base
         include Dumpable
 
         attr_reader :user, :user_id

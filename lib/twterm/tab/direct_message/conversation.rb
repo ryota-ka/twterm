@@ -1,12 +1,12 @@
 require 'twterm/direct_message_composer'
 require 'twterm/event/direct_message/fetched'
 require 'twterm/subscriber'
+require 'twterm/tab/base'
 
 module Twterm
   module Tab
     module DirectMessage
-      class Conversation
-        include Base
+      class Conversation < Base
         include FilterableList
         include Scrollable
         include Subscriber
