@@ -1,8 +1,9 @@
+require 'twterm/tab/statuses/base'
+
 module Twterm
   module Tab
     module Statuses
-      class ListTimeline
-        include Base
+      class ListTimeline < Base
         include Dumpable
 
         attr_reader :list

@@ -1,8 +1,9 @@
+require 'twterm/tab/statuses/base'
+
 module Twterm
   module Tab
     module Statuses
-      class Favorites
-        include Base
+      class Favorites < Base
         include Dumpable
 
         attr_reader :user, :user_id

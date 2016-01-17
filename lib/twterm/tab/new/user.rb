@@ -1,10 +1,10 @@
 require 'twterm/publisher'
+require 'twterm/tab/base'
 
 module Twterm
   module Tab
     module New
-      class User
-        include Base
+      class User < Base
         include Publisher
         include Readline
 

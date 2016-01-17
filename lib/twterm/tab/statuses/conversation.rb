@@ -1,8 +1,9 @@
+require 'twterm/tab/statuses/base'
+
 module Twterm
   module Tab
     module Statuses
-      class Conversation
-        include Base
+      class Conversation < Base
         include Dumpable
 
         attr_reader :status

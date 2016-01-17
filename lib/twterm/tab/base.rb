@@ -3,7 +3,7 @@ require 'twterm/subscriber'
 
 module Twterm
   module Tab
-    module Base
+    class Base
       include Curses
       include Subscriber
 

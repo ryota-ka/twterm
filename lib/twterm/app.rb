@@ -7,7 +7,7 @@ module Twterm
     include Publisher
     include Singleton
 
-    DATA_DIR = "#{ENV['HOME']}/.twterm"
+    DATA_DIR = "#{ENV['HOME']}/.twterm".freeze
 
     def initialize
       Dir.mkdir(DATA_DIR, 0700) unless File.directory?(DATA_DIR)
@@ -21,6 +21,7 @@ module Twterm
       TabManager.instance.add_and_show(timeline)
 
       mentions_tab = Tab::Statuses::Mentions.new(client)
+
       TabManager.instance.add(mentions_tab)
       TabManager.instance.recover_tabs
 
@@ -33,7 +34,7 @@ module Twterm
       URIOpener.instance
 
       resize = proc do
-        break if Curses.closed?
+        next if Curses.closed?
 
         lines = `tput lines`.to_i
         cols = `tput cols`.to_i

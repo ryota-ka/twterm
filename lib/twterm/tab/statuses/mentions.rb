@@ -1,8 +1,9 @@
+require 'twterm/tab/statuses/base'
+
 module Twterm
   module Tab
     module Statuses
-      class Mentions
-        include Base
+      class Mentions < Base
         include Subscriber
 
         def close

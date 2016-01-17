@@ -1,8 +1,9 @@
+require 'twterm/tab/statuses/base'
+
 module Twterm
   module Tab
     module Statuses
-      class Search
-        include Base
+      class Search < Base
         include Dumpable
 
         attr_reader :query
@@ -22,7 +23,7 @@ module Twterm
 
         def fetch
           Client.current.search(@query).then do |statuses|
-            statuses.reverse.each(&method(:prepend))
+            statuses.each(&method(:append))
             yield if block_given?
           end
         end

@@ -21,6 +21,14 @@ module Twterm
       Scheduler.new(300) { fetch }
     end
 
+    def add(collocutor, message)
+      check_type User, collocutor
+      check_type DirectMessage, message
+
+      @conversations[collocutor.id] ||= DirectMessage::Conversation.new(collocutor)
+      @conversations[collocutor.id] << message
+    end
+
     def fetch
       client.direct_messages_received.then do |messages|
         messages.each { |m| add(m.sender, m) }
@@ -40,13 +48,5 @@ module Twterm
     private
 
     attr_reader :client
-
-    def add(collocutor, message)
-      check_type User, collocutor
-      check_type DirectMessage, message
-
-      @conversations[collocutor.id] ||= DirectMessage::Conversation.new(collocutor)
-      @conversations[collocutor.id] << message
-    end
   end
 end

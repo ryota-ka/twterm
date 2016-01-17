@@ -1,7 +1,8 @@
+require 'twterm/tab/base'
+
 module Twterm
   module Tab
-    class KeyAssignmentsCheatsheet
-      include Base
+    class KeyAssignmentsCheatsheet < Base
       include Scrollable
 
       def ==(other)
