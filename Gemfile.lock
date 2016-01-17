@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    twterm (1.1.3)
+    twterm (1.2.0)
       curses (>= 1.0.1)
       launchy (>= 2.4.3)
       oauth (>= 0.4.7)
@@ -104,4 +104,4 @@ DEPENDENCIES
   twterm!
 
 BUNDLED WITH
-   1.10.6
+   1.11.2
