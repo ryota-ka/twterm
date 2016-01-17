@@ -20,6 +20,8 @@ module Twterm
 
     def unsubscribe(event = nil)
       EventDispatcher.instance.unregister_subscription(object_id, event)
+
+      self
     end
 
     def self.included(base)
