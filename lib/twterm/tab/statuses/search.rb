@@ -24,6 +24,7 @@ module Twterm
         def fetch
           Client.current.search(@query).then do |statuses|
             statuses.each(&method(:append))
+            sort
             yield if block_given?
           end
         end
