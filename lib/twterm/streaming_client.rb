@@ -45,7 +45,7 @@ module Twterm
 
       streaming_client.on_event(:favorite) do |event|
         user = User.new(Twitter::User.new(event[:source]))
-        status = Status.new(Twitter::Status.new(event[:target]))
+        status = Status.new(Twitter::Status.new(event[:target_object]))
 
         event = Event::Favorite.new(user, status, self)
         publish(event)
