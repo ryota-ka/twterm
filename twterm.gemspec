@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'launchy', '~> 2.4.3'
   spec.add_dependency 'oauth', '~> 0.4.7'
   spec.add_dependency 'tweetstream', '~> 2.6.1'
-  spec.add_dependency 'twitter', '~> 5.15.0'
+  spec.add_dependency 'twitter', '~> 5.16.0'
   spec.add_dependency 'twitter-text', '~> 1.13.0'
 
   spec.add_development_dependency 'bundler', '~> 1.8'
