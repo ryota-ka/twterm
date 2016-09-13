@@ -100,26 +100,28 @@ module Twterm
         def respond_to_key(key)
           return true if scroller.respond_to_key(key)
 
+          k = KeyMapper.instance
+
           case key
-          when ?c
+          when k[:status, :conversation]
             show_conversation
-          when ?D
+          when k[:status, :destroy]
             destroy_status
-          when ?F, ?L
+          when k[:status, :like]
             favorite
-          when ?o
+          when k[:status, :open_link]
             open_link
-          when ?r
+          when k[:status, :reply]
             reply
-          when ?R
+          when k[:status, :retweet]
             retweet
-          when 18
+          when k[:tab, :reload]
             fetch
-          when ?U
+          when k[:status, :user]
             show_user
-          when ?/
+          when k[:tab, :filter]
             filter
-          when ?q
+          when k[:tab, :reset_filter]
             reset_filter
           else
             return false

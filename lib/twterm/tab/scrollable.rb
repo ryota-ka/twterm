@@ -112,18 +112,20 @@ module Twterm
         end
 
         def respond_to_key(key)
+          k = KeyMapper.instance
+
           case key
-          when ?d, 4
+          when k[:general, :scroll_down]
             10.times { move_down }
-          when ?g
+          when k[:general, :top]
             move_to_top
-          when ?G
+          when k[:general, :bottom]
             move_to_bottom
-          when ?j, 14, Curses::Key::DOWN
+          when k[:general, :down]
             move_down
-          when ?k, 16, Curses::Key::UP
+          when k[:general, :up]
             move_up
-          when ?u, 21
+          when k[:general, :scroll_up]
             10.times { move_up }
           else
             return false

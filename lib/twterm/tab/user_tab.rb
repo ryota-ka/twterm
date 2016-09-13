@@ -60,16 +60,18 @@ module Twterm
       def respond_to_key(key)
         return true if scroller.respond_to_key(key)
 
+        k = KeyMapper.instance
+
         case key
-        when ?D
+        when k[:user, :drect_message]
           compose_direct_message unless myself?
-        when ?F
+        when k[:user, :follow]
           follow unless myself?
         when 10
           perform_selected_action
-        when ?t
+        when k[:user, :timeline]
           open_timeline_tab
-        when ?W
+        when k[:user, :website]
           open_website
         else
           return false

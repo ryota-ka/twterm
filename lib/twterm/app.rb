@@ -14,6 +14,8 @@ module Twterm
 
       Auth.authenticate_user(config) if config[:user_id].nil?
 
+      KeyMapper.instance
+
       Screen.instance
       FilterQueryWindow.instance
 

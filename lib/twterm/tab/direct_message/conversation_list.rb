@@ -37,15 +37,17 @@ module Twterm
         def respond_to_key(key)
           return true if scroller.respond_to_key(key)
 
+          k = KeyMapper.instance
+
           case key
           when 10
             open_conversation
-          when ?n, ?r
+          when k[:direct_message, :compose], k[:direct_message, :reply]
             conversation = current_item
             DirectMessageComposer.instance.compose(conversation.collocutor)
-          when ?/
+          when k[:tab, :filter]
             filter
-          when ?q
+          when k[:tab, :reset_filter]
             reset_filter
           else
             return false
