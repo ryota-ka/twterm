@@ -1,4 +1,5 @@
 require 'twterm/event/screen/resize'
+require 'twterm/key_mapper'
 require 'twterm/subscriber'
 
 module Twterm
@@ -26,13 +27,15 @@ module Twterm
     end
 
     def respond_to_key(key)
+      k = KeyMapper.instance
+
       case key
-      when ?n
+      when k[:status, :compose]
         Tweetbox.instance.compose
         return
-      when ?Q
+      when k[:app, :quit]
         App.instance.quit
-      when ??
+      when k[:app, :cheatsheet]
         tab = Tab::KeyAssignmentsCheatsheet.new
         TabManager.instance.add_and_show tab
       else

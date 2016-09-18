@@ -127,24 +127,38 @@ module Twterm
     end
 
     def respond_to_key(key)
+      k = KeyMapper.instance
+
       case key
-      when ?1..?9
-        @index = key.to_i - 1 if @tabs.count >= key.to_i
-        current_tab.refresh
-        refresh_window
-      when ?0
-        @index = @tabs.count - 1
-        current_tab.refresh
-        refresh_window
-      when ?h, 2, Key::LEFT
+      when k[:tab, :'1st']
+        show_nth_tab(0)
+      when k[:tab, :'2nd']
+        show_nth_tab(1)
+      when k[:tab, :'3rd']
+        show_nth_tab(2)
+      when k[:tab, :'4th']
+        show_nth_tab(3)
+      when k[:tab, :'5th']
+        show_nth_tab(4)
+      when k[:tab, :'6th']
+        show_nth_tab(5)
+      when k[:tab, :'7th']
+        show_nth_tab(6)
+      when k[:tab, :'8th']
+        show_nth_tab(7)
+      when k[:tab, :'9th']
+        show_nth_tab(8)
+      when k[:tab, :last]
+        show_nth_tab(@tabs.count - 1)
+      when k[:general, :left]
         show_previous
-      when ?l, 6, Key::RIGHT
+      when k[:general, :right]
         show_next
-      when ?P
+      when k[:user, :my_profile]
         open_my_profile
-      when ?N
+      when k[:tab, :new]
         open_new
-      when ?w
+      when k[:tab, :close]
         close
       else
         return false
@@ -154,6 +168,14 @@ module Twterm
 
     def show_next
       @index = (@index + 1) % @tabs.count
+      current_tab.refresh
+      refresh_window
+    end
+
+    def show_nth_tab(n)
+      return unless n < @tabs.count
+
+      @index = n
       current_tab.refresh
       refresh_window
     end

@@ -35,14 +35,16 @@ module Twterm
         def respond_to_key(key)
           return true if scroller.respond_to_key(key)
 
+          k = KeyMapper.instance
+
           case key
-          when 10, ?U
+          when 10
             show_user
-          when 18
+          when k[:tab, :reload]
             fetch
-          when ?q
+          when k[:tab, :reset_filter]
             reset_filter
-          when ?/
+          when k[:tab, :filter]
             filter
           else
             return false
