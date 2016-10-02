@@ -15,7 +15,8 @@ module Twterm
           messages.drop(scroller.offset).lazy
             .map { |m| m.text.split_by_width(window.maxx - 4).count + 2 }
             .scan(0, :+)
-            .select { |l| l < window.maxy }
+            .each_cons(2)
+            .select { |_, l| l < window.maxy }
             .count
         end
 
