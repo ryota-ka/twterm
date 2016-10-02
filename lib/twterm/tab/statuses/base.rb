@@ -42,7 +42,8 @@ module Twterm
           statuses.reverse.drop(scroller.offset).lazy
           .map { |s| s.split(window.maxx - 4).count + 2 }
           .scan(0, :+)
-          .select { |l| l < window.maxy }
+          .each_cons(2)
+          .select { |_, l| l < window.maxy }
           .count
         end
 
