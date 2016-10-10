@@ -16,10 +16,28 @@ module Twterm
           window.maxy.-(2).div(3)
         end
 
+        def image
+          scroller.drawable_items.map.with_index(0) do |conversation, i|
+            cursor = Image.cursor(2, scroller.current_item?(i))
+
+            header = [
+              !Image.string(conversation.collocutor.name).color(conversation.collocutor.color),
+              Image.string("@#{conversation.collocutor.screen_name}").parens,
+              Image.string(conversation.updated_at.to_s).brackets,
+            ].intersperse(Image.whitespace).reduce(Image.empty, :-)
+
+            body = Image.string(conversation.preview.split_by_width(window.maxx - 4).first)
+
+            cursor - Image.whitespace - (header | body)
+          end
+            .intersperse(Image.blank_line)
+            .reduce(Image.empty, :|)
+        end
+
         def initialize
           super
 
-          subscribe(Event::DirectMessage::Fetched) { refresh }
+          subscribe(Event::DirectMessage::Fetched) { render }
         end
 
         def ==(other)
@@ -54,33 +72,6 @@ module Twterm
           end
 
           true
-        end
-
-        def update
-          scroller.drawable_items.each.with_index(0) do |conversation, i|
-            line = 3 * i
-
-            window.with_color(:black, :magenta) do
-              2.times do |j|
-                window.setpos(line + j, 0)
-                window.addch(' ')
-              end
-            end if scroller.current_item?(i)
-
-            window.setpos(line, 2)
-
-            window.bold do
-              window.with_color(conversation.collocutor.color) do
-                window.addstr(conversation.collocutor.name)
-              end
-            end
-
-            window.addstr(' (@%s)' % conversation.collocutor.screen_name)
-            window.addstr(' [%s]' % conversation.updated_at)
-
-            window.setpos(line + 1, 2)
-            window.addstr(conversation.preview.split_by_width(window.maxx - 4).first)
-          end
         end
 
         def title

@@ -22,7 +22,7 @@ module Twterm
 
     def refresh
       TabManager.instance.refresh_window
-      TabManager.instance.current_tab.refresh
+      TabManager.instance.current_tab.render
       Notifier.instance.show
     end
 

@@ -101,25 +101,13 @@ module Twterm
           end
         end
 
-        def update
-          offset = scroller.offset
-
-          window.setpos(2, 3)
-          window.bold { window.addstr('Open search tab') }
-
-          drawable_items.each.with_index(0) do |query, i|
-            line = 3 * i + 5
-
-            window.with_color(:black, :magenta) do
-              window.setpos(line, 4)
-              window.addstr(' ')
-              window.setpos(line + 1, 4)
-              window.addstr(' ')
-            end if scroller.current_item?(i)
-
-            window.setpos(line, 6)
-            window.addstr(query)
-          end
+        def image
+          drawable_items
+            .map.with_index(0) { |query, i|
+              Image.cursor(1, scroller.current_item?(i)) - Image.whitespace - Image.string(query)
+            }
+            .intersperse(Image.blank_line)
+            .reduce(Image.empty, :|)
         end
 
         def update_saved_search
@@ -127,7 +115,7 @@ module Twterm
 
           Client.current.saved_search.then do |searches|
             @@queries = searches.map(&:query)
-            refresh
+            render
           end
         end
       end

@@ -1,6 +1,8 @@
 require 'twterm/event/screen/resize'
 require 'twterm/subscriber'
 
+require_relative './../image'
+
 module Twterm
   module Tab
     class Base
@@ -25,7 +27,7 @@ module Twterm
         subscribe(Event::Screen::Resize, :resize)
       end
 
-      def refresh
+      def render
         Thread.new do
           refresh_mutex.synchronize do
             window.clear
@@ -38,8 +40,7 @@ module Twterm
               end
             end
 
-            update
-            window.refresh
+            view.at(1, 2).render
           end if refreshable?
         end
       end
@@ -54,6 +55,10 @@ module Twterm
       end
 
       private
+
+      def image
+        Image.string('view method is not implemented')
+      end
 
       def refresh_mutex
         @refresh_mutex ||= Mutex.new
@@ -72,8 +77,8 @@ module Twterm
         window.move(3, 0)
       end
 
-      def update
-        fail NotImplementedError, 'update method must be implemented'
+      def view
+        View.new(window, image)
       end
     end
   end

@@ -24,12 +24,12 @@ module Twterm
           status.split(window.maxx - 4)
           status.touch!
           scroller.item_appended!
-          refresh
+          render
         end
 
         def delete(status_id)
           Status.delete(status_id)
-          refresh
+          render
         end
 
         def destroy_status
@@ -52,7 +52,7 @@ module Twterm
 
           method_name = highlighted_status.favorited ? :unfavorite : :favorite
           Client.current.method(method_name).call(highlighted_status)
-            .then { refresh }
+            .then { render }
         end
 
         def fetch
@@ -90,7 +90,7 @@ module Twterm
           status.split(window.maxx - 4)
           status.touch!
           scroller.item_prepended!
-          refresh
+          render
         end
 
         def reply
@@ -132,7 +132,7 @@ module Twterm
 
         def retweet
           return if highlighted_status.nil?
-          Client.current.retweet(highlighted_status).then { refresh }
+          Client.current.retweet(highlighted_status).then { render }
         end
 
         def show_conversation
@@ -167,79 +167,36 @@ module Twterm
           filter_query.empty? ? @status_ids.count : statuses.count
         end
 
-        def update
-          line = 0
-
-          scroller.drawable_items.each.with_index(0) do |status, i|
-            formatted_lines = status.split(window.maxx - 4).count
-            window.with_color(:black, :magenta) do
-              (formatted_lines + 1).times do |j|
-                window.setpos(line + j, 0)
-                window.addch(' ')
-              end
-            end if scroller.current_item?(i)
-
-            window.setpos(line, 2)
-
-            window.bold do
-              window.with_color(status.user.color) do
-                window.addstr(status.user.name)
-              end
-            end
-
-            window.addstr(" (@#{status.user.screen_name}) [#{status.date}] ")
-
-            unless status.retweeted_by.nil?
-              window.addstr('(retweeted by ')
-              window.bold do
-                window.addstr("@#{status.retweeted_by.screen_name}")
-              end
-              window.addstr(') ')
-            end
-
-            if status.favorited?
-              window.with_color(:black, :red) do
-                window.addch(' ')
-              end
-
-              window.addch(' ')
-            end
-
-            if status.retweeted?
-              window.with_color(:black, :green) do
-                window.addch(' ')
-              end
-              window.addch(' ')
-            end
-
-            if status.favorite_count > 0
-              window.with_color(:red) do
-                window.addstr("#{status.favorite_count}like#{status.favorite_count > 1 ? 's' : ''}")
-              end
-              window.addch(' ')
-            end
-
-            if status.retweet_count > 0
-              window.with_color(:green) do
-                window.addstr("#{status.retweet_count}RT#{status.retweet_count > 1 ? 's' : ''}")
-              end
-              window.addch(' ')
-            end
-
-            status.split(window.maxx - 4).each do |str|
-              line += 1
-              window.setpos(line, 2)
-              window.addstr(str)
-            end
-
-            line += 2
-          end
-        end
-
         private
 
         def highlighted_status
           statuses[scroller.count - scroller.index - 1]
+        end
+
+        def image
+          scroller.drawable_items.map.with_index(0) do |status, i|
+            header = [
+              !Image.string(status.user.name).color(status.user.color),
+              Image.string("@#{status.user.screen_name}").parens,
+              Image.string(status.date.to_s).brackets,
+              (Image.whitespace.color(:black, :red) if status.favorited?),
+              (Image.whitespace.color(:black, :green) if status.retweeted?),
+              ((Image.string('retweeted by ') - !Image.string("@#{status.retweeted_by.screen_name}")).parens unless status.retweeted_by.nil?),
+              (Image.string("#{status.favorite_count}like#{status.favorite_count > 1 ? 's' : ''}").color(:red) if status.favorite_count.positive?),
+              (Image.string("#{status.retweet_count}RT#{status.retweet_count > 1 ? 's' : ''}").color(:green) if status.retweet_count.positive?),
+            ].compact.intersperse(Image.whitespace).reduce(Image.empty, :-)
+
+            body = status
+              .split(window.maxx - 4)
+              .map(&Image.method(:string))
+              .reduce(Image.empty, :|)
+
+            s = header | body
+
+            Image.cursor(s.height, scroller.current_item?(i)) - Image.whitespace - s
+          end
+            .intersperse(Image.blank_line)
+            .reduce(Image.empty, :|)
         end
 
         def sort

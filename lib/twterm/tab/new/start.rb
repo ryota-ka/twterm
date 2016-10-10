@@ -27,7 +27,7 @@ module Twterm
 
         def initialize
           super
-          refresh
+          render
         end
 
         def respond_to_key(key)
@@ -55,6 +55,32 @@ module Twterm
         end
 
         private
+
+        def image
+          drawable_items
+            .map.with_index(0) { |item, i|
+              cursor = Image.cursor(1, scroller.current_item?(i))
+
+              key, desc =
+                case item
+                when :direct_messages
+                  ['D', 'Direct messages']
+                when :list_tab
+                  ['L', 'List tab']
+                when :search_tab
+                  ['S', 'Search tab']
+                when :user_tab
+                  ['U', 'User tab']
+                when :key_assignments_cheatsheet
+                  ['?', 'Key assignments cheatsheet']
+                end
+
+              cursor - Image.whitespace - (Image.string(key).bold.brackets - Image.whitespace - Image.string(desc))
+
+            }
+            .intersperse(Image.blank_line)
+            .reduce(Image.empty, :|)
+        end
 
         def open_direct_messages
           switch(Tab::DirectMessage::ConversationList.new)
@@ -95,44 +121,6 @@ module Twterm
 
         def switch(tab)
           TabManager.instance.switch(tab)
-        end
-
-        def update
-          window.setpos(2, 3)
-          window.bold { window.addstr('Open new tab') }
-
-          drawable_items.each.with_index(0) do |item, i|
-            line = 4 + i * 2
-            window.setpos(line, 5)
-
-            case item
-            when :direct_messages
-              window.addstr('[D] Direct messages')
-              window.setpos(line, 6)
-              window.bold { window.addch(?D) }
-            when :list_tab
-              window.addstr('[L] List tab')
-              window.setpos(line, 6)
-              window.bold { window.addch(?L) }
-            when :search_tab
-              window.addstr('[S] Search tab')
-              window.setpos(line, 6)
-              window.bold { window.addch(?S) }
-            when :user_tab
-              window.addstr('[U] User tab')
-              window.setpos(line, 6)
-              window.bold { window.addch(?U) }
-            when :key_assignments_cheatsheet
-              window.addstr('[?] Key assignments cheatsheet')
-              window.setpos(line, 6)
-              window.bold { window.addch(??) }
-            end
-
-            window.with_color(:black, :magenta) do
-              window.setpos(line, 3)
-              window.addch(' ')
-            end if scroller.current_item?(i)
-          end
         end
       end
     end

@@ -3,6 +3,8 @@ require 'twterm/publisher'
 require 'twterm/subscriber'
 require 'twterm/utils'
 
+require_relative './view'
+
 module Twterm
   class TabManager
     include Singleton
@@ -31,7 +33,7 @@ module Twterm
     def add_and_show(tab)
       result = add(tab)
       @index = @tabs.count - 1 if result
-      current_tab.refresh
+      current_tab.render
       refresh_window
       result
     end
@@ -42,7 +44,7 @@ module Twterm
       @history.delete_if { |n| n == @index }
       @history = @history.map { |i| i > @index ? i - 1 : i }
       @index = @history.first
-      current_tab.refresh
+      current_tab.render
       refresh_window
     rescue Tab::NotClosableError
       publish(Event::Notification.new(:error, 'this tab cannot be closed'))
@@ -108,22 +110,20 @@ module Twterm
 
     def refresh_window
       @window.clear
-      current_tab_id = current_tab.object_id
-
-      @window.setpos(1, 1)
-      @window.addstr('|  ')
-      @tabs.each do |tab|
-        if tab.object_id == current_tab_id
-          @window.bold do
-            @window.addstr(tab.title)
-          end
-        else
-          @window.addstr(tab.title)
-        end
-        @window.addstr('  |  ')
-      end
-
+      view.render
       @window.refresh
+    end
+
+    def view
+      wss = Image.string('  ')
+      pipe = Image.string('|')
+
+      image = @tabs
+        .map { |t| [t, Image.string(t.title)] }
+        .map { |t, r| t.equal?(current_tab) ? !r : r }
+        .reduce(pipe) { |acc, x| acc - wss - x - wss - pipe }
+
+      View.new(@window, image).at(1, 1)
     end
 
     def respond_to_key(key)
@@ -168,7 +168,7 @@ module Twterm
 
     def show_next
       @index = (@index + 1) % @tabs.count
-      current_tab.refresh
+      current_tab.render
       refresh_window
     end
 
@@ -176,13 +176,13 @@ module Twterm
       return unless n < @tabs.count
 
       @index = n
-      current_tab.refresh
+      current_tab.render
       refresh_window
     end
 
     def show_previous
       @index = (@index - 1) % @tabs.count
-      current_tab.refresh
+      current_tab.render
       refresh_window
     end
 

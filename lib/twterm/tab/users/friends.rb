@@ -15,7 +15,7 @@ module Twterm
         def fetch
           Client.current.friends(user_id) do |users|
             @user_ids.concat(users.map(&:id)).uniq!
-            refresh
+            render
           end
         end
 

@@ -21,7 +21,7 @@ module Twterm
         def initialize
           super
 
-          refresh
+          render
         end
 
         def items
@@ -63,40 +63,28 @@ module Twterm
           @@lists.nil? ? nil : items[scroller.index]
         end
 
-        def show_lists
-          return if @@lists.nil?
-
-          index, offset = scroller.index, scroller.offset
-
-          drawable_items.each.with_index(0) do |list, i|
-            window.with_color(:black, :magenta) do
-              window.setpos(i * 3 + 5, 4)
-              window.addstr(' ')
-              window.setpos(i * 3 + 6, 4)
-              window.addstr(' ')
-            end if scroller.current_item?(i)
-
-            window.setpos(i * 3 + 5, 6)
-            window.addstr("#{list.full_name} (#{list.member_count} members / #{list.subscriber_count} subscribers)")
-            window.setpos(i * 3 + 6, 8)
-            window.addstr(list.description)
-          end
-        end
-
-        def update
-          window.setpos(2, 3)
-          window.bold { window.addstr('Open list tab') }
-
-          Thread.new do
-            publish(Event::Notification.new(:message, 'Loading lists ...'))
-            Client.current.lists.then do |lists|
-              @@lists = lists.sort_by(&:full_name)
-              show_lists
-              window.refresh if TabManager.instance.current_tab == self
+        def image
+          if @@lists.nil?
+            Thread.new do
+              publish(Event::Notification.new(:message, 'Loading lists ...'))
+              Client.current.lists.then do |lists|
+                @@lists = lists.sort_by(&:full_name)
+                render
+              end
             end
-          end if @@lists.nil?
+            return Image.empty
+          end
 
-          show_lists
+          drawable_items.map.with_index(0) do |list, i|
+            cursor = Image.cursor(2, scroller.current_item?(i))
+
+            summary = Image.string("#{list.full_name} (#{list.member_count} members / #{list.subscriber_count} subscribers)")
+            desc = Image.string('  ') - Image.string(list.description)
+
+            cursor - Image.whitespace - (summary | desc)
+          end
+            .intersperse(Image.blank_line)
+            .reduce(Image.empty, :|)
         end
       end
     end

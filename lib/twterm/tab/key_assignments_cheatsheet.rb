@@ -1,4 +1,5 @@
 require 'twterm/tab/base'
+require_relative './../image'
 
 module Twterm
   module Tab
@@ -50,6 +51,19 @@ module Twterm
         window.maxy - 3
       end
 
+      def image
+        SHORTCUTS
+          .flat_map { |category, shortcuts|
+            [
+              !Image.string("<#{category}>"),
+              Image.blank_line,
+              *shortcuts.map { |key, description| !Image.string(key.rjust(17)) - Image.string(": #{description}") },
+            ]
+          }
+          .intersperse(Image.blank_line)
+          .drop(scroller.offset).reduce(Image.empty, :|)
+      end
+
       def initialize
         super
         scroller.set_no_cursor_mode!
@@ -67,31 +81,6 @@ module Twterm
 
       def total_item_count
         @count ||= SHORTCUTS.count * 4 + SHORTCUTS.values.map(&:count).reduce(0, :+) + 1
-      end
-
-      def update
-        offset = scroller.offset
-        line = 0
-
-        window.setpos(line - offset + 2, 3)
-        window.bold { window.addstr('Key assignments') } if scroller.nth_item_drawable?(line)
-
-        SHORTCUTS.each do |category, shortcuts|
-          line += 3
-          window.setpos(line - offset + 2, 5)
-          window.bold { window.addstr("<#{category}>") } if scroller.nth_item_drawable?(line)
-          line += 1
-
-          shortcuts.each do |key, description|
-            line += 1
-            next unless scroller.nth_item_drawable?(line)
-
-            window.setpos(line - offset + 2, 7)
-            window.bold { window.addstr(key.rjust(17)) }
-            window.setpos(line - offset + 2, 25)
-            window.addstr(": #{description}")
-          end
-        end
       end
     end
   end
