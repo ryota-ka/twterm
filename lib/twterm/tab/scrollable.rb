@@ -11,7 +11,7 @@ module Twterm
 
         @scroller = Scroller.new
         @scroller.delegate = self
-        @scroller.after_move { refresh }
+        @scroller.after_move { render }
         @scroller
       end
 

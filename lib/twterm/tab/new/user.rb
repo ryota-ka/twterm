@@ -62,7 +62,9 @@ module Twterm
 
         private
 
-        def update; end
+        def image
+          Image.empty
+        end
       end
     end
   end

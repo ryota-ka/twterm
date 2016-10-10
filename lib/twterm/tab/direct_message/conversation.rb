@@ -20,12 +20,34 @@ module Twterm
             .count
         end
 
+        def image
+          scroller.drawable_items.map.with_index(0) do |message, i|
+            header = [
+              !Image.string(message.sender.name).color(message.sender.color),
+              Image.string("@#{message.sender.screen_name}").parens,
+              Image.string(message.date.to_s).brackets,
+            ].intersperse(Image.whitespace).reduce(Image.empty, :-)
+
+            body = message.text.split_by_width(window.maxx - 4)
+              .map { |x| Image.string(x) }
+              .reduce(Image.empty, :|)
+
+            m = header | body
+
+            cursor = Image.cursor(m.height, scroller.current_item?(i))
+
+            cursor - Image.whitespace - m
+          end
+            .intersperse(Image.blank_line)
+            .reduce(Image.empty, :|)
+        end
+
         def initialize(conversation)
           super()
 
           @conversation = conversation
 
-          subscribe(Event::DirectMessage::Fetched) { refresh }
+          subscribe(Event::DirectMessage::Fetched) { render }
         end
 
         def items
@@ -53,40 +75,6 @@ module Twterm
           end
 
           true
-        end
-
-        def update
-          line = 0
-
-          scroller.drawable_items.each.with_index(0) do |message, i|
-            formatted_lines = message.text.split_by_width(window.maxx - 4).count
-
-            window.with_color(:black, :magenta) do
-              formatted_lines.+(1).times do |j|
-                window.setpos(line + j, 0)
-                window.addch(' ')
-              end
-            end if scroller.current_item?(i)
-
-            window.setpos(line, 2)
-
-            window.bold do
-              window.with_color(message.sender.color) do
-                window.addstr(message.sender.name)
-              end
-            end
-
-            window.addstr(' (@%s)' % message.sender.screen_name)
-            window.addstr(' [%s]' % message.date)
-
-            message.text.split_by_width(window.maxx - 4).each do |str|
-              line += 1
-              window.setpos(line, 2)
-              window.addstr(str)
-            end
-
-            line += 2
-          end
         end
 
         def title

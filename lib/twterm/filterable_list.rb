@@ -21,7 +21,7 @@ module Twterm
         scroller.move_to_top
       end
 
-      refresh
+      render
     end
 
     def filter_query
@@ -35,7 +35,7 @@ module Twterm
     def reset_filter
       FilterQueryWindow.instance.clear
       @filter_query = ''
-      refresh
+      render
     end
   end
 end

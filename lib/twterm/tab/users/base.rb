@@ -65,27 +65,22 @@ module Twterm
           TabManager.instance.add_and_show(tab)
         end
 
-        def update
-          window.setpos(2, 3)
-          window.bold { window.addstr(title) }
+        def image
+          drawable_items.map.with_index(0) do |user, i|
+            cursor = Image.cursor(2, scroller.current_item?(i))
 
-          drawable_items.each.with_index(0) do |user, i|
-            window.with_color(:black, :magenta) do
-              window.setpos(i * 3 + 5, 3)
-              window.addch(' ')
-              window.setpos(i * 3 + 6, 3)
-              window.addch(' ')
-            end if scroller.current_item?(i)
+            header = [
+              !Image.string(user.name).color(user.color),
+              Image.string("@#{user.screen_name}"),
+              (Image.string('protected').brackets if user.protected?),
+              (Image.string('verified').brackets if user.verified?),
+            ].compact.intersperse(Image.whitespace).reduce(Image.empty, :-)
 
-            window.setpos(i * 3 + 5, 5)
-            window.bold { window.with_color(user.color) { window.addstr(user.name) } }
-            window.addstr(" (@#{user.screen_name})")
-            window.with_color(:yellow) { window.addstr(' [protected]') } if user.protected?
-            window.with_color(:cyan) { window.addstr(' [verified]') } if user.verified?
-            window.setpos(i * 3 + 6, 7)
             bio_chunks = user.description.gsub(/[\n\r]/, ' ').split_by_width(window.maxx - 10)
-            window.addstr(bio_chunks[0] + (bio_chunks[1].nil? ? '' : '...'))
+            cursor - Image.whitespace - (header | Image.string("#{bio_chunks[0]}#{'...' unless bio_chunks[1].nil?}"))
           end
+            .intersperse(Image.blank_line)
+            .reduce(Image.empty, :|)
         end
       end
     end

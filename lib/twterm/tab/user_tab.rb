@@ -24,7 +24,7 @@ module Twterm
       end
 
       def fetch
-        update
+        render
       end
 
       def initialize(user_id)
@@ -34,7 +34,7 @@ module Twterm
         @user_id = user_id
 
         User.find_or_fetch(user_id).then do |user|
-          refresh
+          render
 
           Client.current.lookup_friendships
           self.title = "@#{user.screen_name}"
@@ -88,7 +88,7 @@ module Twterm
 
       def block
         Client.current.block(user_id).then do |users|
-          refresh
+          render
 
           user = users.first
           publish(Event::Notification.new(:message, 'Blocked @%s' % user.screen_name))
@@ -105,7 +105,7 @@ module Twterm
 
       def follow
         Client.current.follow(user_id).then do |users|
-          refresh
+          render
 
           user = users.first
           if user.protected?
@@ -131,7 +131,7 @@ module Twterm
 
       def mute
         Client.current.mute(user_id).then do |users|
-          refresh
+          render
 
           user = users.first
           publish(Event::Notification.new(:message, 'Muted @%s' % user.screen_name))
@@ -203,7 +203,7 @@ module Twterm
 
       def unblock
         Client.current.unblock(user_id).then do |users|
-          refresh
+          render
 
           user = users.first
           publish(Event::Notification.new(:message, 'Unblocked @%s' % user.screen_name))
@@ -212,7 +212,7 @@ module Twterm
 
       def unfollow
         Client.current.unfollow(user_id).then do |users|
-          refresh
+          render
 
           user = users.first
           publish(Event::Notification.new(:message, 'Unfollowed @%s' % user.screen_name))
@@ -221,100 +221,94 @@ module Twterm
 
       def unmute
         Client.current.unmute(user_id).then do |users|
-          refresh
+          render
 
           user = users.first
           publish(Event::Notification.new(:message, 'Unmuted @%s' % user.screen_name))
         end
       end
 
-      def update
+      def image
         if user.nil?
-          User.find_or_fetch(user_id).then { update }
-          return
+          User.find_or_fetch(user_id).then { render }
+          return Image.empty
         end
 
-        window.setpos(2, 3)
-        window.bold { window.addstr(user.name) }
-        window.addstr(" (@#{user.screen_name})")
+        name = !Image.string(user.name) - Image.whitespace - Image.string("@#{user.screen_name}").parens
 
-        window.with_color(:yellow) { window.addstr(' [protected]') } if user.protected?
-        window.with_color(:cyan) { window.addstr(' [verified]') } if user.verified?
+        badges = [
+          (Image.string('protected').brackets.color(:yellow) if user.protected?),
+          (Image.string('verified').brackets.color(:cyan) if user.verified?),
+        ].compact.intersperse(Image.whitespace).reduce(Image.empty, :-)
 
-        window.setpos(5, 4)
-        if myself?
-          window.with_color(:yellow) { window.addstr(' [your account]') }
-        else
-          window.with_color(:green) { window.addstr(' [following]') } if following?
-          window.with_color(:white) { window.addstr(' [not following]') } if !following? && !blocking? && !following_requested?
-          window.with_color(:yellow) { window.addstr(' [following requested]') } if following_requested?
-          window.with_color(:cyan) { window.addstr(' [follows you]') } if followed?
-          window.with_color(:red) { window.addstr(' [muting]') } if muting?
-          window.with_color(:red) { window.addstr(' [blocking]') } if blocking?
-        end
-
-        user.description.split_by_width(window.maxx - 6).each.with_index(7) do |line, i|
-          window.setpos(i, 5)
-          window.addstr(line)
-        end
-
-        window.setpos(8 + bio_height, 5)
-        window.addstr("Location: #{user.location}") unless user.location.nil?
-
-        current_line = 11 + bio_height
-
-        drawable_items.each.with_index(0) do |item, i|
-          if scroller.current_item? i
-            window.setpos(current_line, 3)
-            window.with_color(:black, :magenta) { window.addch(' ') }
+        status =
+          if myself?
+            Image.string('your account').brackets.color(:yellow)
+          else
+            [
+              ['following', :green, following?],
+              ['not following', :white, !following? && !blocking? && !following_requested?],
+              ['following requested', :yellow, following_requested?],
+              ['follows you', :cyan, followed?],
+              ['muting', :red, muting?],
+              ['blocking', :red, blocking?],
+            ]
+              .select { |_, _, p| p }
+              .map { |s, c, _| Image.string(s).brackets.color(c) }
+              .intersperse(Image.whitespace)
+              .reduce(Image.empty, :-)
           end
 
-          window.setpos(current_line, 5)
-          case item
-          when :compose_direct_message
-            window.addstr('[ ] Compose direct message')
-            window.setpos(current_line, 6)
-            window.bold { window.addch(?D) }
-          when :toggle_block
-            if blocking?
-              window.addstr('    Unblock this user')
-            else
-              window.addstr('    Block this user')
-            end
-          when :toggle_follow
-            if following?
-              window.addstr('    Unfollow this user')
-            elsif following_requested?
-              window.addstr('    Following request sent')
-            else
-              window.addstr('[ ] Follow this user')
-              window.setpos(current_line, 6)
-              window.bold { window.addch(?F) }
-            end
-          when :toggle_mute
-            if muting?
-              window.addstr('    Unmute this user')
-            else
-              window.addstr('    Mute this user')
-            end
-          when :open_timeline_tab
-            window.addstr("[ ] #{user.statuses_count.format} tweets")
-            window.setpos(current_line, 6)
-            window.bold { window.addch(?t) }
-          when :open_website
-            window.addstr("[ ] Open website (#{user.website})")
-            window.setpos(current_line, 6)
-            window.bold { window.addch(?W) }
-          when :show_likes
-            window.addstr("    #{user.favorites_count.format} likes")
-          when :show_followers
-            window.addstr("    #{user.followers_count.format} followers")
-          when :show_friends
-            window.addstr("    #{user.friends_count.format} following")
-          end
+        description = user.description.split_by_width(window.maxx - 4)
+          .map(&Image.method(:string))
+          .reduce(Image.empty, :|)
 
-          current_line += 2
+        location = Image.string("Location: #{user.location}")
+
+        foo = drawable_items.map.with_index(0) do |item, i|
+          Image.cursor(1, scroller.current_item?(i)) - Image.whitespace -
+            case item
+            when :compose_direct_message
+              Image.string('D').brackets.bold - Image.string(' Compose direct message')
+            when :toggle_block
+              if blocking?
+                Image.string('Unblock this user')
+              else
+                Image.string('Block this user')
+              end
+            when :toggle_follow
+              if following?
+                Image.string('Unfollow this user')
+              elsif following_requested?
+                Image.string('Following request sent')
+              else
+                Image.string('F').bold.brackets - Image.string(' Follow this user')
+              end
+            when :toggle_mute
+              if muting?
+                Image.string('Unmute this user')
+              else
+                Image.string('Mute this user')
+              end
+            when :open_timeline_tab
+              Image.string('t').bold.brackets - Image.string(" #{user.statuses_count.format} tweets")
+            when :open_website
+              Image.string('W').bold.brackets - Image.string(" Open website (#{user.website})")
+            when :show_likes
+              Image.string("#{user.favorites_count.format} likes")
+            when :show_followers
+              Image.string("#{user.followers_count.format} followers")
+            when :show_friends
+              Image.string("#{user.friends_count.format} following")
+            end
         end
+          .intersperse(Image.blank_line)
+          .reduce(Image.empty, :|)
+
+        [name, badges, status, description, location, foo]
+          .compact
+          .intersperse(Image.blank_line)
+          .reduce(Image.empty, :|)
       end
 
       def user
