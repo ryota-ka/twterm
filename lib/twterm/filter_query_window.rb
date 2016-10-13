@@ -68,7 +68,7 @@ module Twterm
         stdscr.addstr(str)
       end
 
-      Curses.timeout = 0
+      Curses.timeout = -1
       cbreak
 
       str
