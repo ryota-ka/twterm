@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    twterm (1.2.2)
+    twterm (1.2.3)
       curses (>= 1.0.1)
       launchy (>= 2.4.3)
       oauth (>= 0.4.7)
