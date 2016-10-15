@@ -76,7 +76,7 @@ module Twterm
           end
 
           drawable_items.map.with_index(0) do |list, i|
-            cursor = Image.cursor(2, scroller.current_item?(i))
+            cursor = Image.cursor(2, scroller.current_index?(i))
 
             summary = Image.string("#{list.full_name} (#{list.member_count} members / #{list.subscriber_count} subscribers)")
             desc = Image.string('  ') - Image.string(list.description)

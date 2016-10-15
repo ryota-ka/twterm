@@ -67,7 +67,7 @@ module Twterm
 
         def image
           drawable_items.map.with_index(0) do |user, i|
-            cursor = Image.cursor(2, scroller.current_item?(i))
+            cursor = Image.cursor(2, scroller.current_index?(i))
 
             header = [
               !Image.string(user.name).color(user.color),

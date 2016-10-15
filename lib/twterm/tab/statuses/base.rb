@@ -193,7 +193,7 @@ module Twterm
 
             s = header | body
 
-            Image.cursor(s.height, scroller.current_item?(i)) - Image.whitespace - s
+            Image.cursor(s.height, scroller.current_index?(i)) - Image.whitespace - s
           end
             .intersperse(Image.blank_line)
             .reduce(Image.empty, :|)

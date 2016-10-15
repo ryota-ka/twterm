@@ -59,7 +59,7 @@ module Twterm
         def image
           drawable_items
             .map.with_index(0) { |item, i|
-              cursor = Image.cursor(1, scroller.current_item?(i))
+              cursor = Image.cursor(1, scroller.current_index?(i))
 
               key, desc =
                 case item

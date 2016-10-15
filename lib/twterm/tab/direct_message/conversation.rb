@@ -34,7 +34,7 @@ module Twterm
 
             m = header | body
 
-            cursor = Image.cursor(m.height, scroller.current_item?(i))
+            cursor = Image.cursor(m.height, scroller.current_index?(i))
 
             cursor - Image.whitespace - m
           end

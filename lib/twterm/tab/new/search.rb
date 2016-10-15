@@ -104,7 +104,7 @@ module Twterm
         def image
           drawable_items
             .map.with_index(0) { |query, i|
-              Image.cursor(1, scroller.current_item?(i)) - Image.whitespace - Image.string(query)
+              Image.cursor(1, scroller.current_index?(i)) - Image.whitespace - Image.string(query)
             }
             .intersperse(Image.blank_line)
             .reduce(Image.empty, :|)

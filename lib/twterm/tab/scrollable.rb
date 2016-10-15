@@ -35,12 +35,12 @@ module Twterm
           add_hook(:after_move, &block)
         end
 
-        def current_item
-          items[index]
+        def current_index?(i)
+          index == offset + i
         end
 
-        def current_item?(i)
-          index == offset + i
+        def current_item
+          items[index]
         end
 
         def no_cursor_mode?
