@@ -4,8 +4,7 @@ module Twterm
   module Tab
     module Users
       class Base < Tab::Base
-        include FilterableList
-        include Scrollable
+        include Searchable
 
         attr_reader :user_ids
 
@@ -28,8 +27,7 @@ module Twterm
         end
 
         def items
-          users = user_ids.map { |id| User.find(id) }.reject(&:nil?)
-          filter_query.empty? ? users : users.select { |user| user.matches?(filter_query) }
+          user_ids.map(&User.method(:find)).compact
         end
 
         def respond_to_key(key)
@@ -42,10 +40,6 @@ module Twterm
             show_user
           when k[:tab, :reload]
             fetch
-          when k[:tab, :reset_filter]
-            reset_filter
-          when k[:tab, :filter]
-            filter
           else
             return false
           end
@@ -67,7 +61,7 @@ module Twterm
 
         def image
           drawable_items.map.with_index(0) do |user, i|
-            cursor = Image.cursor(2, scroller.current_item?(i))
+            cursor = Image.cursor(2, scroller.current_index?(i))
 
             header = [
               !Image.string(user.name).color(user.color),

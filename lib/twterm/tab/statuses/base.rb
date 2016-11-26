@@ -9,9 +9,8 @@ module Twterm
   module Tab
     module Statuses
       class Base < Tab::Base
-        include FilterableList
         include Publisher
-        include Scrollable
+        include Searchable
         include Subscriber
         include Utils
 
@@ -120,10 +119,6 @@ module Twterm
             fetch
           when k[:status, :user]
             show_user
-          when k[:tab, :filter]
-            filter
-          when k[:tab, :reset_filter]
-            reset_filter
           else
             return false
           end
@@ -152,11 +147,7 @@ module Twterm
           statuses = @status_ids.map { |id| Status.find(id) }.reject(&:nil?)
           @status_ids = statuses.map(&:id)
 
-          if filter_query.empty?
-            statuses
-          else
-            statuses.select { |s| s.matches?(filter_query) }
-          end
+          statuses
         end
 
         def touch_statuses
@@ -164,7 +155,7 @@ module Twterm
         end
 
         def total_item_count
-          filter_query.empty? ? @status_ids.count : statuses.count
+          search_query.empty? ? @status_ids.count : statuses.count
         end
 
         private
@@ -193,7 +184,7 @@ module Twterm
 
             s = header | body
 
-            Image.cursor(s.height, scroller.current_item?(i)) - Image.whitespace - s
+            Image.cursor(s.height, scroller.current_index?(i)) - Image.whitespace - s
           end
             .intersperse(Image.blank_line)
             .reduce(Image.empty, :|)

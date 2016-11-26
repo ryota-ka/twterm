@@ -9,7 +9,7 @@ module Twterm
       def scroller
         return @scroller unless @scroller.nil?
 
-        @scroller = Scroller.new
+        @scroller = self.class::Scroller.new
         @scroller.delegate = self
         @scroller.after_move { render }
         @scroller
@@ -21,10 +21,9 @@ module Twterm
         items.count
       end
 
-      private
-
       class Scroller
         extend Forwardable
+        include Publisher
 
         attr_reader :index, :offset
 
@@ -35,12 +34,12 @@ module Twterm
           add_hook(:after_move, &block)
         end
 
-        def current_item
-          items[index]
+        def current_index?(i)
+          index == offset + i
         end
 
-        def current_item?(i)
-          index == offset + i
+        def current_item
+          items[index]
         end
 
         def no_cursor_mode?

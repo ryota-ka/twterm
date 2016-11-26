@@ -2,13 +2,13 @@ require 'twterm/direct_message_composer'
 require 'twterm/event/direct_message/fetched'
 require 'twterm/subscriber'
 require 'twterm/tab/base'
+require 'twterm/tab/searchable'
 
 module Twterm
   module Tab
     module DirectMessage
       class Conversation < Base
-        include FilterableList
-        include Scrollable
+        include Searchable
         include Subscriber
 
         def drawable_item_count
@@ -34,7 +34,7 @@ module Twterm
 
             m = header | body
 
-            cursor = Image.cursor(m.height, scroller.current_item?(i))
+            cursor = Image.cursor(m.height, scroller.current_index?(i))
 
             cursor - Image.whitespace - m
           end
@@ -51,11 +51,7 @@ module Twterm
         end
 
         def items
-          if filter_query.empty?
-            messages
-          else
-            messages.select { |m| m.matches?(filter_query) }
-          end
+          messages
         end
 
         def respond_to_key(key)

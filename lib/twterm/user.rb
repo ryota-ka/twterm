@@ -44,10 +44,6 @@ module Twterm
       @@instances[@id] = self
     end
 
-    def matches?(query)
-      [name, screen_name, description, website].any? { |x| x.to_s.downcase.include? query.downcase }
-    end
-
     def muted_by?(user_id)
       Friendship.muting?(user_id, id)
     end

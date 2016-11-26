@@ -29,11 +29,6 @@ module Twterm
       @favorited = true
     end
 
-    def matches?(query)
-      [text, user.screen_name, user.name]
-        .any? { |x| x.downcase.include?(query.downcase) }
-    end
-
     def in_reply_to_status(&block)
       Promise.new do |resolve, reject|
         (resolve.(nil) && next) if in_reply_to_status_id.nil?

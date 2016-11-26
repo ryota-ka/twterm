@@ -23,14 +23,6 @@ module Twterm
       @created_at.strftime(format)
     end
 
-    def matches?(q)
-      [
-        sender.name,
-        sender.screen_name,
-        text
-      ].map(&:downcase).any? { |x| x.include?(q) }
-    end
-
     def update!(message)
       @created_at = message.created_at.dup.localtime
       @recipient = User.new(message.recipient)
@@ -57,14 +49,6 @@ module Twterm
         @messages.sort_by!(&:created_at).reverse!
 
         self
-      end
-
-      def matches?(q)
-        [
-          collocutor.screen_name,
-          collocutor.name,
-          preview
-        ].map(&:downcase).any? { |x| x.include?(q.downcase) }
       end
 
       def preview

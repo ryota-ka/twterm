@@ -8,8 +8,7 @@ module Twterm
   module Tab
     module DirectMessage
       class ConversationList < Base
-        include FilterableList
-        include Scrollable
+        include Searchable
         include Subscriber
 
         def drawable_item_count
@@ -18,7 +17,7 @@ module Twterm
 
         def image
           scroller.drawable_items.map.with_index(0) do |conversation, i|
-            cursor = Image.cursor(2, scroller.current_item?(i))
+            cursor = Image.cursor(2, scroller.current_index?(i))
 
             header = [
               !Image.string(conversation.collocutor.name).color(conversation.collocutor.color),
@@ -45,11 +44,7 @@ module Twterm
         end
 
         def items
-          if filter_query.empty?
-            Client.current.direct_message_conversations
-          else
-            Client.current.direct_message_conversations.select { |c| c.matches?(filter_query) }
-          end
+          Client.current.direct_message_conversations
         end
 
         def respond_to_key(key)
@@ -65,8 +60,6 @@ module Twterm
             DirectMessageComposer.instance.compose(conversation.collocutor)
           when k[:tab, :filter]
             filter
-          when k[:tab, :reset_filter]
-            reset_filter
           else
             return false
           end

@@ -266,7 +266,7 @@ module Twterm
         location = Image.string("Location: #{user.location}")
 
         foo = drawable_items.map.with_index(0) do |item, i|
-          Image.cursor(1, scroller.current_item?(i)) - Image.whitespace -
+          Image.cursor(1, scroller.current_index?(i)) - Image.whitespace -
             case item
             when :compose_direct_message
               Image.string('D').brackets.bold - Image.string(' Compose direct message')

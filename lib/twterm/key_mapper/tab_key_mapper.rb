@@ -19,11 +19,13 @@ module Twterm
           8th
           9th
           close
-          filter
+          find_next
+          find_previous
           last
           new
           reload
-          reset_filter
+          search_downward
+          search_upward
         ).freeze
       end
     end
