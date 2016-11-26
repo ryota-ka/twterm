@@ -1,5 +1,6 @@
 require 'twterm/tab/base'
 require_relative './../image'
+require 'twterm/tab/searchable'
 
 module Twterm
   module Tab
@@ -60,8 +61,9 @@ module Twterm
               *shortcuts.map { |key, description| !Image.string(key.rjust(17)) - Image.string(": #{description}") },
             ]
           }
+          .drop(scroller.offset)
           .intersperse(Image.blank_line)
-          .drop(scroller.offset).reduce(Image.empty, :|)
+          .reduce(Image.empty, :|)
       end
 
       def initialize

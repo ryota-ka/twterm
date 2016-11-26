@@ -5,8 +5,8 @@ module Twterm
   module Tab
     module New
       class List < Base
-        include FilterableList
-        include Scrollable
+        include Publisher
+        include Searchable
 
         @@lists = nil
 
@@ -25,7 +25,7 @@ module Twterm
         end
 
         def items
-          (@@lists || []).select { |l| l.matches?(filter_query) }
+          @@lists || []
         end
 
         def respond_to_key(key)
@@ -38,10 +38,6 @@ module Twterm
             return true if current_list.nil?
             list_tab = Tab::Statuses::ListTimeline.new(current_list.id)
             TabManager.instance.switch(list_tab)
-          when k[:tab, :reset_filter]
-            reset_filter
-          when k[:tab, :filter]
-            filter
           else
             return false
           end

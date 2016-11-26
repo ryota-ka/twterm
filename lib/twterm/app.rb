@@ -17,7 +17,7 @@ module Twterm
       KeyMapper.instance
 
       Screen.instance
-      FilterQueryWindow.instance
+      SearchQueryWindow.instance
 
       timeline = Tab::Statuses::Home.new(client)
       TabManager.instance.add_and_show(timeline)

@@ -5,8 +5,7 @@ module Twterm
     module New
       class Search < Base
         include Readline
-        include FilterableList
-        include Scrollable
+        include Searchable
 
         @@queries = []
 
@@ -53,11 +52,7 @@ module Twterm
         end
 
         def items
-          if filter_query.empty?
-            ['<Input search query>'] + @@queries
-          else
-            @@queries.select { |q| q.matches?(filter_query) }
-          end
+          ['<Input search query>', *@@queries]
         end
 
         def respond_to_key(key)
@@ -92,7 +87,7 @@ module Twterm
         def open_search_tab_with_current_query
           index = scroller.index
 
-          if filter_query.empty? && index.zero?
+          if search_query.empty? && index.zero?
             invoke_input
           else
             query = items[index]

@@ -64,7 +64,7 @@ module Twterm
     def default_mappings
       {
         app: {
-          cheatsheet: '?',
+          cheatsheet: '<F1>',
           quit: 'Q',
         },
         direct_message: {
@@ -102,11 +102,11 @@ module Twterm
           :'8th' => '8',
           :'9th' => '9',
           close: 'w',
-          filter: '/',
           last: '0',
           new: 'N',
           reload: '<C-r>',
-          reset_filter: 'q',
+          search_upward: '?',
+          search_downward: '/',
         },
         user: {
           direct_message: 'D',
