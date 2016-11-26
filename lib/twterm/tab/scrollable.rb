@@ -107,7 +107,7 @@ module Twterm
         end
 
         def nth_item_drawable?(n)
-          n.between?(offset, offset + drawable_item_count)
+          n.between?(offset, offset + drawable_item_count - 1)
         end
 
         def respond_to_key(key)
