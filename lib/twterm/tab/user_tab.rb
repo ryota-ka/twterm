@@ -36,7 +36,7 @@ module Twterm
         User.find_or_fetch(user_id).then do |user|
           render
 
-          Client.current.lookup_friendships
+          Client.current.lookup_friendships.then { render } unless Friendship.already_looked_up?(user_id)
           self.title = "@#{user.screen_name}"
         end
       end
