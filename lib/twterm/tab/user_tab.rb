@@ -118,7 +118,7 @@ module Twterm
       end
 
       def followed?
-        user.followed_by?(Client.current.user_id)
+        user.following?(Client.current.user_id)
       end
 
       def following?
