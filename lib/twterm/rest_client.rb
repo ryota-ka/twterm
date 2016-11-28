@@ -190,6 +190,8 @@ module Twterm
             conn.include?('following_requested') ? Friendship.following_requested(client_id, id) : Friendship.following_not_requested(client_id, id)
             conn.include?('followed_by') ? Friendship.follow(id, client_id) : Friendship.unfollow(id, client_id)
             conn.include?('muting') ? Friendship.mute(client_id, id) : Friendship.unmute(client_id, id)
+
+            Friendship.looked_up!(id)
           end
         end
       end.catch do |e|
