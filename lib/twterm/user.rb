@@ -61,7 +61,7 @@ module Twterm
 
       @name = user.name
       @screen_name = user.screen_name
-      @description = user.description || ''
+      @description = user.description.is_a?(Twitter::NullObject) ? '' : user.description
       @location = user.location.is_a?(Twitter::NullObject) ? '' : user.location
       @website = user.website
       @protected = user.protected?
