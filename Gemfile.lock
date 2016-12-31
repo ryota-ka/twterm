@@ -3,6 +3,7 @@ PATH
   specs:
     twterm (1.2.2)
       curses (~> 1.0.1)
+      json (~> 2.0.2)
       launchy (~> 2.4.3)
       oauth (~> 0.5.1)
       toml-rb (~> 0.3.14)
@@ -32,6 +33,7 @@ GEM
       domain_name (~> 0.5)
     http-form_data (1.0.1)
     http_parser.rb (0.6.0)
+    json (2.0.2)
     launchy (2.4.3)
       addressable (~> 2.3)
     memoizable (0.4.2)
