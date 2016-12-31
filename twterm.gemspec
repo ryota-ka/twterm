@@ -19,7 +19,6 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = '>= 2.0.0'
 
   spec.add_dependency 'curses', '~> 1.0.1'
-  spec.add_dependency 'json', '~> 2.0.2'
   spec.add_dependency 'launchy', '~> 2.4.3'
   spec.add_dependency 'oauth', '~> 0.5.1'
   spec.add_dependency 'toml-rb', '~> 0.3.14'
