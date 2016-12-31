@@ -25,8 +25,6 @@ module Twterm
         end
       end
 
-      initialize_user_stream
-
       direct_message_manager
 
       @@instances << self
