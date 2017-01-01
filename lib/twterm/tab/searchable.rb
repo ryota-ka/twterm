@@ -21,6 +21,11 @@ module Twterm
                        :searching_forward!, :searching_forward?,
                        :searching_upward!, :searching_upward?
 
+        def initialize
+          super
+          @search_query = SearchQuery.empty
+        end
+
         def find_next
           searching_forward!
 
@@ -120,10 +125,6 @@ module Twterm
             publish(hit_top) if (searching_upward? ^ searching_backward?) && index >= previous_index
             move_to(index)
           end
-        end
-
-        def search_query
-          @search_query ||= SearchQuery.empty
         end
 
         def search_query_window
