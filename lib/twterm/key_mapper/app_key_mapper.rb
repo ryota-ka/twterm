@@ -8,6 +8,7 @@ class Twterm::KeyMapper::AppKeyMapper < Twterm::KeyMapper::AbstractKeyMapper
   def self.commands
     %i(
       cheatsheet
+      me
       quit
     ).freeze
   end

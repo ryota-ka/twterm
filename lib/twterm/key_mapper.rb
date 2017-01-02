@@ -8,7 +8,6 @@ require_relative './key_mapper/direct_message_key_mapper'
 require_relative './key_mapper/general_key_mapper.rb'
 require_relative './key_mapper/status_key_mapper.rb'
 require_relative './key_mapper/tab_key_mapper'
-require_relative './key_mapper/user_key_mapper'
 
 module Twterm
   class KeyMapper
@@ -20,7 +19,6 @@ module Twterm
       general: GeneralKeyMapper,
       status: StatusKeyMapper,
       tab: TabKeyMapper,
-      user: UserKeyMapper,
     }.freeze
 
     def initialize
@@ -65,6 +63,7 @@ module Twterm
       {
         app: {
           cheatsheet: '<F1>',
+          me: 'm',
           quit: 'Q',
         },
         direct_message: {
@@ -108,13 +107,6 @@ module Twterm
           search_upward: '?',
           search_downward: '/',
         },
-        user: {
-          direct_message: 'D',
-          follow: 'F',
-          my_profile: 'P',
-          timeline: 't',
-          website: 'W',
-        }
       }
     end
 

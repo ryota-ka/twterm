@@ -154,7 +154,7 @@ module Twterm
         show_previous
       when k[:general, :right]
         show_next
-      when k[:user, :my_profile]
+      when k[:app, :me]
         open_my_profile
       when k[:tab, :new]
         open_new
