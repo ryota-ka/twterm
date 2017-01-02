@@ -64,7 +64,7 @@ module Twterm
         app: {
           cheatsheet: '<F1>',
           me: 'm',
-          quit: 'Q',
+          quit: '<F10>',
         },
         direct_message: {
           compose: 'n',
