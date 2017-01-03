@@ -62,9 +62,9 @@ module Twterm
     def default_mappings
       {
         app: {
-          cheatsheet: '<F1>',
+          cheatsheet: 'F1',
           me: 'm',
-          quit: '<F10>',
+          quit: 'F10',
         },
         direct_message: {
           compose: 'n',
@@ -103,7 +103,7 @@ module Twterm
           close: 'w',
           last: '0',
           new: 'N',
-          reload: '<C-r>',
+          reload: '^R',
           search_upward: '?',
           search_downward: '/',
         },

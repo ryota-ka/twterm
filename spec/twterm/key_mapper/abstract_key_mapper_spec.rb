@@ -6,20 +6,14 @@ describe Twterm::KeyMapper::AbstractKeyMapper do
 
     before { described_class.define_singleton_method(:commands) { [] } }
 
-    context 'when key is <C-a>' do
-      let(:key) { '<C-a>' }
+    context 'when key is ^A' do
+      let(:key) { '^A' }
 
       it { is_expected.to eq 1 }
     end
 
-    context 'when key is <C-A>' do
-      let(:key) { '<C-A>' }
-
-      it { is_expected.to eq 1 }
-    end
-
-    context 'when key is <F1>' do
-      let(:key) { '<F1>' }
+    context 'when key is F1' do
+      let(:key) { 'F1' }
 
       it { is_expected.to eq Curses::Key::F1 }
     end
