@@ -114,7 +114,7 @@ module Twterm
           k = KeyMapper.instance
 
           case key
-          when k[:general, :scroll_down]
+          when k[:general, :page_down]
             10.times { move_down }
           when k[:general, :top]
             move_to_top
@@ -124,7 +124,7 @@ module Twterm
             move_down
           when k[:general, :up]
             move_up
-          when k[:general, :scroll_up]
+          when k[:general, :page_up]
             10.times { move_up }
           else
             return false

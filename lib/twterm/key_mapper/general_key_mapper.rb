@@ -11,9 +11,9 @@ class Twterm::KeyMapper::GeneralKeyMapper < Twterm::KeyMapper::AbstractKeyMapper
       cancel
       down
       left
+      page_down
+      page_up
       right
-      scroll_down
-      scroll_up
       top
       up
     ).freeze
