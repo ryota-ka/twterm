@@ -2,7 +2,7 @@ require_relative './abstract_key_mapper'
 
 class Twterm::KeyMapper::StatusKeyMapper < Twterm::KeyMapper::AbstractKeyMapper
   DEFAULT_MAPPINGS = {
-    compose: 'n',
+    compose: '^N',
     conversation: 'c',
     destroy: 'D',
     like: 'L',

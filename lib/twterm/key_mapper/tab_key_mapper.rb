@@ -14,11 +14,13 @@ module Twterm
         :'8th' => '8',
         :'9th' => '9',
         close: 'w',
+        find_next: 'n',
+        find_previous: 'N',
         last: '0',
-        new: 'N',
+        new: '^T',
         reload: '^R',
-        search_upward: '?',
         search_downward: '/',
+        search_upward: '?',
       }.freeze
 
       def self.category
