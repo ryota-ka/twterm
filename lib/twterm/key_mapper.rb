@@ -60,54 +60,7 @@ module Twterm
     end
 
     def default_mappings
-      {
-        app: {
-          cheatsheet: 'F1',
-          me: 'm',
-          quit: 'F10',
-        },
-        direct_message: {
-          compose: 'n',
-          reply: 'r',
-        },
-        general: {
-          bottom: 'G',
-          down: 'j',
-          left: 'h',
-          page_down: 'd',
-          page_up: 'u',
-          right: 'l',
-          top: 'g',
-          up: 'k',
-        },
-        status: {
-          compose: 'n',
-          conversation: 'c',
-          destroy: 'D',
-          like: 'L',
-          open_link: 'o',
-          reply: 'r',
-          retweet: 'R',
-          user: 'U',
-        },
-        tab: {
-          :'1st' => '1',
-          :'2nd' => '2',
-          :'3rd' => '3',
-          :'4th' => '4',
-          :'5th' => '5',
-          :'6th' => '6',
-          :'7th' => '7',
-          :'8th' => '8',
-          :'9th' => '9',
-          close: 'w',
-          last: '0',
-          new: 'N',
-          reload: '^R',
-          search_upward: '?',
-          search_downward: '/',
-        },
-      }
+      MAPPERS.map { |key, klass| [key, klass::DEFAULT_MAPPINGS] }.to_h
     end
 
     def dict_file_exists?

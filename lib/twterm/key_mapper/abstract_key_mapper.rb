@@ -44,7 +44,7 @@ module Twterm
       end
 
       def self.commands
-        raise NotImplementedError, 'commands methods must be implemented'
+        self::DEFAULT_MAPPINGS.keys
       end
     end
   end

@@ -1,21 +1,18 @@
 require_relative './abstract_key_mapper'
 
 class Twterm::KeyMapper::GeneralKeyMapper < Twterm::KeyMapper::AbstractKeyMapper
+  DEFAULT_MAPPINGS = {
+    bottom: 'G',
+    down: 'j',
+    left: 'h',
+    page_down: 'd',
+    page_up: 'u',
+    right: 'l',
+    top: 'g',
+    up: 'k',
+  }.freeze
+
   def self.category
     'general'.freeze
-  end
-
-  def self.commands
-    %i(
-      bottom
-      cancel
-      down
-      left
-      page_down
-      page_up
-      right
-      top
-      up
-    ).freeze
   end
 end
