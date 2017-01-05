@@ -30,6 +30,28 @@ module Twterm
       (@mappings[category] || {})[kind]
     end
 
+    def as_string(category, kind)
+      key = self[category, kind]
+
+      case key
+      when '!'..'}' then key
+      when Curses::Key::F1 then 'F1'
+      when Curses::Key::F2 then 'F2'
+      when Curses::Key::F3 then 'F3'
+      when Curses::Key::F4 then 'F4'
+      when Curses::Key::F5 then 'F5'
+      when Curses::Key::F6 then 'F6'
+      when Curses::Key::F7 then 'F7'
+      when Curses::Key::F8 then 'F8'
+      when Curses::Key::F9 then 'F9'
+      when Curses::Key::F10 then 'F10'
+      when Curses::Key::F11 then 'F11'
+      when Curses::Key::F12 then 'F12'
+      when 1..26 then "^#{(key + 'A'.ord - 1).chr}"
+      else ''
+      end
+    end
+
     private
 
     def assign_mappings!(dict)
