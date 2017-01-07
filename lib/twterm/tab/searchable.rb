@@ -40,16 +40,6 @@ module Twterm
           search
         end
 
-        def move_to(n)
-          if nth_item_drawable?(n)
-            @index = n
-          else
-            @index = @offset = n
-          end
-
-          hook :after_move
-        end
-
         def respond_to_key(key)
           k = KeyMapper.instance
 

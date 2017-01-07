@@ -88,6 +88,16 @@ module Twterm
           hook :after_move
         end
 
+        def move_to(n)
+          if nth_item_drawable?(n)
+            @index = n
+          else
+            @index = @offset = n
+          end
+
+          hook :after_move
+        end
+
         def move_to_top
           return if count.zero? || index.zero?
 
