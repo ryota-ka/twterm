@@ -136,6 +136,12 @@ module Twterm
             move_up
           when k[:general, :page_up]
             10.times { move_up }
+          when k[:cursor, :top_of_window]
+            move_to(offset)
+          when k[:cursor, :middle_of_window]
+            move_to((2 * offset + [drawable_item_count, total_item_count - offset].min - 1) / 2)
+          when k[:cursor, :bottom_of_window]
+            move_to(offset + [drawable_item_count, total_item_count - offset].min - 1)
           else
             return false
           end
