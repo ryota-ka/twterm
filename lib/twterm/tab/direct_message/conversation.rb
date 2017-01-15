@@ -64,8 +64,6 @@ module Twterm
             filter
           when k[:status, :compose], k[:status, :reply]
             DirectMessageComposer.instance.compose(conversation.collocutor)
-          when k[:tab, :reset_filter]
-            reset_filter
           else
             return false
           end
