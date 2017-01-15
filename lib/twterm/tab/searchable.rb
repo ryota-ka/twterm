@@ -17,9 +17,9 @@ module Twterm
 
         def_delegators :search_query_window,
                        :searching_backward!, :searching_backward?,
-                       :searching_downward!, :searching_downward?,
+                       :searching_down!, :searching_down?,
                        :searching_forward!, :searching_forward?,
-                       :searching_upward!, :searching_upward?
+                       :searching_up!, :searching_up?
 
         def initialize
           super
@@ -50,10 +50,10 @@ module Twterm
             find_next
           when k[:tab, :find_previous]
             find_previous
-          when k[:tab, :search_downward]
-            search_downward
-          when k[:tab, :search_upward]
-            search_upward
+          when k[:tab, :search_down]
+            search_down
+          when k[:tab, :search_up]
+            search_up
           else
             return false
           end
@@ -61,8 +61,8 @@ module Twterm
           true
         end
 
-        def search_upward
-          searching_upward!
+        def search_up
+          searching_up!
           searching_forward!
           ask
 
@@ -71,8 +71,8 @@ module Twterm
           find_next
         end
 
-        def search_downward
-          searching_downward!
+        def search_down
+          searching_down!
           searching_forward!
           ask
 
@@ -96,7 +96,7 @@ module Twterm
             return
           end
 
-          f = searching_downward? ^ searching_forward? ? -> xs { xs.reverse } : -> xs { xs }
+          f = searching_down? ^ searching_forward? ? -> xs { xs.reverse } : -> xs { xs }
           previous_index = index
 
           xs = [
@@ -111,8 +111,8 @@ module Twterm
             hit_bottom = Event::Notification.new(:message, 'search hit BOTTOM, continuing at TOP')
             hit_top = Event::Notification.new(:message, 'search hit TOP, continuing at BOTTOM')
 
-            publish(hit_bottom) if (searching_downward? ^ searching_backward?) && index <= previous_index
-            publish(hit_top) if (searching_upward? ^ searching_backward?) && index >= previous_index
+            publish(hit_bottom) if (searching_down? ^ searching_backward?) && index <= previous_index
+            publish(hit_top) if (searching_up? ^ searching_backward?) && index >= previous_index
             move_to(index)
           end
         end

@@ -19,8 +19,8 @@ module Twterm
         last: '0',
         new: '^T',
         reload: '^R',
-        search_downward: '/',
-        search_upward: '?',
+        search_down: '/',
+        search_up: '?',
       }.freeze
 
       def self.category

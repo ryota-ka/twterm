@@ -13,7 +13,7 @@ module Twterm
 
     def initialize
       @window = stdscr.subwin(1, stdscr.maxx, stdscr.maxy - 1, 0)
-      @searching_downward = true
+      @searching_down = true
       @str = ''
       @last_query = SearchQuery.new('')
 
@@ -90,12 +90,12 @@ module Twterm
       !@searching_forward
     end
 
-    def searching_downward!
-      @searching_downward = true
+    def searching_down!
+      @searching_down = true
     end
 
-    def searching_downward?
-      @searching_downward
+    def searching_down?
+      @searching_down
     end
 
     def searching_forward!
@@ -106,12 +106,12 @@ module Twterm
       @searching_forward
     end
 
-    def searching_upward!
-      @searching_downward = false
+    def searching_up!
+      @searching_down = false
     end
 
-    def searching_upward?
-      !@searching_downward
+    def searching_up?
+      !@searching_down
     end
 
     private
@@ -135,7 +135,7 @@ module Twterm
     end
 
     def symbol
-      searching_downward? ^ searching_forward? ? '?' : '/'
+      searching_down? ^ searching_forward? ? '?' : '/'
     end
   end
 end
