@@ -55,7 +55,7 @@ module Twterm
           case key
           when 10
             open_conversation
-          when k[:direct_message, :compose], k[:direct_message, :reply]
+          when k[:status, :compose], k[:status, :reply]
             conversation = current_item
             DirectMessageComposer.instance.compose(conversation.collocutor)
           when k[:tab, :filter]

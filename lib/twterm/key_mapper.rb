@@ -5,7 +5,6 @@ require_relative './app'
 require_relative './key_mapper/abstract_key_mapper'
 require_relative './key_mapper/app_key_mapper'
 require_relative './key_mapper/cursor_key_mapper'
-require_relative './key_mapper/direct_message_key_mapper'
 require_relative './key_mapper/general_key_mapper.rb'
 require_relative './key_mapper/status_key_mapper.rb'
 require_relative './key_mapper/tab_key_mapper'
@@ -17,7 +16,6 @@ module Twterm
     MAPPERS = {
       app: AppKeyMapper,
       cursor: CursorKeyMapper,
-      direct_message: DirectMessageKeyMapper,
       general: GeneralKeyMapper,
       status: StatusKeyMapper,
       tab: TabKeyMapper,
