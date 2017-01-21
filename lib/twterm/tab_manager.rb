@@ -150,9 +150,9 @@ module Twterm
         show_nth_tab(8)
       when k[:tab, :last]
         show_nth_tab(@tabs.count - 1)
-      when k[:general, :left]
+      when k[:general, :left], Curses::Key::LEFT
         show_previous
-      when k[:general, :right]
+      when k[:general, :right], Curses::Key::RIGHT
         show_next
       when k[:app, :me]
         open_my_profile

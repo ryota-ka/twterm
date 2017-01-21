@@ -130,9 +130,9 @@ module Twterm
             move_to_top
           when k[:general, :bottom]
             move_to_bottom
-          when k[:general, :down]
+          when k[:general, :down], Curses::Key::DOWN
             move_down
-          when k[:general, :up]
+          when k[:general, :up], Curses::Key::UP
             move_up
           when k[:general, :page_up]
             10.times { move_up }
