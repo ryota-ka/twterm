@@ -11,7 +11,7 @@ module Twterm
     def initialize
       @screen = init_screen
       noecho
-      cbreak
+      raw
       curs_set(0)
       stdscr.keypad(true)
       start_color

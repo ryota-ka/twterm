@@ -25,7 +25,6 @@ module Twterm
       render_current_string
 
       Curses.timeout = 10
-      raw
 
       chars = []
 
@@ -70,7 +69,6 @@ module Twterm
       clear
     ensure
       Curses.timeout = -1
-      cbreak
     end
 
     def clear
