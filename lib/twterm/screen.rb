@@ -33,7 +33,7 @@ module Twterm
       when k[:status, :compose]
         Tweetbox.instance.compose
         return
-      when k[:app, :quit]
+      when k[:app, :quit], 3
         App.instance.quit
       when k[:app, :cheatsheet]
         tab = Tab::KeyAssignmentsCheatsheet.new
