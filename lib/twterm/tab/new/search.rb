@@ -61,10 +61,6 @@ module Twterm
           case key
           when 10
             open_search_tab_with_current_query
-          when ?q
-            reset_filter
-          when ?/
-            filter
           else
             return false
           end

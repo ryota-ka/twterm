@@ -1,20 +1,18 @@
 require_relative './abstract_key_mapper'
 
 class Twterm::KeyMapper::StatusKeyMapper < Twterm::KeyMapper::AbstractKeyMapper
+  DEFAULT_MAPPINGS = {
+    compose: '^N',
+    conversation: 'c',
+    destroy: 'D',
+    like: 'L',
+    open_link: 'o',
+    reply: 'r',
+    retweet: 'R',
+    user: 'U',
+  }.freeze
+
   def self.category
     'status'.freeze
-  end
-
-  def self.commands
-    %i(
-      compose
-      conversation
-      destroy
-      like
-      open_link
-      reply
-      retweet
-      user
-    )
   end
 end

@@ -34,16 +34,8 @@ module Twterm
           return true if scroller.respond_to_key(key)
 
           case key
-          when 'D'
-            open_direct_messages
           when 10
             perform_selected_action
-          when 'L'
-            open_list_tab
-          when 'S'
-            open_search_tab
-          when 'U'
-            open_user_tab
           else
             return false
           end
@@ -61,22 +53,21 @@ module Twterm
             .map.with_index(0) { |item, i|
               cursor = Image.cursor(1, scroller.current_index?(i))
 
-              key, desc =
+              desc =
                 case item
                 when :direct_messages
-                  ['D', 'Direct messages']
+                  'Direct messages'
                 when :list_tab
-                  ['L', 'List tab']
+                  'List tab'
                 when :search_tab
-                  ['S', 'Search tab']
+                  'Search tab'
                 when :user_tab
-                  ['U', 'User tab']
+                  'User tab'
                 when :key_assignments_cheatsheet
-                  ['?', 'Key assignments cheatsheet']
+                  'Key assignments cheatsheet'
                 end
 
-              cursor - Image.whitespace - (Image.string(key).bold.brackets - Image.whitespace - Image.string(desc))
-
+              cursor - Image.whitespace - Image.string(desc)
             }
             .intersperse(Image.blank_line)
             .reduce(Image.empty, :|)

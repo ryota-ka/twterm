@@ -12,39 +12,44 @@ module Twterm
       end
 
       SHORTCUTS = {
-        'General' => {
-          '[d] [C-d]'         => 'Scroll down',
-          '[g]'               => 'Move to top',
-          '[G]'               => 'Move to bottom',
-          '[j] [C-p] [DOWN]'  => 'Move down',
-          '[k] [C-n] [UP]'    => 'Move up',
-          '[u] [C-u]'         => 'Scroll up',
-          '[Q]'               => 'Quit twterm'
+        ['General', :general] => {
+          page_down: 'Page down',
+          top: 'Move to top',
+          bottom: 'Move to bottom',
+          down: 'Move down',
+          up: 'Move up',
+          page_up: 'Page up',
+          left: 'Left',
+          right: 'Right',
         },
-        'Tabs' => {
-          '[h] [C-b] [LEFT]'  => 'Previous tab',
-          '[l] [C-f] [RIGHT]' => 'Next tab',
-          '[N]'               => 'New tab',
-          '[C-R]'             => 'Reload',
-          '[w]'               => 'Close tab',
-          '[q]'               => 'Quit filter mode',
-          '[/]'               => 'Filter mode',
-          '[1] - [9]'         => 'Nth tab',
-          '[0]'               => 'Last tab'
+        ['Tabs', :tab] => {
+          new: 'New tab',
+          reload: 'Reload',
+          close: 'Close tab',
+          search_down: 'Search down',
+          search_up: 'Search up',
+          find_next: 'Find next',
+          find_previous: 'Find previous',
         },
-        'Tweets' => {
-          '[c]'               => 'Conversation',
-          '[D]'               => 'Delete',
-          '[L]'               => 'Like',
-          '[n]'               => 'New tweet',
-          '[o]'               => 'Open URLs',
-          '[r]'               => 'Reply',
-          '[R]'               => 'Retweet',
-          '[U]'               => 'User'
+        ['Tweets', :status] => {
+          compose: 'New tweet',
+          conversation: 'Conversation',
+          destroy: 'Delete',
+          like: 'Like',
+          open_link: 'Open URLs',
+          reply: 'Reply',
+          retweet: 'Retweet',
+          user: 'User',
         },
-        'Others' => {
-          '[P]'               => 'My profile',
-          '[?]'               => 'Key assignments cheatsheet'
+        ['Cursor', :cursor] => {
+          top_of_window: 'Top of window',
+          middle_of_window: 'Middle of window',
+          bottom_of_window: 'Bottom of window'
+        },
+        ['Others', :app] => {
+          me: 'My profile',
+          cheatsheet: 'Key assignments cheatsheet',
+          quit: 'Quit',
         }
       }
 
@@ -53,16 +58,21 @@ module Twterm
       end
 
       def image
+        k = KeyMapper.instance
+
         SHORTCUTS
-          .flat_map { |category, shortcuts|
+          .flat_map { |(cat_str, cat_sym), shortcuts|
             [
-              !Image.string("<#{category}>"),
+              !Image.string(cat_str).color(:green),
               Image.blank_line,
-              *shortcuts.map { |key, description| !Image.string(key.rjust(17)) - Image.string(": #{description}") },
+              *shortcuts.map { |cmd, desc|
+                Image.string('  ') - !Image.string(k.as_string(cat_sym, cmd).center(3)).color(:cyan) - Image.whitespace - Image.string(desc)
+              },
+              Image.blank_line,
             ]
           }
           .drop(scroller.offset)
-          .intersperse(Image.blank_line)
+          .take(drawable_item_count)
           .reduce(Image.empty, :|)
       end
 

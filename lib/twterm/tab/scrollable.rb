@@ -88,6 +88,16 @@ module Twterm
           hook :after_move
         end
 
+        def move_to(n)
+          if nth_item_drawable?(n)
+            @index = n
+          else
+            @index = @offset = n
+          end
+
+          hook :after_move
+        end
+
         def move_to_top
           return if count.zero? || index.zero?
 
@@ -114,18 +124,24 @@ module Twterm
           k = KeyMapper.instance
 
           case key
-          when k[:general, :scroll_down]
+          when k[:general, :page_down]
             10.times { move_down }
           when k[:general, :top]
             move_to_top
           when k[:general, :bottom]
             move_to_bottom
-          when k[:general, :down]
+          when k[:general, :down], Curses::Key::DOWN
             move_down
-          when k[:general, :up]
+          when k[:general, :up], Curses::Key::UP
             move_up
-          when k[:general, :scroll_up]
+          when k[:general, :page_up]
             10.times { move_up }
+          when k[:cursor, :top_of_window]
+            move_to(offset)
+          when k[:cursor, :middle_of_window]
+            move_to((2 * offset + [drawable_item_count, total_item_count - offset].min - 1) / 2)
+          when k[:cursor, :bottom_of_window]
+            move_to(offset + [drawable_item_count, total_item_count - offset].min - 1)
           else
             return false
           end

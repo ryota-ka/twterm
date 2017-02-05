@@ -4,11 +4,10 @@ require 'singleton'
 require_relative './app'
 require_relative './key_mapper/abstract_key_mapper'
 require_relative './key_mapper/app_key_mapper'
-require_relative './key_mapper/direct_message_key_mapper'
+require_relative './key_mapper/cursor_key_mapper'
 require_relative './key_mapper/general_key_mapper.rb'
 require_relative './key_mapper/status_key_mapper.rb'
 require_relative './key_mapper/tab_key_mapper'
-require_relative './key_mapper/user_key_mapper'
 
 module Twterm
   class KeyMapper
@@ -16,11 +15,10 @@ module Twterm
 
     MAPPERS = {
       app: AppKeyMapper,
-      direct_message: DirectMessageKeyMapper,
+      cursor: CursorKeyMapper,
       general: GeneralKeyMapper,
       status: StatusKeyMapper,
       tab: TabKeyMapper,
-      user: UserKeyMapper,
     }.freeze
 
     def initialize
@@ -30,6 +28,28 @@ module Twterm
 
     def [](category, kind)
       (@mappings[category] || {})[kind]
+    end
+
+    def as_string(category, kind)
+      key = self[category, kind]
+
+      case key
+      when '!'..'}' then key
+      when Curses::Key::F1 then 'F1'
+      when Curses::Key::F2 then 'F2'
+      when Curses::Key::F3 then 'F3'
+      when Curses::Key::F4 then 'F4'
+      when Curses::Key::F5 then 'F5'
+      when Curses::Key::F6 then 'F6'
+      when Curses::Key::F7 then 'F7'
+      when Curses::Key::F8 then 'F8'
+      when Curses::Key::F9 then 'F9'
+      when Curses::Key::F10 then 'F10'
+      when Curses::Key::F11 then 'F11'
+      when Curses::Key::F12 then 'F12'
+      when 1..26 then "^#{(key + 'A'.ord - 1).chr}"
+      else ''
+      end
     end
 
     private
@@ -62,60 +82,7 @@ module Twterm
     end
 
     def default_mappings
-      {
-        app: {
-          cheatsheet: '<F1>',
-          quit: 'Q',
-        },
-        direct_message: {
-          compose: 'n',
-          reply: 'r',
-        },
-        general: {
-          bottom: 'G',
-          down: 'j',
-          left: 'h',
-          right: 'l',
-          scroll_down: 'd',
-          scroll_up: 'u',
-          top: 'g',
-          up: 'k',
-        },
-        status: {
-          compose: 'n',
-          conversation: 'c',
-          destroy: 'D',
-          like: 'L',
-          open_link: 'o',
-          reply: 'r',
-          retweet: 'R',
-          user: 'U',
-        },
-        tab: {
-          :'1st' => '1',
-          :'2nd' => '2',
-          :'3rd' => '3',
-          :'4th' => '4',
-          :'5th' => '5',
-          :'6th' => '6',
-          :'7th' => '7',
-          :'8th' => '8',
-          :'9th' => '9',
-          close: 'w',
-          last: '0',
-          new: 'N',
-          reload: '<C-r>',
-          search_upward: '?',
-          search_downward: '/',
-        },
-        user: {
-          direct_message: 'D',
-          follow: 'F',
-          my_profile: 'P',
-          timeline: 't',
-          website: 'W',
-        }
-      }
+      MAPPERS.map { |key, klass| [key, klass::DEFAULT_MAPPINGS] }.to_h
     end
 
     def dict_file_exists?

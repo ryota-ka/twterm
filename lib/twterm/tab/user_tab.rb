@@ -63,16 +63,8 @@ module Twterm
         k = KeyMapper.instance
 
         case key
-        when k[:user, :drect_message]
-          compose_direct_message unless myself?
-        when k[:user, :follow]
-          follow unless myself?
         when 10
           perform_selected_action
-        when k[:user, :timeline]
-          open_timeline_tab
-        when k[:user, :website]
-          open_website
         else
           return false
         end
@@ -269,7 +261,7 @@ module Twterm
           Image.cursor(1, scroller.current_index?(i)) - Image.whitespace -
             case item
             when :compose_direct_message
-              Image.string('D').brackets.bold - Image.string(' Compose direct message')
+              Image.string('Compose direct message')
             when :toggle_block
               if blocking?
                 Image.string('Unblock this user')
@@ -282,7 +274,7 @@ module Twterm
               elsif following_requested?
                 Image.string('Following request sent')
               else
-                Image.string('F').bold.brackets - Image.string(' Follow this user')
+                Image.string('Follow this user')
               end
             when :toggle_mute
               if muting?
@@ -291,9 +283,9 @@ module Twterm
                 Image.string('Mute this user')
               end
             when :open_timeline_tab
-              Image.string('t').bold.brackets - Image.string(" #{user.statuses_count.format} tweets")
+              Image.string("#{user.statuses_count.format} tweets")
             when :open_website
-              Image.string('W').bold.brackets - Image.string(" Open website (#{user.website})")
+              Image.string("Open website (#{user.website})")
             when :show_likes
               Image.string("#{user.favorites_count.format} likes")
             when :show_followers
