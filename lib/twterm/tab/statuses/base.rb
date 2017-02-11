@@ -76,6 +76,7 @@ module Twterm
           status = highlighted_status
           urls = status.urls.map(&:expanded_url) + status.media.map(&:expanded_url)
           urls
+            .uniq
             .map { |url| Event::OpenURI.new(url) }
             .each { |e| publish(e) }
         end
