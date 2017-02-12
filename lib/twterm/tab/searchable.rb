@@ -84,7 +84,7 @@ module Twterm
         private
 
         def ask
-          @search_query = search_query_window.input
+          @search_query = search_query_window.input || SearchQuery.empty
         end
 
         def search
