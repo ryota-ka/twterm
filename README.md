@@ -1,6 +1,6 @@
 # twterm
 
-A full-featured CLI Twitter client
+A full-featured TUI Twitter client
 
 ## Screenshot
 

@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Ryota Kameoka']
   spec.email         = ['kameoka.ryota@gmail.com']
 
-  spec.summary       = 'A full-featured CLI Twitter client'
-  spec.description   = 'A full-featured CLI Twitter client'
+  spec.summary       = 'A full-featured TUI Twitter client'
+  spec.description   = 'A full-featured TUI Twitter client'
   spec.homepage      = 'http://twterm.ryota-ka.me/'
   spec.license       = 'MIT'
 
