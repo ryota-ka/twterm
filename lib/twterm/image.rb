@@ -64,8 +64,16 @@ class Twterm::Image
     @line || 0
   end
 
+  def self.number(n)
+    string(n.to_s.gsub(/(\d)(?=(\d{3})+(?!\d))/, '\1,'))
+  end
+
   def parens
     Parens.new(self)
+  end
+
+  def self.plural(n, singular, plural = "#{singular}s")
+    string(n == 1 ? singular : plural)
   end
 
   def self.string(str)
