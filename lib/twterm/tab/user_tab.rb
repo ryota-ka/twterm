@@ -283,15 +283,15 @@ module Twterm
                 Image.string('Mute this user')
               end
             when :open_timeline_tab
-              Image.string("#{user.statuses_count.format} tweets")
+              Image.number(user.statuses_count) - Image.whitespace - Image.plural(user.statuses_count, 'tweet')
             when :open_website
               Image.string("Open website (#{user.website})")
             when :show_likes
-              Image.string("#{user.favorites_count.format} likes")
+              Image.number(user.favorites_count) - Image.whitespace - Image.plural(user.favorites_count, 'like')
             when :show_followers
-              Image.string("#{user.followers_count.format} followers")
+              Image.number(user.followers_count) - Image.whitespace - Image.plural(user.followers_count, 'follower')
             when :show_friends
-              Image.string("#{user.friends_count.format} following")
+              Image.number(user.friends_count) - Image.whitespace - Image.string('following')
             end
         end
           .intersperse(Image.blank_line)

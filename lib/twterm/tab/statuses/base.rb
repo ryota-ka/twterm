@@ -174,8 +174,8 @@ module Twterm
               (Image.whitespace.color(:black, :red) if status.favorited?),
               (Image.whitespace.color(:black, :green) if status.retweeted?),
               ((Image.string('retweeted by ') - !Image.string("@#{status.retweeted_by.screen_name}")).parens unless status.retweeted_by.nil?),
-              (Image.string("#{status.favorite_count}like#{status.favorite_count > 1 ? 's' : ''}").color(:red) if status.favorite_count.positive?),
-              (Image.string("#{status.retweet_count}RT#{status.retweet_count > 1 ? 's' : ''}").color(:green) if status.retweet_count.positive?),
+              ((Image.number(status.favorite_count) - Image.plural(status.favorite_count, 'like')).color(:red) if status.favorite_count.positive?),
+              ((Image.number(status.retweet_count) - Image.plural(status.retweet_count, 'RT')).color(:green) if status.retweet_count.positive?),
             ].compact.intersperse(Image.whitespace).reduce(Image.empty, :-)
 
             body = status
