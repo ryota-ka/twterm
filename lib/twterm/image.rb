@@ -72,6 +72,10 @@ class Twterm::Image
     Parens.new(self)
   end
 
+  def self.plural(n, singular, plural = "#{singular}s")
+    string(n == 1 ? singular : plural)
+  end
+
   def self.string(str)
     StringImage.new(str)
   end
