@@ -64,6 +64,10 @@ class Twterm::Image
     @line || 0
   end
 
+  def self.number(n)
+    string(n.to_s.gsub(/(\d)(?=(\d{3})+(?!\d))/, '\1,'))
+  end
+
   def parens
     Parens.new(self)
   end
