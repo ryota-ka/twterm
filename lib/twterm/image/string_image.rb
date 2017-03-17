@@ -5,6 +5,14 @@ module Twterm
         @string = string
       end
 
+      def -(other)
+        if other.is_a?(self.class)
+          self.class.new(string + other.string)
+        else
+          super
+        end
+      end
+
       def height
         1
       end
@@ -22,7 +30,7 @@ module Twterm
         string.width
       end
 
-      private
+      protected
 
       attr_reader :string
     end
