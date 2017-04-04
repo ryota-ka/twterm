@@ -83,7 +83,7 @@ module Twterm
           render
 
           user = users.first
-          publish(Event::Notification.new(:message, 'Blocked @%s' % user.screen_name))
+          publish(Event::Notification::Success.new('Blocked @%s' % user.screen_name))
         end
       end
 
@@ -105,7 +105,7 @@ module Twterm
           else
             msg = "Followed @#{user.screen_name}"
           end
-          publish(Event::Notification.new(:message, msg))
+          publish(Event::Notification::Success.new(msg))
         end
       end
 
@@ -126,7 +126,7 @@ module Twterm
           render
 
           user = users.first
-          publish(Event::Notification.new(:message, 'Muted @%s' % user.screen_name))
+          publish(Event::Notification::Success.new('Muted @%s' % user.screen_name))
         end
       end
 
@@ -198,7 +198,7 @@ module Twterm
           render
 
           user = users.first
-          publish(Event::Notification.new(:message, 'Unblocked @%s' % user.screen_name))
+          publish(Event::Notification::Success.new('Unblocked @%s' % user.screen_name))
         end
       end
 
@@ -207,7 +207,7 @@ module Twterm
           render
 
           user = users.first
-          publish(Event::Notification.new(:message, 'Unfollowed @%s' % user.screen_name))
+          publish(Event::Notification::Success.new('Unfollowed @%s' % user.screen_name))
         end
       end
 
@@ -216,7 +216,7 @@ module Twterm
           render
 
           user = users.first
-          publish(Event::Notification.new(:message, 'Unmuted @%s' % user.screen_name))
+          publish(Event::Notification::Success.new('Unmuted @%s' % user.screen_name))
         end
       end
 

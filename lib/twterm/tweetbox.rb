@@ -1,4 +1,5 @@
 require 'twterm/publisher'
+require 'twterm/event/notification/error'
 
 module Twterm
   class Tweetbox
@@ -97,9 +98,9 @@ module Twterm
     rescue EmptyTextError
       # do nothing
     rescue InvalidCharactersError
-      publish(Event::Notification.new(:error, 'Text contains invalid characters'))
+      publish(Event::Notification::Error.new('Text contains invalid characters'))
     rescue TextTooLongError
-      publish(Event::Notification.new(:error, "Text is too long (#{text_length} / 140 characters)"))
+      publish(Event::Notification::Error.new("Text is too long (#{text_length} / 140 characters)"))
     ensure
       clear
     end
