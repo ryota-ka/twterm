@@ -1,4 +1,4 @@
-require 'twterm/event/notification'
+require 'twterm/event/notification/info'
 require 'twterm/tab/base'
 
 module Twterm
@@ -62,7 +62,7 @@ module Twterm
         def image
           if @@lists.nil?
             Thread.new do
-              publish(Event::Notification.new(:message, 'Loading lists ...'))
+              publish(Event::Notification::Infp.new('Loading lists ...'))
               Client.current.lists.then do |lists|
                 @@lists = lists.sort_by(&:full_name)
                 render

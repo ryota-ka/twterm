@@ -1,7 +1,7 @@
 require 'twterm/direct_message'
 require 'twterm/direct_message_manager'
 require 'twterm/publisher'
-require 'twterm/event/notification'
+require 'twterm/event/notification/success'
 
 module Twterm
   module RESTClient
@@ -27,7 +27,7 @@ module Twterm
         msg = DirectMessage.new(message)
         direct_message_manager.add(msg.recipient, msg)
         publish(Event::DirectMessage::Fetched.new)
-        publish(Event::Notification.new(:message, 'Your message to @%s has been sent' % msg.recipient.screen_name))
+        publish(Event::Notification::Success.new('Your message to @%s has been sent' % msg.recipient.screen_name))
       end
     end
 
@@ -51,11 +51,11 @@ module Twterm
       send_request_without_catch do
         rest_client.destroy_status(status.id)
         publish(Event::Status::Delete.new(status.id))
-        publish(Event::Notification.new(:message, 'Your tweet has been deleted'))
+        publish(Event::Notification::Success.new('Your tweet has been deleted'))
       end.catch do |reason|
         case reason
         when Twitter::Error::NotFound, Twitter::Error::Forbidden
-          publish(Event::Notification.new(:error, 'You cannot destroy that status'))
+          publish(Event::Notification::Error.new('You cannot destroy that status'))
         else
           raise reason
         end
@@ -69,7 +69,7 @@ module Twterm
         rest_client.favorite(status.id)
       end.then do
         status.favorite!
-        publish(Event::Notification.new(:message, 'Successfully liked: @%s "%s"' % [
+        publish(Event::Notification::Success.new('Successfully liked: @%s "%s"' % [
           status.user.screen_name, status.text
         ]))
       end
@@ -232,7 +232,7 @@ module Twterm
         else
           rest_client.update(text)
         end
-        publish(Event::Notification.new(:message, 'Your tweet has been posted'))
+        publish(Event::Notification::Success.new('Your tweet has been posted'))
       end
     end
 
@@ -244,7 +244,7 @@ module Twterm
         rest_client.retweet!(status.id)
       end.then do
         status.retweet!
-        publish(Event::Notification.new(:message, 'Successfully retweeted: @%s "%s"' % [
+        publish(Event::Notification::Success.new('Successfully retweeted: @%s "%s"' % [
           status.user.screen_name, status.text
         ]))
       end.catch do |reason|
@@ -263,7 +263,7 @@ module Twterm
           else
             raise e
           end
-        publish(Event::Notification.new(:error, "Retweet attempt failed: #{message}"))
+        publish(Event::Notification::Error.new("Retweet attempt failed: #{message}"))
       end.catch(&show_error)
     end
 
@@ -324,7 +324,7 @@ module Twterm
         rest_client.unfavorite(status.id)
       end.then do
         status.unfavorite!
-        publish(Event::Notification.new(:message, 'Successfully unliked: @%s "%s"' % [
+        publish(Event::Notification::Success.new('Successfully unliked: @%s "%s"' % [
           status.user.screen_name, status.text
         ]))
       end
@@ -393,7 +393,7 @@ module Twterm
       proc do |e|
         case e
         when Twitter::Error
-          publish(Event::Notification.new(:error, "Failed to send request: #{e.message}"))
+          publish(Event::Notification::Error.new("Failed to send request: #{e.message}"))
         else
           raise e
         end
