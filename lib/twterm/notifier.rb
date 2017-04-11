@@ -14,7 +14,7 @@ module Twterm
       @queue = Queue.new
 
       subscribe(Event::Favorite) do |e|
-        break if e.source.id == e.authenticating_user.user_id
+        next if e.source.id == e.authenticating_user.user_id
 
         msg = '@%s has favorited your tweet: %s' % [
           e.source.screen_name, e.target.text
