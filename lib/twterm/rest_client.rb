@@ -10,6 +10,10 @@ module Twterm
     CONSUMER_KEY = 'vLNSVFgXclBJQJRZ7VLMxL9lA'.freeze
     CONSUMER_SECRET = 'OFLKzrepRG2p1hq0nUB9j2S9ndFQoNTPheTpmOY0GYw55jGgS5'.freeze
 
+    def add_list_member(list_id, user_id)
+      send_request { rest_client.add_list_member(list_id, user_id) }
+    end
+
     def block(*user_ids)
       send_request do
         rest_client.block(*user_ids)
@@ -234,6 +238,10 @@ module Twterm
         end
         publish(Event::Notification::Success.new('Your tweet has been posted'))
       end
+    end
+
+    def remove_list_member(list_id, user_id)
+      send_request { rest_client.remove_list_member(list_id, user_id) }
     end
 
     def retweet(status)
