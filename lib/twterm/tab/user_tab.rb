@@ -1,6 +1,7 @@
 require 'twterm/event/open_uri'
 require 'twterm/publisher'
 require 'twterm/tab/base'
+require 'twterm/tab/user_list_management'
 
 module Twterm
   module Tab
@@ -47,6 +48,7 @@ module Twterm
           show_friends
           show_followers
           show_likes
+          manage_lists
         )
         items << :compose_direct_message unless myself?
         items << :open_website  unless user.website.nil?
@@ -138,6 +140,11 @@ module Twterm
         user_id == Client.current.user_id
       end
 
+      def open_list_management_tab
+        tab = Tab::UserListManagement.new(user_id)
+        TabManager.instance.add_and_show(tab)
+      end
+
       def open_timeline_tab
         tab = Tab::Statuses::UserTimeline.new(user_id)
         TabManager.instance.add_and_show(tab)
@@ -153,6 +160,8 @@ module Twterm
         case scroller.current_item
         when :compose_direct_message
           compose_direct_message
+        when :manage_lists
+          open_list_management_tab
         when :open_timeline_tab
           open_timeline_tab
         when :open_website
@@ -292,6 +301,8 @@ module Twterm
               Image.number(user.followers_count) - Image.whitespace - Image.plural(user.followers_count, 'follower')
             when :show_friends
               Image.number(user.friends_count) - Image.whitespace - Image.string('following')
+            when :manage_lists
+              Image.string('Add to / Remove from lists')
             end
         end
           .intersperse(Image.blank_line)
