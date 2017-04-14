@@ -208,6 +208,14 @@ module Twterm
       end.catch(&show_error)
     end
 
+    def memberships(user_id, options = {})
+      send_request do
+        user_id.nil? ? rest_client.memberships(options) : rest_client.memberships(user_id, options)
+      end.then do |cursor|
+        cursor.map { |list| List.new(list) }
+      end
+    end
+
     def mentions
       send_request do
         rest_client.mentions(count: 200)
