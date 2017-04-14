@@ -236,6 +236,14 @@ module Twterm
       end
     end
 
+    def owned_lists
+      send_request do
+        rest_client.owned_lists
+      end.then do |lists|
+        lists.map { |list| List.new(list) }
+      end
+    end
+
     def post(text, in_reply_to = nil)
       send_request do
         if in_reply_to.is_a? Status
