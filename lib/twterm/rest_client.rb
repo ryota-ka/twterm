@@ -10,6 +10,10 @@ module Twterm
     CONSUMER_KEY = 'vLNSVFgXclBJQJRZ7VLMxL9lA'.freeze
     CONSUMER_SECRET = 'OFLKzrepRG2p1hq0nUB9j2S9ndFQoNTPheTpmOY0GYw55jGgS5'.freeze
 
+    def add_list_member(list_id, user_id)
+      send_request { rest_client.add_list_member(list_id, user_id) }
+    end
+
     def block(*user_ids)
       send_request do
         rest_client.block(*user_ids)
@@ -204,6 +208,14 @@ module Twterm
       end.catch(&show_error)
     end
 
+    def memberships(user_id, options = {})
+      send_request do
+        user_id.nil? ? rest_client.memberships(options) : rest_client.memberships(user_id, options)
+      end.then do |cursor|
+        cursor.map { |list| List.new(list) }
+      end
+    end
+
     def mentions
       send_request do
         rest_client.mentions(count: 200)
@@ -224,6 +236,14 @@ module Twterm
       end
     end
 
+    def owned_lists
+      send_request do
+        rest_client.owned_lists
+      end.then do |lists|
+        lists.map { |list| List.new(list) }
+      end
+    end
+
     def post(text, in_reply_to = nil)
       send_request do
         if in_reply_to.is_a? Status
@@ -234,6 +254,10 @@ module Twterm
         end
         publish(Event::Notification::Success.new('Your tweet has been posted'))
       end
+    end
+
+    def remove_list_member(list_id, user_id)
+      send_request { rest_client.remove_list_member(list_id, user_id) }
     end
 
     def retweet(status)
