@@ -1,3 +1,4 @@
+require 'concurrent'
 require 'twterm/direct_message'
 require 'twterm/direct_message_manager'
 require 'twterm/publisher'
@@ -398,13 +399,7 @@ module Twterm
     end
 
     def send_request_without_catch(&block)
-      Promise.new do |resolve, reject|
-        begin
-          resolve.(block.call)
-        rescue Twitter::Error => reason
-          reject.(reason)
-        end
-      end
+      Concurrent::Promise.execute { block.call }
     end
 
     private
