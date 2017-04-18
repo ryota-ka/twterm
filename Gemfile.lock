@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     twterm (1.2.2)
+      concurrent-ruby (~> 1.0.5)
       curses (~> 1.0.1)
       launchy (~> 2.4.3)
       oauth (~> 0.5.1)
@@ -16,6 +17,7 @@ GEM
       public_suffix (~> 2.0, >= 2.0.2)
     buftok (0.2.0)
     citrus (3.0.2)
+    concurrent-ruby (1.0.5)
     curses (1.0.2)
     diff-lcs (1.2.5)
     domain_name (0.5.20161129)
@@ -84,4 +86,4 @@ DEPENDENCIES
   twterm!
 
 BUNDLED WITH
-   1.13.7
+   1.14.6
