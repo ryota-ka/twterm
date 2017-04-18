@@ -1,3 +1,5 @@
+require 'concurrent'
+
 module Twterm
   class Status
     MAX_CACHED_TIME = 3600
@@ -30,16 +32,12 @@ module Twterm
     end
 
     def in_reply_to_status(&block)
-      Promise.new do |resolve, reject|
-        (resolve.(nil) && next) if in_reply_to_status_id.nil?
-
-        instance = Status.find(in_reply_to_status_id)
-        (resolve.(instance) && next) if instance
-
+      if in_reply_to_status_id.nil?
+        Concurrent::Promise.fulfill(nil)
+      elsif (instance = Status.find(in_reply_to_status_id))
+        Concurrent::Promise.fulfill(instance)
+      else
         Client.current.show_status(in_reply_to_status_id)
-        .then do |status|
-          resolve.(status)
-        end
       end
     end
 
@@ -147,11 +145,12 @@ module Twterm
     end
 
     def self.find_or_fetch(id)
-      Promise.new do |resolve, reject|
-        instance = find(id)
-        (resolve.(instance) && next) if instance
+      instance = find(id)
 
-        Client.current.show_status(id) { |status| resolve.(status) }
+      if instance
+        Concurrent::Promise.fulfill(instance)
+      else
+        Client.current.show_status(id)
       end
     end
 

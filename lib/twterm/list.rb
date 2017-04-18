@@ -1,3 +1,5 @@
+require 'concurrent'
+
 module Twterm
   class List
     attr_reader :id, :name, :slug, :full_name, :mode, :description, :member_count, :subscriber_count
@@ -37,11 +39,12 @@ module Twterm
     end
 
     def self.find_or_fetch(id)
-      Promise.new do |resolve, reject|
-        instance = find(id)
-        (resolve.(instance) && next) if instance
+      instance = find(id)
 
-        Client.current.list(id).then { |list| resolve.(list) }
+      if instance
+        Concurrent::Promise.fulfill(instance)
+      else
+        Client.current.list(id)
       end
     end
 
