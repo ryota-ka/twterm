@@ -1,9 +1,11 @@
 require 'twterm/tab/base'
+require 'twterm/tab/loadable'
 
 module Twterm
   module Tab
     module New
       class Search < Base
+        include Loadable
         include Readline
         include Searchable
 
@@ -93,10 +95,14 @@ module Twterm
         end
 
         def image
-          drawable_items
-            .map.with_index(0) { |query, i|
-              Image.cursor(1, scroller.current_index?(i)) - Image.whitespace - Image.string(query)
-            }
+          [
+            *drawable_items
+              .map.with_index(0) { |query, i|
+                Image.cursor(1, scroller.current_index?(i)) - Image.whitespace - Image.string(query)
+              },
+            (Image.string('  Loading saved searches...') unless initially_loaded?),
+          ]
+            .reject(&:nil?)
             .intersperse(Image.blank_line)
             .reduce(Image.empty, :|)
         end
@@ -106,7 +112,7 @@ module Twterm
 
           Client.current.saved_search.then do |searches|
             @@queries = searches.map(&:query)
-            render
+            initially_loaded!
           end
         end
       end

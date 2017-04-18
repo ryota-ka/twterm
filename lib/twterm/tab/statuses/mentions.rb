@@ -26,7 +26,11 @@ module Twterm
 
           subscribe(Event::Status::Mention) { |e| prepend(e.status) }
 
-          fetch.then { scroller.move_to_top }
+          fetch.then do
+            initially_loaded!
+            scroller.move_to_top
+          end
+
           @auto_reloader = Scheduler.new(300) { fetch }
         end
 

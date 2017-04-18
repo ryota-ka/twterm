@@ -28,7 +28,11 @@ module Twterm
           @client = client
           subscribe(Event::Status::Timeline) { |e| prepend e.status }
 
-          fetch.then { scroller.move_to_top }
+          fetch.then do
+            initially_loaded!
+            scroller.move_to_top
+          end
+
           @auto_reloader = Scheduler.new(180) { fetch }
         end
 

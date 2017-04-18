@@ -2,12 +2,14 @@ require 'twterm/direct_message_composer'
 require 'twterm/event/direct_message/fetched'
 require 'twterm/subscriber'
 require 'twterm/tab/base'
+require 'twterm/tab/loadable'
 require 'twterm/tab/direct_message/conversation'
 
 module Twterm
   module Tab
     module DirectMessage
       class ConversationList < Base
+        include Loadable
         include Searchable
         include Subscriber
 
@@ -16,6 +18,8 @@ module Twterm
         end
 
         def image
+          return Image.string(initially_loaded? ? 'No results found' : 'Loading...') if items.empty?
+
           scroller.drawable_items.map.with_index(0) do |conversation, i|
             cursor = Image.cursor(2, scroller.current_index?(i))
 
@@ -36,7 +40,7 @@ module Twterm
         def initialize
           super
 
-          subscribe(Event::DirectMessage::Fetched) { render }
+          subscribe(Event::DirectMessage::Fetched) { initially_loaded! }
         end
 
         def ==(other)

@@ -1,10 +1,12 @@
 require 'twterm/event/notification/info'
 require 'twterm/tab/base'
+require 'twterm/tab/loadable'
 
 module Twterm
   module Tab
     module New
       class List < Base
+        include Loadable
         include Publisher
         include Searchable
 
@@ -21,7 +23,10 @@ module Twterm
         def initialize
           super
 
-          render
+          Client.current.lists.then do |lists|
+            @@lists = lists.sort_by(&:full_name)
+            initially_loaded!
+          end
         end
 
         def items
@@ -60,16 +65,7 @@ module Twterm
         end
 
         def image
-          if @@lists.nil?
-            Thread.new do
-              publish(Event::Notification::Infp.new('Loading lists ...'))
-              Client.current.lists.then do |lists|
-                @@lists = lists.sort_by(&:full_name)
-                render
-              end
-            end
-            return Image.empty
-          end
+          return Image.string(initially_loaded? ? 'No results found' : 'Loading...') if items.empty?
 
           drawable_items.map.with_index(0) do |list, i|
             cursor = Image.cursor(2, scroller.current_index?(i))

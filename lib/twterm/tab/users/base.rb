@@ -1,9 +1,11 @@
 require 'twterm/tab/base'
+require 'twterm/tab/loadable'
 
 module Twterm
   module Tab
     module Users
       class Base < Tab::Base
+        include Loadable
         include Searchable
 
         attr_reader :user_ids
@@ -60,6 +62,8 @@ module Twterm
         end
 
         def image
+          return Image.string(initially_loaded? ? 'No result found' : 'Loading...') if items.empty?
+
           drawable_items.map.with_index(0) do |user, i|
             cursor = Image.cursor(2, scroller.current_index?(i))
 

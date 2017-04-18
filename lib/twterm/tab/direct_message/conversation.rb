@@ -2,6 +2,7 @@ require 'twterm/direct_message_composer'
 require 'twterm/event/direct_message/fetched'
 require 'twterm/subscriber'
 require 'twterm/tab/base'
+require 'twterm/tab/loadable'
 require 'twterm/tab/searchable'
 
 module Twterm
@@ -10,6 +11,7 @@ module Twterm
       class Conversation < Base
         include Searchable
         include Subscriber
+        include Loadable
 
         def drawable_item_count
           messages.drop(scroller.offset).lazy
@@ -21,6 +23,8 @@ module Twterm
         end
 
         def image
+          return Image.string(initially_loaded? ? 'No results found' : 'Loading...') if items.empty?
+
           scroller.drawable_items.map.with_index(0) do |message, i|
             header = [
               !Image.string(message.sender.name).color(message.sender.color),
@@ -47,7 +51,7 @@ module Twterm
 
           @conversation = conversation
 
-          subscribe(Event::DirectMessage::Fetched) { render }
+          subscribe(Event::DirectMessage::Fetched) { initially_loaded! }
         end
 
         def items

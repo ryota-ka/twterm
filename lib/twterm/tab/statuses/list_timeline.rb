@@ -17,7 +17,12 @@ module Twterm
             @list = list
             self.title = @list.full_name
             TabManager.instance.refresh_window
-            fetch.then { scroller.move_to_top }
+
+            fetch.then do
+              initially_loaded!
+              scroller.move_to_top
+            end
+
             @auto_reloader = Scheduler.new(300) { fetch }
           end
         end

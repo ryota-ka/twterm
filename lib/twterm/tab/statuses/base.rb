@@ -3,6 +3,7 @@ require 'twterm/event/status/delete'
 require 'twterm/publisher'
 require 'twterm/subscriber'
 require 'twterm/tab/base'
+require 'twterm/tab/loadable'
 require 'twterm/utils'
 
 module Twterm
@@ -12,6 +13,7 @@ module Twterm
         include Publisher
         include Searchable
         include Subscriber
+        include Loadable
         include Utils
 
         def append(status)
@@ -166,6 +168,8 @@ module Twterm
         end
 
         def image
+          return Image.string(initially_loaded? ? 'No results found' : 'Loading...') if items.empty?
+
           scroller.drawable_items.map.with_index(0) do |status, i|
             header = [
               !Image.string(status.user.name).color(status.user.color),
