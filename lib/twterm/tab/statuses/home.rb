@@ -18,7 +18,6 @@ module Twterm
           @client.home_timeline.then do |statuses|
             statuses.each(&method(:prepend))
             sort
-            yield if block_given?
           end
         end
 
@@ -29,7 +28,7 @@ module Twterm
           @client = client
           subscribe(Event::Status::Timeline) { |e| prepend e.status }
 
-          fetch { scroller.move_to_top }
+          fetch.then { scroller.move_to_top }
           @auto_reloader = Scheduler.new(180) { fetch }
         end
 

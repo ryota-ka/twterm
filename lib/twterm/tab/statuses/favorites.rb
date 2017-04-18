@@ -20,7 +20,6 @@ module Twterm
           Client.current.favorites(@user.id).then do |statuses|
             statuses.reverse.each(&method(:prepend))
             sort
-            yield if block_given?
           end
         end
 
@@ -33,7 +32,7 @@ module Twterm
             @user = user
             TabManager.instance.refresh_window
 
-            fetch { scroller.move_to_top }
+            fetch.then { scroller.move_to_top }
           end
         end
 

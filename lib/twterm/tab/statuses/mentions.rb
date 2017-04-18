@@ -14,7 +14,6 @@ module Twterm
           @client.mentions.then do |statuses|
             statuses.reverse.each(&method(:prepend))
             sort
-            yield if block_given?
           end
         end
 
@@ -27,7 +26,7 @@ module Twterm
 
           subscribe(Event::Status::Mention) { |e| prepend(e.status) }
 
-          fetch { scroller.move_to_top }
+          fetch.then { scroller.move_to_top }
           @auto_reloader = Scheduler.new(300) { fetch }
         end
 
