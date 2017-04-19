@@ -64,8 +64,6 @@ module Twterm
           k = KeyMapper.instance
 
           case key
-          when k[:tab, :filter]
-            filter
           when k[:status, :compose], k[:status, :reply]
             DirectMessageComposer.instance.compose(conversation.collocutor)
           else

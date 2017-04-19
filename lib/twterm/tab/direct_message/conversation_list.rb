@@ -62,8 +62,6 @@ module Twterm
           when k[:status, :compose], k[:status, :reply]
             conversation = current_item
             DirectMessageComposer.instance.compose(conversation.collocutor)
-          when k[:tab, :filter]
-            filter
           else
             return false
           end
