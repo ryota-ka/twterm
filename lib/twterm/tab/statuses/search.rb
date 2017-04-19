@@ -25,7 +25,6 @@ module Twterm
           Client.current.search(@query).then do |statuses|
             statuses.each(&method(:append))
             sort
-            yield if block_given?
           end
         end
 
@@ -35,7 +34,11 @@ module Twterm
           @query = query
           @title = "\"#{@query}\""
 
-          fetch { scroller.move_to_top }
+          fetch.then do
+            initially_loaded!
+            scroller.move_to_top
+          end
+
           @auto_reloader = Scheduler.new(300) { fetch }
         end
       end

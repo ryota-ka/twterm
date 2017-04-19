@@ -24,7 +24,10 @@ module Twterm
 
           @user_id = user_id
 
-          fetch { move_to_top }
+          fetch.then do
+            initially_loaded!
+            move_to_top
+          end
         end
 
         def title

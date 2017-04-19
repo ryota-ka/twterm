@@ -2,12 +2,14 @@ require 'twterm/event/notification/success'
 require 'twterm/image'
 require 'twterm/publisher'
 require 'twterm/tab/dumpable'
+require 'twterm/tab/loadable'
 require 'twterm/tab/searchable'
 
 module Twterm
   module Tab
     class UserListManagement < Base
       include Dumpable
+      include Loadable
       include Publisher
       include Searchable
 
@@ -27,7 +29,7 @@ module Twterm
 
         Client.current.memberships(user_id, filter_to_owned_lists: true, count: 1000).then do |lists|
           mutex.synchronize { @list_ids = lists.map(&:id) }
-          render
+          initially_loaded!
         end
       end
 
@@ -40,20 +42,18 @@ module Twterm
       end
 
       def image
-        if @@lists.empty?
-          Image.string('Loading...')
-        else
-          drawable_items.map.with_index do |list, i|
-            cursor = Image.cursor(2, scroller.current_index?(i))
+        return Image.string(initially_loaded? ? 'No lists found' : 'Loading...') if items.empty?
 
-            summary = Image.checkbox(@list_ids.include?(list.id)) - Image.whitespace - Image.string(list.full_name)
-            description = Image.string('    ') - Image.string(list.description)
+        drawable_items.map.with_index do |list, i|
+          cursor = Image.cursor(2, scroller.current_index?(i))
 
-            cursor - Image.whitespace - (summary | description)
-          end
-            .intersperse(Image.blank_line)
-            .reduce(Image.empty, :|)
+          summary = Image.checkbox(@list_ids.include?(list.id)) - Image.whitespace - Image.string(list.full_name)
+          description = Image.string('    ') - Image.string(list.description)
+
+          cursor - Image.whitespace - (summary | description)
         end
+          .intersperse(Image.blank_line)
+          .reduce(Image.empty, :|)
       end
 
       def items

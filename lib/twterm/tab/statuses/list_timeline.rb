@@ -17,7 +17,12 @@ module Twterm
             @list = list
             self.title = @list.full_name
             TabManager.instance.refresh_window
-            fetch { scroller.move_to_top }
+
+            fetch.then do
+              initially_loaded!
+              scroller.move_to_top
+            end
+
             @auto_reloader = Scheduler.new(300) { fetch }
           end
         end
@@ -26,7 +31,6 @@ module Twterm
           Client.current.list_timeline(@list).then do |statuses|
             statuses.reverse.each(&method(:prepend))
             sort
-            yield if block_given?
           end
         end
 
