@@ -1,6 +1,9 @@
 require 'toml'
 require 'singleton'
 
+require 'twterm/key_mapper/no_such_command'
+require 'twterm/key_mapper/no_such_key'
+
 require_relative './app'
 require_relative './key_mapper/abstract_key_mapper'
 require_relative './key_mapper/app_key_mapper'
@@ -58,18 +61,14 @@ module Twterm
       @mappings = MAPPERS
         .map { |c, m| { c => m.new(dict[c]) } }
         .reduce({}) { |acc, x| acc.merge(x) }
-    rescue AbstractKeyMapper::NoSuchCommand => e
-      command = e.message
-
-      warn "Unrecognized command detected: #{command}"
+    rescue NoSuchCommand => e
+      warn "Unrecognized command detected: #{e.full_command}"
       warn 'Make sure you have specified the correct command'
       warn "Your key assignments are defined in #{dict_file_path}"
 
       exit
-    rescue AbstractKeyMapper::NoSuchKey => e
-      key = e.message
-
-      warn "Unrecognized key detected: #{key}"
+    rescue NoSuchKey => e
+      warn "Unrecognized key detected: #{e.key}"
       warn 'Make sure you have specified the correct key'
       warn "Your key assignments are defined in #{dict_file_path}"
 

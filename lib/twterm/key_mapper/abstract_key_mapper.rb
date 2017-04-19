@@ -1,16 +1,15 @@
 require 'curses'
+require 'twterm/key_mapper/no_such_command'
+require 'twterm/key_mapper/no_such_key'
 
 module Twterm
   class KeyMapper
     class AbstractKeyMapper
-      class NoSuchCommand < StandardError; end
-      class NoSuchKey < StandardError; end
-
       def initialize(mappings)
         commands = self.class.commands
 
         mappings.keys.each do |k|
-          raise NoSuchCommand, "#{self.class.category}.#{k}" unless commands.include?(k)
+          raise NoSuchCommand.new(self.class.category, k) unless commands.include?(k)
         end
 
         @mappings = Hash[mappings.map { |k, v| [k, translate(v)] }]
@@ -39,7 +38,7 @@ module Twterm
         when 'F11' then Curses::Key::F11
         when 'F12' then Curses::Key::F12
         else
-          raise NoSuchKey, key
+          raise NoSuchKey.new(key)
         end
       end
 
