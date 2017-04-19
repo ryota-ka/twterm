@@ -16,6 +16,7 @@ module Twterm
       end
 
       def [](key)
+        raise NoSuchCommand.new(self.class.category, key) unless @mappings.keys.include?(key)
         @mappings[key]
       end
 
