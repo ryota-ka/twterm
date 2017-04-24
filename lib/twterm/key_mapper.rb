@@ -1,6 +1,9 @@
 require 'toml'
 require 'singleton'
 
+require 'twterm/key_mapper/no_such_command'
+require 'twterm/key_mapper/no_such_key'
+
 require_relative './app'
 require_relative './key_mapper/abstract_key_mapper'
 require_relative './key_mapper/app_key_mapper'
@@ -58,18 +61,14 @@ module Twterm
       @mappings = MAPPERS
         .map { |c, m| { c => m.new(dict[c]) } }
         .reduce({}) { |acc, x| acc.merge(x) }
-    rescue AbstractKeyMapper::NoSuchCommand => e
-      command = e.message
-
-      warn "Unrecognized command detected: #{command}"
+    rescue NoSuchCommand => e
+      warn "Unrecognized command detected: #{e.full_command}"
       warn 'Make sure you have specified the correct command'
       warn "Your key assignments are defined in #{dict_file_path}"
 
       exit
-    rescue AbstractKeyMapper::NoSuchKey => e
-      key = e.message
-
-      warn "Unrecognized key detected: #{key}"
+    rescue NoSuchKey => e
+      warn "Unrecognized key detected: #{e.key}"
       warn 'Make sure you have specified the correct key'
       warn "Your key assignments are defined in #{dict_file_path}"
 
@@ -102,20 +101,28 @@ module Twterm
 
     def load_dict_file!
       dict = TOML.load_file(dict_file_path, symbolize_keys: true)
-    rescue TOML::ParseError
-      warn "Your key assignments dictionary file (#{dict_file_path}) could not be parsed"
-      warn 'Falling back to the default key assignments'
-      warn ''
-      warn 'Check the syntax and edit the file manually,'
-      warn 'or remove it and launch twterm again to restore'
-      warn ''
-      warn 'Press any key to continue'
+    rescue TOML::ParseError, TOML::ValueOverwriteError => e
+      first_line =
+        case e
+        when TOML::ParseError
+          "Your key assignments dictionary file (#{dict_file_path}) could not be parsed"
+        when TOML::ValueOverwriteError
+          "Command `#{e.key}` is declared more than once"
+        end
+
+      warn <<-EOS
+#{first_line}
+Falling back to the default key assignments
+
+Check the syntax and edit the file manually,
+or remove it and launch twterm again to restore
+
+Press any key to continue
+      EOS
 
       getc
-
-      dict = default_mappings
     ensure
-      assign_mappings!(dict)
+      assign_mappings!(dict || default_mappings)
     end
   end
 end
