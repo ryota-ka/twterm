@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
   spec.required_ruby_version = '>= 2.0.0'
 
-  spec.add_dependency 'curses', '~> 1.0.1'
+  spec.add_dependency 'curses', '~> 1.2.2'
   spec.add_dependency 'concurrent-ruby', '~> 1.0.5'
   spec.add_dependency 'launchy', '~> 2.4.3'
   spec.add_dependency 'oauth', '~> 0.5.1'
