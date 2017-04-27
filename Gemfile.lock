@@ -42,7 +42,7 @@ GEM
     naught (1.1.0)
     oauth (0.5.1)
     public_suffix (2.0.5)
-    rake (10.5.0)
+    rake (12.0.0)
     rspec (3.5.0)
       rspec-core (~> 3.5.0)
       rspec-expectations (~> 3.5.0)
@@ -81,7 +81,7 @@ PLATFORMS
 
 DEPENDENCIES
   bundler (~> 1.8)
-  rake (~> 10.0)
+  rake (~> 12.0)
   rspec (~> 3.5.0)
   twterm!
 
