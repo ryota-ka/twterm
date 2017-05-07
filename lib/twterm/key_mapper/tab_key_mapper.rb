@@ -1,4 +1,4 @@
-require_relative './abstract_key_mapper'
+require 'twterm/key_mapper/abstract_key_mapper'
 
 module Twterm
   class KeyMapper

@@ -1,5 +1,5 @@
+require 'twterm/image'
 require 'twterm/tab/base'
-require_relative './../image'
 require 'twterm/tab/searchable'
 
 module Twterm

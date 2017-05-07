@@ -1,7 +1,7 @@
-require_relative './../search_query'
-require_relative './../search_query_window'
 require 'twterm/event/notification/info'
 require 'twterm/event/notification/warning'
+require 'twterm/search_query'
+require 'twterm/search_query_window'
 
 module Twterm
   module Tab

@@ -1,4 +1,4 @@
-require_relative './abstract_key_mapper'
+require 'twterm/key_mapper/abstract_key_mapper'
 
 class Twterm::KeyMapper::StatusKeyMapper < Twterm::KeyMapper::AbstractKeyMapper
   DEFAULT_MAPPINGS = {

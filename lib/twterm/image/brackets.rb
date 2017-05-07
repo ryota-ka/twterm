@@ -1,4 +1,4 @@
-require_relative './between'
+require 'twterm/image/between'
 
 module Twterm
   class Image
