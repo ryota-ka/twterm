@@ -14,7 +14,7 @@ module Twterm
 
         def fetch_in_reply_to_status(status)
           status.in_reply_to_status.then do |in_reply_to|
-            return if in_reply_to.nil?
+            next if in_reply_to.nil?
             append(in_reply_to)
             sort
             Thread.new { fetch_in_reply_to_status(in_reply_to) }
