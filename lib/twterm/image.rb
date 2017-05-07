@@ -1,12 +1,12 @@
-require_relative './image/blank_line'
-require_relative './image/bold'
-require_relative './image/brackets'
-require_relative './image/color'
-require_relative './image/empty'
-require_relative './image/horizontal_sequential_image'
-require_relative './image/parens'
-require_relative './image/string_image'
-require_relative './image/vertical_sequential_image'
+require 'twterm/image/blank_line'
+require 'twterm/image/bold'
+require 'twterm/image/brackets'
+require 'twterm/image/color'
+require 'twterm/image/empty'
+require 'twterm/image/horizontal_sequential_image'
+require 'twterm/image/parens'
+require 'twterm/image/string_image'
+require 'twterm/image/vertical_sequential_image'
 
 class Twterm::Image
   def initialize(column: 0, line: 0)

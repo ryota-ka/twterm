@@ -1,16 +1,15 @@
 require 'toml'
 require 'singleton'
 
+require 'twterm/app'
+require 'twterm/key_mapper/abstract_key_mapper'
+require 'twterm/key_mapper/app_key_mapper'
+require 'twterm/key_mapper/cursor_key_mapper'
+require 'twterm/key_mapper/general_key_mapper.rb'
 require 'twterm/key_mapper/no_such_command'
 require 'twterm/key_mapper/no_such_key'
-
-require_relative './app'
-require_relative './key_mapper/abstract_key_mapper'
-require_relative './key_mapper/app_key_mapper'
-require_relative './key_mapper/cursor_key_mapper'
-require_relative './key_mapper/general_key_mapper.rb'
-require_relative './key_mapper/status_key_mapper.rb'
-require_relative './key_mapper/tab_key_mapper'
+require 'twterm/key_mapper/status_key_mapper.rb'
+require 'twterm/key_mapper/tab_key_mapper'
 
 module Twterm
   class KeyMapper

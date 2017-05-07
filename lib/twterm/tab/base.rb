@@ -1,7 +1,6 @@
 require 'twterm/event/screen/resize'
+require 'twterm/image'
 require 'twterm/subscriber'
-
-require_relative './../image'
 
 module Twterm
   module Tab

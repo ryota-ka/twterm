@@ -2,8 +2,7 @@ require 'twterm/event/screen/resize'
 require 'twterm/publisher'
 require 'twterm/subscriber'
 require 'twterm/utils'
-
-require_relative './view'
+require 'twterm/view'
 
 module Twterm
   class TabManager
