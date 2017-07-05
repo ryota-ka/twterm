@@ -4,4 +4,6 @@ RSpec.configure do |config|
   config.order = :random
 end
 
+Dir['spec/supports/**/*.rb'].each { |f| require File.expand_path(f, __dir__ + '/..') }
+
 require 'twterm'
