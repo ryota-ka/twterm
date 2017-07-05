@@ -1,3 +1,5 @@
+require 'twterm/key_mapper/abstract_key_mapper'
+
 RSpec.shared_examples Twterm::KeyMapper::AbstractKeyMapper do
   describe '.commands' do
     subject { described_class.commands }
