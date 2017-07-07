@@ -1,5 +1,11 @@
 require 'curses'
+
 require 'twterm/event/screen/resize'
+require 'twterm/repository/friendship_repository'
+require 'twterm/repository/direct_message_repository'
+require 'twterm/repository/list_repository'
+require 'twterm/repository/status_repository'
+require 'twterm/repository/user_repository'
 require 'twterm/uri_opener'
 
 module Twterm
@@ -9,7 +15,19 @@ module Twterm
 
     DATA_DIR = "#{ENV['HOME']}/.twterm".freeze
 
-    def initialize
+    def direct_message_repository
+      @direct_messages_repository ||= Repository::DirectMessageRepository.new
+    end
+
+    def friendship_repository
+      @friendship_repository ||= Repository::FriendshipRepository.new
+    end
+
+    def list_repository
+      @list_repository ||= Repository::ListRepository.new
+    end
+
+    def run
       Dir.mkdir(DATA_DIR, 0700) unless File.directory?(DATA_DIR)
 
       Auth.authenticate_user(config) if config[:user_id].nil?
@@ -35,20 +53,34 @@ module Twterm
 
       URIOpener.instance
 
-      resize = proc do
-        next if Curses.closed?
+      Scheduler.new(300) do
+        status_repository.expire(3600)
 
-        lines = `tput lines`.to_i
-        cols = `tput cols`.to_i
-        publish(Event::Screen::Resize.new(lines, cols))
+        _ = status_repository.all.map(&:user)
+        user_repository.expire(3600)
       end
 
-      Signal.trap(:WINCH, &resize)
-      Scheduler.new(60, &resize)
-    end
+      user_repository.before_create do |user|
+        client_id = client.user_id
 
-    def run
-      run_periodic_cleanup
+        if user.following?
+          friendship_repository.follow(client_id, user.id)
+        else
+          friendship_repository.unfollow(client_id, user.id)
+        end
+
+        if user.follow_request_sent?
+          friendship_repository.following_requested(client_id, user.id)
+        else
+          friendship_repository.following_not_requested(client_id, user.id)
+        end
+      end
+
+      status_repository.before_create do |tweet|
+        tweet.hashtags.each do |hashtag|
+          History::Hashtag.instance.add(hashtag.text)
+        end
+      end
 
       Screen.instance.wait
       Screen.instance.refresh
@@ -69,6 +101,14 @@ module Twterm
       exit
     end
 
+    def status_repository
+      @status_repository ||= Repository::StatusRepository.new
+    end
+
+    def user_repository
+      @user_repository ||= Repository::UserRepository.new
+    end
+
     private
 
     def client
@@ -82,13 +122,6 @@ module Twterm
 
     def config
       @config ||= Config.new
-    end
-
-    def run_periodic_cleanup
-      Scheduler.new(300) do
-        Status.cleanup
-        User.cleanup
-      end
     end
   end
 end

@@ -6,11 +6,9 @@ module Twterm
 
     attr_reader :appeared_at, :created_at, :favorite_count, :favorited, :id,
       :in_reply_to_status_id, :media, :retweet_count, :retweeted,
-      :retweeted_by_user_id, :text, :touched_at, :urls, :user_id
+      :retweeted_by_user_id, :text, :urls, :user_id
     alias_method :favorited?, :favorited
     alias_method :retweeted?, :retweeted
-
-    @@instances = {}
 
     def ==(other)
       other.is_a?(self.class) && id == other.id
@@ -31,20 +29,10 @@ module Twterm
       @favorited = true
     end
 
-    def in_reply_to_status(&block)
-      if in_reply_to_status_id.nil?
-        Concurrent::Promise.fulfill(nil)
-      elsif (instance = Status.find(in_reply_to_status_id))
-        Concurrent::Promise.fulfill(instance)
-      else
-        Client.current.show_status(in_reply_to_status_id)
-      end
-    end
-
     def initialize(tweet)
       unless tweet.retweeted_status.is_a? Twitter::NullObject
         @retweeted_by_user_id = tweet.user.id
-        User.new(tweet.user)
+        App.instance.user_repository.create(tweet.user)
         retweeted_at = tweet.created_at.dup.localtime
         tweet = tweet.retweeted_status
       end
@@ -64,23 +52,11 @@ module Twterm
       @urls = tweet.urls
 
       @user_id = tweet.user.id
-      User.new(tweet.user)
+      App.instance.user_repository.create(tweet.user)
 
       @splitted_text = {}
 
       expand_url!
-
-      @touched_at = Time.now
-
-      tweet.hashtags.each do |hashtag|
-        History::Hashtag.instance.add(hashtag.text)
-      end
-
-      @@instances[id] = self
-    end
-
-    def replies
-      Status.all.select { |s| s.in_reply_to_status_id == id }
     end
 
     def retweet!
@@ -89,15 +65,11 @@ module Twterm
     end
 
     def retweeted_by
-      User.find(@retweeted_by_user_id)
+      App.instance.user_repository.find(@retweeted_by_user_id)
     end
 
     def split(width)
       @splitted_text[width] ||= @text.split_by_width(width)
-    end
-
-    def touch!
-      @touched_at = Time.now
     end
 
     def unfavorite!
@@ -119,44 +91,7 @@ module Twterm
     end
 
     def user
-      User.find(user_id)
-    end
-
-    def self.all
-      @@instances.values
-    end
-
-    def self.cleanup
-      TabManager.instance.each_tab do |tab|
-        tab.touch_statuses if tab.is_a?(Tab::Statuses::Base)
-      end
-      cond = -> (status) { status.touched_at > Time.now - MAX_CACHED_TIME }
-      statuses = all.select(&cond)
-      status_ids = statuses.map(&:id)
-      @@instances = Hash[status_ids.zip(statuses)]
-    end
-
-    def self.delete(id)
-      @@instances.delete(id)
-    end
-
-    def self.find(id)
-      @@instances[id]
-    end
-
-    def self.find_or_fetch(id)
-      instance = find(id)
-
-      if instance
-        Concurrent::Promise.fulfill(instance)
-      else
-        Client.current.show_status(id)
-      end
-    end
-
-    def self.new(tweet)
-      instance = find(tweet.id)
-      instance.nil? ? super : instance.update!(tweet)
+      App.instance.user_repository.find(user_id)
     end
 
     private

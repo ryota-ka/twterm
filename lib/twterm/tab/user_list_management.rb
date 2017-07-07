@@ -77,7 +77,7 @@ module Twterm
       attr_reader :list_ids, :user_id
 
       def user
-        User.find(user_id)
+        App.instance.user_repository.find(user_id)
       end
 
       def mutex

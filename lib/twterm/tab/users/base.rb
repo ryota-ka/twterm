@@ -14,22 +14,15 @@ module Twterm
           (window.maxy - 6).div(3)
         end
 
-        def close
-          @instance_keeper.kill
-          super
-        end
-
         def fetch; end
 
         def initialize
           super()
           @user_ids = []
-
-          @instance_keeper = Scheduler.new(300) { items.each(&:touch!) }
         end
 
         def items
-          user_ids.map(&User.method(:find)).compact
+          user_ids.map { |id| App.instance.user_repository.find(id) }.compact
         end
 
         def respond_to_key(key)

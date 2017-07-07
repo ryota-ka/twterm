@@ -4,7 +4,7 @@ module Twterm
       include Singleton, Base
 
       def history
-        User.all.map(&:screen_name)
+        App.instance.user_repository.all.map(&:screen_name)
       end
     end
   end

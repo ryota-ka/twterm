@@ -13,7 +13,7 @@ module Twterm
 
           self.title = 'Loading...'.freeze
 
-          List.find_or_fetch(list_id).then do |list|
+          find_or_fetch_list(list_id).then do |list|
             @list = list
             self.title = @list.full_name
             TabManager.instance.refresh_window
