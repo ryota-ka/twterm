@@ -1,3 +1,5 @@
+require 'concurrent'
+
 require 'twterm/event/screen/resize'
 require 'twterm/image'
 require 'twterm/subscriber'
@@ -18,6 +20,36 @@ module Twterm
       def close
         unsubscribe
         window.close
+      end
+
+      def find_or_fetch_status(id)
+        status = App.instance.status_repository.find(id)
+
+        if status
+          Concurrent::Promise.fulfill(status)
+        else
+          Client.current.show_status(id)
+        end
+      end
+
+      def find_or_fetch_list(id)
+        list = App.instance.list_repository.find(id)
+
+        if list
+          Concurrent::Promise.fulfill(list)
+        else
+          Client.current.list(id)
+        end
+      end
+
+      def find_or_fetch_user(id)
+        user = App.instance.user_repository.find(id)
+
+        if user
+          Concurrent::Promise.fulfill(user)
+        else
+          Client.current.show_user(id)
+        end
       end
 
       def initialize

@@ -37,7 +37,7 @@ module Twterm
         private
 
         def user
-          User.find(user_id)
+          App.instance.user_repository.find(user_id)
         end
       end
     end

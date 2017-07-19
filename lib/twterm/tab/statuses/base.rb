@@ -23,13 +23,12 @@ module Twterm
 
           @status_ids.unshift(status.id)
           status.split(window.maxx - 4)
-          status.touch!
           scroller.item_appended!
           render
         end
 
         def delete(status_id)
-          Status.delete(status_id)
+          App.instance.status_repository.delete(status_id)
           render
         end
 
@@ -90,7 +89,6 @@ module Twterm
 
           @status_ids << status.id
           status.split(window.maxx - 4)
-          status.touch!
           scroller.item_prepended!
           render
         end
@@ -147,14 +145,10 @@ module Twterm
         end
 
         def statuses
-          statuses = @status_ids.map { |id| Status.find(id) }.reject(&:nil?)
+          statuses = @status_ids.map { |id| App.instance.status_repository.find(id) }.compact
           @status_ids = statuses.map(&:id)
 
           statuses
-        end
-
-        def touch_statuses
-          statuses.reverse.take(100).each(&:touch!)
         end
 
         def total_item_count
@@ -196,8 +190,9 @@ module Twterm
         end
 
         def sort
-          @status_ids &= Status.all.map(&:id)
-          @status_ids.sort_by! { |id| Status.find(id).appeared_at }
+          repo = App.instance.status_repository
+          @status_ids &= repo.ids
+          @status_ids.sort_by! { |id| repo.find(id).appeared_at }
         end
       end
     end

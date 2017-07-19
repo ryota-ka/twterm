@@ -1,3 +1,5 @@
+require 'concurrent'
+
 require 'twterm/tab/statuses/base'
 
 module Twterm
@@ -12,21 +14,30 @@ module Twterm
           other.is_a?(self.class) && status == other.status
         end
 
-        def fetch_in_reply_to_status(status)
-          status.in_reply_to_status.then do |in_reply_to|
-            next if in_reply_to.nil?
-            append(in_reply_to)
-            sort
-            Thread.new { fetch_in_reply_to_status(in_reply_to) }
+        def fetch_ancestor(status)
+          in_reply_to_status_id = status.in_reply_to_status_id
+
+          if in_reply_to_status_id.nil?
+            Concurrent::Promise.fulfill(nil)
+          elsif (instance = App.instance.status_repository.find(in_reply_to_status_id))
+            Concurrent::Promise.fulfill(instance)
+          else
+            Client.current.show_status(in_reply_to_status_id)
           end
+            .then do |in_reply_to|
+              next if in_reply_to.nil?
+              append(in_reply_to)
+              sort
+              fetch_ancestor(in_reply_to)
+            end
         end
 
-        def fetch_replies(status)
-          status.replies.each do |reply|
+        def find_descendants(status)
+          App.instance.status_repository.find_replies_for(status.id).each do |reply|
             prepend(reply)
-            sort
-            Thread.new { fetch_replies(reply) }
+            find_descendants(reply)
           end
+          sort
         end
 
         def dump
@@ -36,13 +47,13 @@ module Twterm
         def initialize(status_id)
           super()
 
-          Status.find_or_fetch(status_id).then do |status|
+          find_or_fetch_status(status_id).then do |status|
             @status = status
 
             append(status)
             scroller.move_to_top
-            Thread.new { fetch_in_reply_to_status(status) }
-            Thread.new { fetch_replies(status) }
+            fetch_ancestor(status)
+            find_descendants(status)
           end
         end
 

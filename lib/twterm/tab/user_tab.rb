@@ -34,10 +34,10 @@ module Twterm
         self.title = 'Loading...'.freeze
         @user_id = user_id
 
-        User.find_or_fetch(user_id).then do |user|
+        find_or_fetch_user(user_id).then do |user|
           render
 
-          Client.current.lookup_friendships.then { render } unless Friendship.already_looked_up?(user_id)
+          Client.current.lookup_friendships.then { render } unless App.instance.friendship_repository.already_looked_up?(user_id)
           self.title = "@#{user.screen_name}"
         end
       end
@@ -90,7 +90,7 @@ module Twterm
       end
 
       def blocking?
-        user.blocked_by?(Client.current.user_id)
+        App.instance.friendship_repository.blocking?(Client.current.user_id, user_id)
       end
 
       def compose_direct_message
@@ -112,15 +112,15 @@ module Twterm
       end
 
       def followed?
-        user.following?(Client.current.user_id)
+        App.instance.friendship_repository.following?(user_id, Client.current.user_id)
       end
 
       def following?
-        user.followed_by?(Client.current.user_id)
+        App.instance.friendship_repository.following?(Client.current.user_id, user_id)
       end
 
       def following_requested?
-        user.following_requested_by?(Client.current.user_id)
+        App.instance.friendship_repository.following_requested?(Client.current.user_id, user_id)
       end
 
       def mute
@@ -133,7 +133,7 @@ module Twterm
       end
 
       def muting?
-        user.muted_by?(Client.current.user_id)
+        App.instance.friendship_repository.muting?(Client.current.user_id, user_id)
       end
 
       def myself?
@@ -231,7 +231,7 @@ module Twterm
 
       def image
         if user.nil?
-          User.find_or_fetch(user_id).then { render }
+          find_or_fetch_user(user_id).then { render }
           return Image.empty
         end
 
@@ -315,7 +315,7 @@ module Twterm
       end
 
       def user
-        User.find(user_id)
+        App.instance.user_repository.find(user_id)
       end
     end
   end

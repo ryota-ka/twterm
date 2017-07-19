@@ -20,7 +20,7 @@ module Twterm
         rest_client.block(*user_ids)
       end.then do |users|
         users.each do |user|
-          Friendship.block(self.user_id, user.id)
+          App.instance.friendship_repository.block(self.user_id, user.id)
         end
       end
     end
@@ -29,7 +29,7 @@ module Twterm
       send_request do
         rest_client.create_direct_message(recipient.id, text)
       end.then do |message|
-        msg = DirectMessage.new(message)
+        msg = App.instance.direct_message_repository.create(message)
         direct_message_manager.add(msg.recipient, msg)
         publish(Event::DirectMessage::Fetched.new)
         publish(Event::Notification::Success.new('Your message to @%s has been sent' % msg.recipient.screen_name))
@@ -42,13 +42,13 @@ module Twterm
 
     def direct_messages_received
       send_request do
-        rest_client.direct_messages(count: 200).map(&DirectMessage.method(:new))
+        rest_client.direct_messages(count: 200).map { |dm| App.instance.direct_message_repository.create(dm) }
       end
     end
 
     def direct_messages_sent
       send_request do
-        rest_client.direct_messages_sent(count: 200).map(&DirectMessage.method(:new))
+        rest_client.direct_messages_sent(count: 200).map { |dm| App.instance.direct_message_repository.create(dm) }
       end
     end
 
@@ -86,7 +86,7 @@ module Twterm
       send_request do
         rest_client.favorites(user_id, count: 200)
       end.then do |tweets|
-        tweets.map(&Status.method(:new))
+        tweets.map { |tweet| App.instance.status_repository.create(tweet) }
       end
     end
 
@@ -102,9 +102,9 @@ module Twterm
       end.then do |users|
         users.each do |user|
           if user.protected?
-            Friendship.following_requested(self.user_id, user.id)
+            App.instance.friendship_repository.following_requested(self.user_id, user.id)
           else
-            Friendship.follow(self.user_id, user.id)
+            App.instance.friendship_repository.follow(self.user_id, user.id)
           end
         end
       end
@@ -118,9 +118,9 @@ module Twterm
       send_request do
         rest_client.follower_ids(user_id).each_slice(100) do |user_ids|
           m.synchronize do
-            users = rest_client.users(*user_ids).map(& -> u { User.new(u) })
+            users = rest_client.users(*user_ids).map { |u| App.instance.user_repository.create(u) }
             users.each do |user|
-              Friendship.follow(user.id, self.user_id)
+              App.instance.friendship_repository.follow(user.id, self.user_id)
             end if user_id == self.user_id
             yield users
           end
@@ -136,7 +136,7 @@ module Twterm
       send_request do
         rest_client.friend_ids(user_id).each_slice(100) do |user_ids|
           m.synchronize do
-            yield rest_client.users(*user_ids).map(& -> u { User.new(u) })
+            yield rest_client.users(*user_ids).map { |u| App.instance.user_repository.create(u) }
           end
         end
       end
@@ -145,10 +145,10 @@ module Twterm
     def home_timeline
       send_request do
         rest_client.home_timeline(count: 200)
-      end.then do |statuses|
-        statuses
+      end.then do |tweets|
+        tweets
         .select(&@mute_filter)
-        .map(&Status.method(:new))
+        .map { |tweet| App.instance.status_repository.create(tweet) }
       end
     end
 
@@ -156,7 +156,7 @@ module Twterm
       send_request do
         rest_client.list(list_id)
       end.then do |list|
-        List.new(list)
+        App.instance.list_repository.create(list)
       end
     end
 
@@ -168,7 +168,7 @@ module Twterm
       end.then do |statuses|
         statuses
         .select(&@mute_filter)
-        .map(&Status.method(:new))
+        .map { |tweet| App.instance.status_repository.create(tweet) }
       end
     end
 
@@ -176,12 +176,13 @@ module Twterm
       send_request do
         rest_client.lists
       end.then do |lists|
-        lists.map { |list| List.new(list) }
+        lists.map { |list| App.instance.list_repository.create(list) }
       end
     end
 
     def lookup_friendships
-      user_ids = User.ids.reject { |id| Friendship.already_looked_up?(id) }
+      repo = App.instance.friendship_repository
+      user_ids = App.instance.user_repository.ids.reject { |id| repo.already_looked_up?(id) }
       send_request_without_catch do
         user_ids.each_slice(100) do |chunked_user_ids|
           friendships = rest_client.friendships(*chunked_user_ids)
@@ -190,13 +191,13 @@ module Twterm
             client_id = user_id
 
             conn = friendship.connections
-            conn.include?('blocking') ? Friendship.block(client_id, id) : Friendship.unblock(client_id, id)
-            conn.include?('following') ? Friendship.follow(client_id, id) : Friendship.unfollow(client_id, id)
-            conn.include?('following_requested') ? Friendship.following_requested(client_id, id) : Friendship.following_not_requested(client_id, id)
-            conn.include?('followed_by') ? Friendship.follow(id, client_id) : Friendship.unfollow(id, client_id)
-            conn.include?('muting') ? Friendship.mute(client_id, id) : Friendship.unmute(client_id, id)
+            conn.include?('blocking') ? repo.block(client_id, id) : repo.unblock(client_id, id)
+            conn.include?('following') ? repo.follow(client_id, id) : repo.unfollow(client_id, id)
+            conn.include?('following_requested') ? repo.following_requested(client_id, id) : repo.following_not_requested(client_id, id)
+            conn.include?('followed_by') ? repo.follow(id, client_id) : repo.unfollow(id, client_id)
+            conn.include?('muting') ? repo.mute(client_id, id) : repo.unmute(client_id, id)
 
-            Friendship.looked_up!(id)
+            repo.looked_up!(id)
           end
         end
       end.catch do |e|
@@ -213,7 +214,7 @@ module Twterm
       send_request do
         user_id.nil? ? rest_client.memberships(options) : rest_client.memberships(user_id, options)
       end.then do |cursor|
-        cursor.map { |list| List.new(list) }
+        cursor.map { |list| App.instance.list_repository.create(list) }
       end
     end
 
@@ -223,7 +224,7 @@ module Twterm
       end.then do |statuses|
         statuses
         .select(&@mute_filter)
-        .map(&Status.method(:new))
+        .map { |tweet| App.instance.status_repository.create(tweet) }
       end
     end
 
@@ -232,7 +233,7 @@ module Twterm
         rest_client.mute(*user_ids)
       end.then do |users|
         users.each do |user|
-          Friendship.mute(self.user_id, user.id)
+          App.instance.friendship_repository.mute(self.user_id, user.id)
         end
       end
     end
@@ -241,7 +242,7 @@ module Twterm
       send_request do
         rest_client.owned_lists
       end.then do |lists|
-        lists.map { |list| List.new(list) }
+        lists.map { |list| App.instance.list_repository.create(list) }
       end
     end
 
@@ -304,7 +305,7 @@ module Twterm
       end.then do |statuses|
         statuses
         .map(&Twitter::Tweet.method(:new))
-        .map(&Status.method(:new))
+        .map { |tweet| App.instance.status_repository.create(tweet) }
       end
     end
 
@@ -312,7 +313,7 @@ module Twterm
       send_request do
         rest_client.status(status_id)
       end.then do |status|
-        Status.new(status)
+        App.instance.status_repository.create(status)
       end
     end
 
@@ -327,7 +328,7 @@ module Twterm
           raise reason
         end
       end.catch(&show_error).then do |user|
-        user.nil? ? nil : User.new(user)
+        user.nil? ? nil : App.instance.user_repository.create(user)
       end
     end
 
@@ -336,7 +337,7 @@ module Twterm
         rest_client.unblock(*user_ids)
       end.then do |users|
         users.each do |user|
-          Friendship.unblock(self.user_id, user.id)
+          App.instance.friendship_repository.unblock(self.user_id, user.id)
         end
       end
     end
@@ -360,7 +361,7 @@ module Twterm
         rest_client.unfollow(*user_ids)
       end.then do |users|
         users.each do |user|
-          Friendship.unfollow(self.user_id, user.id)
+          App.instance.friendship_repository.unfollow(self.user_id, user.id)
         end
       end
     end
@@ -370,9 +371,24 @@ module Twterm
         rest_client.unmute(*user_ids)
       end.then do |users|
         users.each do |user|
-          Friendship.unmute(self.user_id, user.id)
+          App.instance.friendship_repository.unmute(self.user_id, user.id)
         end
       end
+    end
+
+    def unretweet(status)
+      send_request do
+        Twitter::REST::Request.new(rest_client, :post, "/1.1/statuses/unretweet/#{status.id}.json").perform
+      end
+        .then do
+          status.unretweet!
+          publish(Event::Notification::Success.new('Successfully unretweeted: @%s "%s"' % [
+            status.user.screen_name, status.text
+          ]))
+
+          status
+        end
+          .catch { |e| publish(Event::Notification::Error.new(e.inspect)) }
     end
 
     def user_timeline(user_id)
@@ -381,7 +397,7 @@ module Twterm
       end.then do |statuses|
         statuses
         .select(&@mute_filter)
-        .map(&Status.method(:new))
+        .map { |tweet| App.instance.status_repository.create(tweet) }
       end
     end
 

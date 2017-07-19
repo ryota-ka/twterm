@@ -33,7 +33,7 @@ module Twterm
 
           @user_id = user_id
 
-          User.find_or_fetch(user_id).then do |user|
+          find_or_fetch_user(user_id).then do |user|
             @user = user
             TabManager.instance.refresh_window
 

@@ -5,13 +5,9 @@ module Twterm
   class DirectMessage
     attr_reader :id, :created_at, :recipient, :sender, :text
 
-    @@instances = {}
-
     def initialize(message)
       @id = message.id
       update!(message)
-
-      @@instances[id] = self
     end
 
     def ==(other)
@@ -25,8 +21,8 @@ module Twterm
 
     def update!(message)
       @created_at = message.created_at.dup.localtime
-      @recipient = User.new(message.recipient)
-      @sender = User.new(message.sender)
+      @recipient = App.instance.user_repository.create(message.recipient)
+      @sender = App.instance.user_repository.create(message.sender)
       @text = message.text
 
       self
