@@ -25,6 +25,7 @@ GEM
     equalizer (0.0.11)
     faraday (0.11.0)
       multipart-post (>= 1.2, < 3)
+    hashie (3.5.6)
     http (2.2.1)
       addressable (~> 2.3)
       http-cookie (~> 1.0)
@@ -81,6 +82,7 @@ PLATFORMS
 
 DEPENDENCIES
   bundler (~> 1.8)
+  hashie (~> 3.5.6)
   rake (~> 12.0)
   rspec (~> 3.5.0)
   twterm!
