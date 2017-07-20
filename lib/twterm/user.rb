@@ -15,8 +15,6 @@ module Twterm
     end
 
     def update!(user)
-      return self if recently_updated?
-
       @name = user.name
       @screen_name = user.screen_name
       @description = user.description.is_a?(Twitter::NullObject) ? '' : user.description
@@ -29,15 +27,7 @@ module Twterm
       @followers_count = user.followers_count
       @verified = user.verified?
 
-      @updated_at = Time.now
-
       self
-    end
-
-    private
-
-    def recently_updated?
-      !@updated_at.nil? && @updated_at + 60 > Time.now
     end
   end
 end
