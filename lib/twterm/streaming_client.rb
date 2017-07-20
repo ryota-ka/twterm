@@ -54,7 +54,7 @@ module Twterm
           publish(Event::Notification::Error.new('Rate limit exceeded'))
           sleep 120
           retry
-        rescue Errno::ENETUNREACH, Resolv::ResolvError
+        rescue Errno::ENETUNREACH, Errno::ETIMEDOUT, Resolv::ResolvError
           publish(Event::Notification::Error.new('Network is unavailable'))
           sleep 30
           retry
