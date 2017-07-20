@@ -6,7 +6,6 @@ module Twterm
     alias_method :protected?, :protected
     alias_method :verified?, :verified
 
-    MAX_CACHED_TIME = 3600
     COLORS = [:red, :blue, :green, :cyan, :yellow, :magenta]
 
     def initialize(user)
