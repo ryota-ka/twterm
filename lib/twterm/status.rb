@@ -77,27 +77,18 @@ module Twterm
       @favorited = false
     end
 
-    def update!(tweet)
-      return self if recently_updated?
 
+    def update!(tweet)
       @retweet_count = tweet.retweet_count
       @favorite_count = tweet.favorite_count
       @retweeted = tweet.retweeted?
       @favorited = tweet.favorited?
-
-      @updated_at = Time.now
 
       self
     end
 
     def user
       App.instance.user_repository.find(user_id)
-    end
-
-    private
-
-    def recently_updated?
-      !@updated_at.nil? && @updated_at + 60 > Time.now
     end
   end
 end
