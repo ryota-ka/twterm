@@ -23,7 +23,7 @@ module Twterm
 
           return if @status_ids.include?(status.id)
 
-          @status_ids.unshift(status.id)
+          @status_ids.push(status.id)
           status.split(window.maxx - 4)
           scroller.item_appended!
           render
@@ -70,7 +70,7 @@ module Twterm
         end
 
         def items
-          statuses.reverse
+          statuses
         end
 
         def matches?(status, query)
@@ -99,7 +99,7 @@ module Twterm
 
           return if @status_ids.include?(status.id)
 
-          @status_ids << status.id
+          @status_ids.unshift(status.id)
           status.split(window.maxx - 4)
           scroller.item_prepended!
           render
@@ -170,7 +170,7 @@ module Twterm
         private
 
         def highlighted_status
-          statuses[scroller.count - scroller.index - 1]
+          statuses[scroller.index]
         end
 
         def image
@@ -206,8 +206,7 @@ module Twterm
 
         def sort
           repo = app.status_repository
-          @status_ids &= repo.ids
-          @status_ids.sort_by! { |id| repo.find(id).appeared_at }
+          @status_ids.sort_by! { |id| repo.find(id).created_at }.reverse!
         end
       end
     end

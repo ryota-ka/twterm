@@ -11,10 +11,7 @@ module Twterm
         end
 
         def fetch
-          client.mentions.then do |statuses|
-            statuses.reverse.each(&method(:prepend))
-            sort
-          end
+          client.mentions
         end
 
         def initialize(app, client)
@@ -24,12 +21,20 @@ module Twterm
 
           subscribe(Event::Status::Mention) { |e| prepend(e.status) }
 
-          fetch.then do
+          fetch.then do |statuses|
             initially_loaded!
+            statuses.each { |s| append(s) }
             scroller.move_to_top
           end
 
-          @auto_reloader = Scheduler.new(300) { fetch }
+          @auto_reloader = Scheduler.new(300) { reload }
+        end
+
+        def reload
+          fetch.then do |statuses|
+            statuses.each { |s| append(s) }
+            sort
+          end
         end
 
         def title

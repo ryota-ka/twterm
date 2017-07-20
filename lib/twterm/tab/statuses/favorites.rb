@@ -18,7 +18,7 @@ module Twterm
 
         def fetch
           client.favorites(@user.id).then do |statuses|
-            statuses.reverse.each(&method(:prepend))
+            statuses.each { |s| append(s) }
             sort
           end
         end

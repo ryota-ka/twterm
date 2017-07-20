@@ -29,7 +29,7 @@ module Twterm
 
         def fetch
           client.list_timeline(@list).then do |statuses|
-            statuses.reverse.each(&method(:prepend))
+            statuses.each { |s| append(s) }
             sort
           end
         end
