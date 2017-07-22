@@ -1,3 +1,5 @@
+require 'concurrent'
+
 require 'twterm/tab/base'
 require 'twterm/tab/loadable'
 
@@ -18,7 +20,7 @@ module Twterm
 
         def initialize
           super()
-          @user_ids = []
+          @user_ids = Concurrent::Array.new
         end
 
         def items

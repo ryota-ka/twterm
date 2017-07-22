@@ -1,3 +1,5 @@
+require 'concurrent'
+
 require 'twterm/repository/abstract_repository'
 
 module Twterm
@@ -24,7 +26,7 @@ module Twterm
       private
 
       def empty_repository
-        {}
+        Concurrent::Hash.new
       end
 
       def extract_key(args)

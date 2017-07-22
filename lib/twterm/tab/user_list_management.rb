@@ -1,3 +1,5 @@
+require 'concurrent'
+
 require 'twterm/event/notification/success'
 require 'twterm/image'
 require 'twterm/publisher'
@@ -13,22 +15,21 @@ module Twterm
       include Publisher
       include Searchable
 
-      @@lists = []
-      @@mutex = Mutex.new
+      @@lists = Concurrent::Array.new
 
       def initialize(user_id)
         super()
 
         @user_id = user_id
-        @list_ids = []
+        @list_ids = Concurrent::Array.new
 
         Client.current.owned_lists.then do |lists|
-          @@mutex.synchronize { @@lists = lists.sort_by(&:full_name) }
+          @@lists = lists.sort_by(&:full_name)
           render
         end
 
         Client.current.memberships(user_id, filter_to_owned_lists: true, count: 1000).then do |lists|
-          mutex.synchronize { @list_ids = lists.map(&:id) }
+          @list_ids = lists.map(&:id)
           initially_loaded!
         end
       end
@@ -78,10 +79,6 @@ module Twterm
 
       def user
         App.instance.user_repository.find(user_id)
-      end
-
-      def mutex
-        @mutex ||= Mutex.new
       end
 
       def toggle
