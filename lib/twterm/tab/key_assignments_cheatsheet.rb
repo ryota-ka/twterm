@@ -76,8 +76,8 @@ module Twterm
           .reduce(Image.empty, :|)
       end
 
-      def initialize
-        super
+      def initialize(app, client)
+        super(app, client)
         scroller.set_no_cursor_mode!
       end
 

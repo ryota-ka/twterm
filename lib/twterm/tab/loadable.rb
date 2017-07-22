@@ -1,7 +1,7 @@
 module Twterm
   module Tab
     module Loadable
-      def initialize
+      def initialize(*)
         super
 
         @initially_loaded = false

@@ -10,8 +10,8 @@ module Twterm
       end
 
       module ClassMethods
-        def recover(title, arg)
-          tab = new(arg)
+        def recover(app, client, title, arg)
+          tab = new(app, client, arg)
           tab.title = title
           tab
         end

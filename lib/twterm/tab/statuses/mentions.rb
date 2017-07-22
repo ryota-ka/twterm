@@ -11,18 +11,16 @@ module Twterm
         end
 
         def fetch
-          @client.mentions.then do |statuses|
+          client.mentions.then do |statuses|
             statuses.reverse.each(&method(:prepend))
             sort
           end
         end
 
-        def initialize(client)
+        def initialize(app, client)
           fail ArgumentError, 'argument must be an instance of Client class' unless client.is_a? Client
 
-          super()
-
-          @client = client
+          super(app, client)
 
           subscribe(Event::Status::Mention) { |e| prepend(e.status) }
 

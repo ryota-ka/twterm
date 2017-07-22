@@ -26,9 +26,11 @@ module Twterm
           return Image.string(initially_loaded? ? 'No results found' : 'Loading...') if items.empty?
 
           scroller.drawable_items.map.with_index(0) do |message, i|
+            sender = app.user_repository.find(message.sender_id)
+
             header = [
-              !Image.string(message.sender.name).color(message.sender.color),
-              Image.string("@#{message.sender.screen_name}").parens,
+              !Image.string(sender.name).color(sender.color),
+              Image.string("@#{sender.screen_name}").parens,
               Image.string(message.date.to_s).brackets,
             ].intersperse(Image.whitespace).reduce(Image.empty, :-)
 
@@ -46,8 +48,8 @@ module Twterm
             .reduce(Image.empty, :|)
         end
 
-        def initialize(conversation)
-          super()
+        def initialize(app, client, conversation)
+          super(app, client)
 
           @conversation = conversation
 
@@ -58,6 +60,16 @@ module Twterm
           messages
         end
 
+        def matches?(message, query)
+          sender = app.user_repository.find(message.sender_id)
+
+          [
+            message.text,
+            sender.screen_name,
+            sender.name
+          ].any? { |x| x.downcase.include?(query.downcase) }
+        end
+
         def respond_to_key(key)
           return true if scroller.respond_to_key(key)
 
@@ -65,7 +77,8 @@ module Twterm
 
           case key
           when k[:status, :compose], k[:status, :reply]
-            DirectMessageComposer.instance.compose(conversation.collocutor)
+            collocutor = app.user_repository.find(conversation.collocutor_id)
+            app.direct_message_composer.compose(collocutor)
           else
             return false
           end
@@ -74,7 +87,8 @@ module Twterm
         end
 
         def title
-          '@%s messages' % conversation.collocutor.screen_name
+          collocutor = app.user_repository.find(conversation.collocutor_id)
+          '@%s messages' % collocutor.screen_name
         end
 
         private

@@ -23,36 +23,38 @@ module Twterm
       end
 
       def find_or_fetch_status(id)
-        status = App.instance.status_repository.find(id)
+        status = app.status_repository.find(id)
 
         if status
           Concurrent::Promise.fulfill(status)
         else
-          Client.current.show_status(id)
+          client.show_status(id)
         end
       end
 
       def find_or_fetch_list(id)
-        list = App.instance.list_repository.find(id)
+        list = app.list_repository.find(id)
 
         if list
           Concurrent::Promise.fulfill(list)
         else
-          Client.current.list(id)
+          client.list(id)
         end
       end
 
       def find_or_fetch_user(id)
-        user = App.instance.user_repository.find(id)
+        user = app.user_repository.find(id)
 
         if user
           Concurrent::Promise.fulfill(user)
         else
-          Client.current.show_user(id)
+          client.show_user(id)
         end
       end
 
-      def initialize
+      def initialize(app, client)
+        @app, @client = app, client
+
         @window = stdscr.subwin(stdscr.maxy - 5, stdscr.maxx, 3, 0)
 
         subscribe(Event::Screen::Resize, :resize)
@@ -82,10 +84,12 @@ module Twterm
 
       def title=(title)
         @title = title
-        TabManager.instance.refresh_window
+        app.tab_manager.refresh_window
       end
 
       private
+
+      attr_reader :app, :client
 
       def image
         Image.string('view method is not implemented')
@@ -99,7 +103,7 @@ module Twterm
         !(
           refresh_mutex.locked? ||
             closed? ||
-            TabManager.instance.current_tab.object_id != object_id
+            app.tab_manager.current_tab.object_id != object_id
         )
       end
 

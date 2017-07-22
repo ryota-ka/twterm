@@ -15,7 +15,7 @@ module Twterm
       @window = stdscr.subwin(1, stdscr.maxx, stdscr.maxy - 1, 0)
       @searching_down = true
       @str = ''
-      @last_query = SearchQuery.new('')
+      @last_query = ''
 
       subscribe(Event::Screen::Resize, :resize)
     end
@@ -62,7 +62,7 @@ module Twterm
         end
       end
 
-      @last_query = SearchQuery.new(@str) unless @str.empty?
+      @last_query = @str unless @str.empty?
       last_query
     rescue CancelInput
       @str = ''
@@ -77,7 +77,7 @@ module Twterm
     end
 
     def render_last_query
-      render(last_query.query) unless last_query.empty?
+      render(last_query) unless last_query.empty?
     end
 
     def searching_backward!

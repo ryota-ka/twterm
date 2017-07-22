@@ -24,20 +24,20 @@ module Twterm
 
             case event
             when Twitter::Tweet
-              status = App.instance.status_repository.create(event)
+              status = status_repository.create(event)
               publish(Event::Status::Timeline.new(status))
               publish(Event::Status::Mention.new(status)) if status.text.include?('@%s' % screen_name)
             when Twitter::Streaming::Event
               case event.name
               when :favorite
-                user = App.instance.user_repository.create(event.source)
-                status = App.instance.status_repository.create(event.target_object)
+                user = user_repository.create(event.source)
+                status = status_repository.create(event.target_object)
 
                 event = Event::Favorite.new(user, status, self)
                 publish(event)
               when :follow
-                source = App.instance.user_repository.create(event.source)
-                target = App.instance.user_repository.create(event.target)
+                source = user_repository.create(event.source)
+                target = user_repository.create(event.target)
 
                 event = Event::Follow.new(source, target, self)
 

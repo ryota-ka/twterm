@@ -25,8 +25,8 @@ module Twterm
           ).freeze
         end
 
-        def initialize
-          super
+        def initialize(app, client)
+          super(app, client)
           render
         end
 
@@ -74,25 +74,25 @@ module Twterm
         end
 
         def open_direct_messages
-          switch(Tab::DirectMessage::ConversationList.new)
+          switch(Tab::DirectMessage::ConversationList.new(app, client))
         end
 
         def open_list_tab
-          switch(Tab::New::List.new)
+          switch(Tab::New::List.new(app, client))
         end
 
         def open_search_tab
-          switch(Tab::New::Search.new)
+          switch(Tab::New::Search.new(app, client))
         end
 
         def open_user_tab
-          tab = Tab::New::User.new
+          tab = Tab::New::User.new(app, client)
           switch(tab)
           tab.invoke_input
         end
 
         def open_key_assignments_cheatsheet
-          switch(Tab::KeyAssignmentsCheatsheet.new)
+          switch(Tab::KeyAssignmentsCheatsheet.new(app, client))
         end
 
         def perform_selected_action
@@ -111,7 +111,7 @@ module Twterm
         end
 
         def switch(tab)
-          TabManager.instance.switch(tab)
+          app.tab_manager.switch(tab)
         end
       end
     end

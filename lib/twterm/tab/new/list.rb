@@ -20,10 +20,10 @@ module Twterm
           (window.maxy - 6).div(3)
         end
 
-        def initialize
-          super
+        def initialize(app, client)
+          super(app, client)
 
-          Client.current.lists.then do |lists|
+          client.lists.then do |lists|
             @@lists = lists.sort_by(&:full_name)
             initially_loaded!
           end
@@ -31,6 +31,13 @@ module Twterm
 
         def items
           @@lists || []
+        end
+
+        def matches?(list, query)
+          [
+            other.description,
+            other.full_name,
+          ].any? { |x| x.downcase.include?(query.downcase) }
         end
 
         def respond_to_key(key)
@@ -41,8 +48,8 @@ module Twterm
           case key
           when 10
             return true if current_list.nil?
-            list_tab = Tab::Statuses::ListTimeline.new(current_list.id)
-            TabManager.instance.switch(list_tab)
+            list_tab = Tab::Statuses::ListTimeline.new(app, client, current_list.id)
+            app.tab_manager.switch(list_tab)
           else
             return false
           end

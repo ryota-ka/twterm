@@ -18,13 +18,21 @@ module Twterm
 
         def fetch; end
 
-        def initialize
-          super()
+        def initialize(app, client)
+          super(app, client)
           @user_ids = Concurrent::Array.new
         end
 
         def items
-          user_ids.map { |id| App.instance.user_repository.find(id) }.compact
+          user_ids.map { |id| app.user_repository.find(id) }.compact
+        end
+
+        def matches?(user, query)
+          [
+            user.name,
+            user.screen_name,
+            user.description
+          ].compact.any? { |x| x.downcase.include?(query.downcase) }
         end
 
         def respond_to_key(key)
@@ -52,8 +60,8 @@ module Twterm
 
         def show_user
           user = current_item
-          tab = Tab::UserTab.new(user.id)
-          TabManager.instance.add_and_show(tab)
+          tab = Tab::UserTab.new(app, client, user.id)
+          app.tab_manager.add_and_show(tab)
         end
 
         def image

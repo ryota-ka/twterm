@@ -9,7 +9,7 @@ module Twterm
       def scroller
         return @scroller unless @scroller.nil?
 
-        @scroller = self.class::Scroller.new
+        @scroller = self.class::Scroller.new(self)
         @scroller.delegate = self
         @scroller.after_move { render }
         @scroller
@@ -46,7 +46,9 @@ module Twterm
           !!@no_cursor_mode
         end
 
-        def initialize
+        def initialize(tab)
+          @tab = tab
+
           @index = 0
           @offset = 0
           @no_cursor_mode = false
@@ -154,6 +156,8 @@ module Twterm
         end
 
         private
+
+        attr_reader :tab
 
         def add_hook(name, &block)
           @hooks ||= {}

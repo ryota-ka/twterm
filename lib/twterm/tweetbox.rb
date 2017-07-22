@@ -7,10 +7,13 @@ module Twterm
     class InvalidCharactersError < StandardError; end
     class TextTooLongError < StandardError; end
 
-    include Singleton
     include Readline
     include Curses
     include Publisher
+
+    def initialize(app, client)
+      @app, @client = app, client
+    end
 
     def compose(in_reply_to = nil)
       @text = ''
@@ -24,7 +27,7 @@ module Twterm
       resetter = proc do
         reset_prog_mode
         sleep 0.1
-        Screen.instance.refresh
+        app.screen.refresh
       end
 
       thread = Thread.new do
@@ -36,7 +39,7 @@ module Twterm
           puts "\nReply to @#{in_reply_to.user.screen_name}'s tweet: \"#{in_reply_to.text}\""
         end
 
-        CompletionManager.instance.set_default_mode!
+        app.completion_manager.set_default_mode!
 
         loop do
           loop do
@@ -73,7 +76,7 @@ module Twterm
         post
       end
 
-      App.instance.register_interruption_handler do
+      app.register_interruption_handler do
         thread.kill
         clear
         puts "\nCanceled"
@@ -85,7 +88,7 @@ module Twterm
 
     private
 
-    attr_reader :in_reply_to
+    attr_reader :app, :client, :in_reply_to
 
     def clear
       @text = ''

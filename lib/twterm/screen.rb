@@ -4,11 +4,12 @@ require 'twterm/subscriber'
 
 module Twterm
   class Screen
-    include Singleton
     include Subscriber
     include Curses
 
-    def initialize
+    def initialize(app, client)
+      @app, @client = app, client
+
       @screen = init_screen
       noecho
       raw
@@ -21,8 +22,8 @@ module Twterm
     end
 
     def refresh
-      TabManager.instance.refresh_window
-      TabManager.instance.current_tab.render
+      app.tab_manager.refresh_window
+      app.tab_manager.current_tab.render
       Notifier.instance.show
     end
 
@@ -31,13 +32,13 @@ module Twterm
 
       case key
       when k[:status, :compose]
-        Tweetbox.instance.compose
+        app.tweetbox.compose
         return
       when k[:app, :quit], 3
-        App.instance.quit
+        app.quit
       when k[:app, :cheatsheet]
-        tab = Tab::KeyAssignmentsCheatsheet.new
-        TabManager.instance.add_and_show tab
+        tab = Tab::KeyAssignmentsCheatsheet.new(app, client)
+        app.tab_manager.add_and_show tab
       else
         return false
       end
@@ -54,6 +55,8 @@ module Twterm
 
     private
 
+    attr_reader :app, :client
+
     def resize(event)
       return if closed?
 
@@ -65,12 +68,12 @@ module Twterm
     end
 
     def scan
-      App.instance.reset_interruption_handler
+      app.reset_interruption_handler
 
       key = getch
 
-      return if TabManager.instance.current_tab.respond_to_key(key)
-      return if TabManager.instance.respond_to_key(key)
+      return if app.tab_manager.current_tab.respond_to_key(key)
+      return if app.tab_manager.respond_to_key(key)
       respond_to_key(key)
     end
   end

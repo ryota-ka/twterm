@@ -28,8 +28,8 @@ module Twterm
         render
       end
 
-      def initialize(user_id)
-        super()
+      def initialize(app, client, user_id)
+        super(app, client)
 
         self.title = 'Loading...'.freeze
         @user_id = user_id
@@ -37,7 +37,7 @@ module Twterm
         find_or_fetch_user(user_id).then do |user|
           render
 
-          Client.current.lookup_friendships.then { render } unless App.instance.friendship_repository.already_looked_up?(user_id)
+          client.lookup_friendships.then { render } unless app.friendship_repository.already_looked_up?(user_id)
           self.title = "@#{user.screen_name}"
         end
       end
@@ -81,7 +81,7 @@ module Twterm
       end
 
       def block
-        Client.current.block(user_id).then do |users|
+        client.block(user_id).then do |users|
           render
 
           user = users.first
@@ -90,15 +90,15 @@ module Twterm
       end
 
       def blocking?
-        App.instance.friendship_repository.blocking?(Client.current.user_id, user_id)
+        app.friendship_repository.blocking?(client.user_id, user_id)
       end
 
       def compose_direct_message
-        DirectMessageComposer.instance.compose(user)
+        app.direct_message_composer.compose(user)
       end
 
       def follow
-        Client.current.follow(user_id).then do |users|
+        client.follow(user_id).then do |users|
           render
 
           user = users.first
@@ -112,19 +112,19 @@ module Twterm
       end
 
       def followed?
-        App.instance.friendship_repository.following?(user_id, Client.current.user_id)
+        app.friendship_repository.following?(user_id, client.user_id)
       end
 
       def following?
-        App.instance.friendship_repository.following?(Client.current.user_id, user_id)
+        app.friendship_repository.following?(client.user_id, user_id)
       end
 
       def following_requested?
-        App.instance.friendship_repository.following_requested?(Client.current.user_id, user_id)
+        app.friendship_repository.following_requested?(client.user_id, user_id)
       end
 
       def mute
-        Client.current.mute(user_id).then do |users|
+        client.mute(user_id).then do |users|
           render
 
           user = users.first
@@ -133,21 +133,21 @@ module Twterm
       end
 
       def muting?
-        App.instance.friendship_repository.muting?(Client.current.user_id, user_id)
+        app.friendship_repository.muting?(client.user_id, user_id)
       end
 
       def myself?
-        user_id == Client.current.user_id
+        user_id == client.user_id
       end
 
       def open_list_management_tab
-        tab = Tab::UserListManagement.new(user_id)
-        TabManager.instance.add_and_show(tab)
+        tab = Tab::UserListManagement.new(app, client, user_id)
+        app.tab_manager.add_and_show(tab)
       end
 
       def open_timeline_tab
-        tab = Tab::Statuses::UserTimeline.new(user_id)
-        TabManager.instance.add_and_show(tab)
+        tab = Tab::Statuses::UserTimeline.new(app, client, user_id)
+        app.tab_manager.add_and_show(tab)
       end
 
       def open_website
@@ -188,22 +188,22 @@ module Twterm
       end
 
       def show_likes
-        tab = Tab::Statuses::Favorites.new(user_id)
-        TabManager.instance.add_and_show(tab)
+        tab = Tab::Statuses::Favorites.new(app, client, user_id)
+        app.tab_manager.add_and_show(tab)
       end
 
       def show_followers
-        tab = Tab::Users::Followers.new(user_id)
-        TabManager.instance.add_and_show(tab)
+        tab = Tab::Users::Followers.new(app, client, user_id)
+        app.tab_manager.add_and_show(tab)
       end
 
       def show_friends
-        tab = Tab::Users::Friends.new(user_id)
-        TabManager.instance.add_and_show(tab)
+        tab = Tab::Users::Friends.new(app, client, user_id)
+        app.tab_manager.add_and_show(tab)
       end
 
       def unblock
-        Client.current.unblock(user_id).then do |users|
+        client.unblock(user_id).then do |users|
           render
 
           user = users.first
@@ -212,7 +212,7 @@ module Twterm
       end
 
       def unfollow
-        Client.current.unfollow(user_id).then do |users|
+        client.unfollow(user_id).then do |users|
           render
 
           user = users.first
@@ -221,7 +221,7 @@ module Twterm
       end
 
       def unmute
-        Client.current.unmute(user_id).then do |users|
+        client.unmute(user_id).then do |users|
           render
 
           user = users.first
@@ -315,7 +315,7 @@ module Twterm
       end
 
       def user
-        App.instance.user_repository.find(user_id)
+        app.user_repository.find(user_id)
       end
     end
   end

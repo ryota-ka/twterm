@@ -30,14 +30,14 @@ module Twterm
         end
 
         def delete(status_id)
-          App.instance.status_repository.delete(status_id)
+          app.status_repository.delete(status_id)
           render
         end
 
         def destroy_status
           status = highlighted_status
 
-          Client.current.destroy_status(status)
+          client.destroy_status(status)
         end
 
         def drawable_item_count
@@ -53,7 +53,7 @@ module Twterm
           return if highlighted_status.nil?
 
           method_name = highlighted_status.favorited ? :unfavorite : :favorite
-          Client.current.method(method_name).call(highlighted_status)
+          client.method(method_name).call(highlighted_status)
             .then { render }
         end
 
@@ -61,8 +61,8 @@ module Twterm
           fail NotImplementedError, 'fetch method must be implemented'
         end
 
-        def initialize
-          super
+        def initialize(app, client)
+          super(app, client)
 
           @status_ids = Concurrent::Array.new
 
@@ -71,6 +71,16 @@ module Twterm
 
         def items
           statuses.reverse
+        end
+
+        def matches?(status, query)
+          user = app.user_repository.find(status.user_id)
+
+          [
+            status.text,
+            user.screen_name,
+            user.name
+          ].any? { |x| x.downcase.include?(query.downcase) }
         end
 
         def open_link
@@ -97,7 +107,7 @@ module Twterm
 
         def reply
           return if highlighted_status.nil?
-          Tweetbox.instance.compose(highlighted_status)
+          app.tweetbox.compose(highlighted_status)
         end
 
         def respond_to_key(key)
@@ -130,24 +140,24 @@ module Twterm
 
         def retweet
           return if highlighted_status.nil?
-          Client.current.retweet(highlighted_status).then { render }
+          client.retweet(highlighted_status).then { render }
         end
 
         def show_conversation
           return if highlighted_status.nil?
-          tab = Tab::Statuses::Conversation.new(highlighted_status.id)
-          TabManager.instance.add_and_show(tab)
+          tab = Tab::Statuses::Conversation.new(app, client, highlighted_status.id)
+          app.tab_manager.add_and_show(tab)
         end
 
         def show_user
           return if highlighted_status.nil?
-          user = highlighted_status.user
-          user_tab = Tab::UserTab.new(user.id)
-          TabManager.instance.add_and_show(user_tab)
+          user_id = highlighted_status.user_id
+          user_tab = Tab::UserTab.new(app, client, user_id)
+          app.tab_manager.add_and_show(user_tab)
         end
 
         def statuses
-          statuses = @status_ids.map { |id| App.instance.status_repository.find(id) }.compact
+          statuses = @status_ids.map { |id| app.status_repository.find(id) }.compact
           @status_ids = statuses.map(&:id)
 
           statuses
@@ -167,13 +177,16 @@ module Twterm
           return Image.string(initially_loaded? ? 'No results found' : 'Loading...') if items.empty?
 
           scroller.drawable_items.map.with_index(0) do |status, i|
+            user = app.user_repository.find(status.user_id)
+            retweeted_by = app.user_repository.find(status.retweeted_by_user_id)
+
             header = [
-              !Image.string(status.user.name).color(status.user.color),
-              Image.string("@#{status.user.screen_name}").parens,
+              !Image.string(user.name).color(user.color),
+              Image.string("@#{user.screen_name}").parens,
               Image.string(status.date.to_s).brackets,
               (Image.whitespace.color(:black, :red) if status.favorited?),
               (Image.whitespace.color(:black, :green) if status.retweeted?),
-              ((Image.string('retweeted by ') - !Image.string("@#{status.retweeted_by.screen_name}")).parens unless status.retweeted_by.nil?),
+              ((Image.string('retweeted by ') - !Image.string("@#{retweeted_by.screen_name}")).parens unless status.retweeted_by_user_id.nil?),
               ((Image.number(status.favorite_count) - Image.plural(status.favorite_count, 'like')).color(:red) if status.favorite_count.positive?),
               ((Image.number(status.retweet_count) - Image.plural(status.retweet_count, 'RT')).color(:green) if status.retweet_count.positive?),
             ].compact.intersperse(Image.whitespace).reduce(Image.empty, :-)
@@ -192,7 +205,7 @@ module Twterm
         end
 
         def sort
-          repo = App.instance.status_repository
+          repo = app.status_repository
           @status_ids &= repo.ids
           @status_ids.sort_by! { |id| repo.find(id).appeared_at }
         end

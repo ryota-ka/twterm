@@ -1,19 +1,33 @@
 require 'curses'
 
+require 'twterm/completion_mamanger'
+require 'twterm/direct_message_composer'
 require 'twterm/event/screen/resize'
-require 'twterm/repository/friendship_repository'
 require 'twterm/repository/direct_message_repository'
+require 'twterm/repository/friendship_repository'
+require 'twterm/repository/hashtag_repository'
 require 'twterm/repository/list_repository'
 require 'twterm/repository/status_repository'
 require 'twterm/repository/user_repository'
+require 'twterm/tab_manager'
+require 'twterm/tweetbox'
 require 'twterm/uri_opener'
 
 module Twterm
   class App
     include Publisher
-    include Singleton
+
+    attr_reader :screen
 
     DATA_DIR = "#{ENV['HOME']}/.twterm".freeze
+
+    def completion_manager
+      @completion_mamanger ||= CompletionManager.new(self)
+    end
+
+    def direct_message_composer
+      @direct_message_composer ||= DirectMessageComposer.new(self, client)
+    end
 
     def direct_message_repository
       @direct_messages_repository ||= Repository::DirectMessageRepository.new
@@ -21,6 +35,10 @@ module Twterm
 
     def friendship_repository
       @friendship_repository ||= Repository::FriendshipRepository.new
+    end
+
+    def hashtag_repository
+      @hashtag_repository ||= Repository::HashtagRepository.new
     end
 
     def list_repository
@@ -34,18 +52,19 @@ module Twterm
 
       KeyMapper.instance
 
-      Screen.instance
+      @screen = Screen.new(self, client)
+
       SearchQueryWindow.instance
 
-      timeline = Tab::Statuses::Home.new(client)
-      TabManager.instance.add_and_show(timeline)
+      timeline = Tab::Statuses::Home.new(self, client)
+      tab_manager.add_and_show(timeline)
 
-      mentions_tab = Tab::Statuses::Mentions.new(client)
+      mentions_tab = Tab::Statuses::Mentions.new(self, client)
 
-      TabManager.instance.add(mentions_tab)
-      TabManager.instance.recover_tabs
+      tab_manager.add(mentions_tab)
+      tab_manager.recover_tabs
 
-      Screen.instance.refresh
+      screen.refresh
 
       client.connect_user_stream
 
@@ -58,6 +77,11 @@ module Twterm
 
         _ = status_repository.all.map(&:user)
         user_repository.expire(3600)
+      end
+
+      direct_message_repository.before_create do |dm|
+        user_repository.create(dm.recipient)
+        user_repository.create(dm.sender)
       end
 
       user_repository.before_create do |user|
@@ -77,13 +101,17 @@ module Twterm
       end
 
       status_repository.before_create do |tweet|
+        user_repository.create(tweet.user)
+      end
+
+      status_repository.before_create do |tweet|
         tweet.hashtags.each do |hashtag|
-          History::Hashtag.instance.add(hashtag.text)
+          hashtag_repository.create(hashtag.text)
         end
       end
 
-      Screen.instance.wait
-      Screen.instance.refresh
+      screen.wait
+      screen.refresh
     end
 
     def register_interruption_handler(&block)
@@ -92,17 +120,25 @@ module Twterm
     end
 
     def reset_interruption_handler
-      Signal.trap(:INT) { App.instance.quit }
+      Signal.trap(:INT) { quit }
     end
 
     def quit
       Curses.close_screen
-      TabManager.instance.dump_tabs
+      tab_manager.dump_tabs
       exit
     end
 
     def status_repository
       @status_repository ||= Repository::StatusRepository.new
+    end
+
+    def tab_manager
+      @tab_manager ||= TabManager.new(self, client)
+    end
+
+    def tweetbox
+      @tweetbox = Tweetbox.new(self, client)
     end
 
     def user_repository
@@ -116,7 +152,15 @@ module Twterm
         config[:user_id].to_i,
         config[:screen_name],
         config[:access_token],
-        config[:access_token_secret]
+        config[:access_token_secret],
+        {
+          friendship: friendship_repository,
+          direct_message: direct_message_repository,
+          hashtag: hashtag_repository,
+          list: list_repository,
+          status: status_repository,
+          user: user_repository,
+        }
       )
     end
 
