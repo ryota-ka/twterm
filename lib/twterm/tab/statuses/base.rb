@@ -1,3 +1,5 @@
+require 'concurrent'
+
 require 'twterm/event/open_uri'
 require 'twterm/event/status/delete'
 require 'twterm/publisher'
@@ -62,7 +64,7 @@ module Twterm
         def initialize
           super
 
-          @status_ids = []
+          @status_ids = Concurrent::Array.new
 
           subscribe(Event::Status::Delete) { |e| delete(e.status_id) }
         end

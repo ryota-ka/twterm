@@ -1,3 +1,5 @@
+require 'concurrent'
+
 require 'twterm/tab/base'
 require 'twterm/tab/loadable'
 
@@ -9,7 +11,7 @@ module Twterm
         include Readline
         include Searchable
 
-        @@queries = []
+        @@queries = Concurrent::Array.new
 
         def ==(other)
           other.is_a?(self.class)

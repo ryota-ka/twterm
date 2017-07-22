@@ -1,3 +1,5 @@
+require 'concurrent'
+
 require 'twterm/friendship'
 require 'twterm/repository//abstract_repository'
 
@@ -10,10 +12,11 @@ module Twterm
         super
 
         @user_ids = Set.new
+        @m = Mutex.new
       end
 
       def already_looked_up?(user_id)
-        @user_ids.include?(user_id)
+        @m.synchronize { @user_ids.include?(user_id) }
       end
 
       def block(from, to)
@@ -53,7 +56,7 @@ module Twterm
       end
 
       def looked_up!(user_id)
-        @user_ids << user_id
+        @m.synchronize { @user_ids << user_id }
         user_id
       end
 
@@ -90,7 +93,7 @@ module Twterm
       end
 
       def empty_repository
-        Friendship::STATUSES.map { |s| [s, []] }.to_h
+        Friendship::STATUSES.map { |s| [s, Concurrent::Array.new] }.to_h
       end
 
       def store(instance)

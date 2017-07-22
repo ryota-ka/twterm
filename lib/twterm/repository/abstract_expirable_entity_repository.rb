@@ -1,3 +1,5 @@
+require 'concurrent'
+
 require 'twterm/repository/abstract_entity_repository'
 
 module Twterm
@@ -5,7 +7,7 @@ module Twterm
     class AbstractExpirableEntityRepository < AbstractEntityRepository
       def initialize
         super
-        @touched_at = {}
+        @touched_at = Concurrent::Hash.new
       end
 
       def create(args)
