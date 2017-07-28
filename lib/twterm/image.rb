@@ -1,3 +1,4 @@
+require 'twterm/image/between'
 require 'twterm/image/blank_line'
 require 'twterm/image/bold'
 require 'twterm/image/brackets'
@@ -62,6 +63,22 @@ class Twterm::Image
 
   def self.empty
     Empty.new
+  end
+
+  def self.remaining_resource(remaining, total, length)
+    ratio = remaining * 100 / total
+    color =
+      if ratio >= 40
+        :green
+      elsif ratio >= 20
+        :yellow
+      else
+        :red
+      end
+
+    bars = string(('|' * (remaining * length / total)).ljust(length)).color(color)
+
+    Between.new(bars, !string('['), !string(']'))
   end
 
   def line
