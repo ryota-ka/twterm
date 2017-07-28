@@ -1,5 +1,6 @@
 require 'twterm/tab/base'
 require 'twterm/tab/direct_message/conversation_list'
+require 'twterm/tab/rate_limit_status'
 
 module Twterm
   module Tab
@@ -22,6 +23,7 @@ module Twterm
             search_tab
             user_tab
             key_assignments_cheatsheet
+            rate_limit_status
           ).freeze
         end
 
@@ -65,6 +67,8 @@ module Twterm
                   'User tab'
                 when :key_assignments_cheatsheet
                   'Key assignments cheatsheet'
+                when :rate_limit_status
+                  'Rate limit status'
                 end
 
               cursor - Image.whitespace - Image.string(desc)
@@ -83,6 +87,10 @@ module Twterm
 
         def open_search_tab
           switch(Tab::New::Search.new(app, client))
+        end
+
+        def open_rate_limit_status
+          switch(Tab::RateLimitStatus.new(app, client))
         end
 
         def open_user_tab
@@ -107,6 +115,8 @@ module Twterm
             open_user_tab
           when :key_assignments_cheatsheet
             open_key_assignments_cheatsheet
+          when :rate_limit_status
+            open_rate_limit_status
           end
         end
 
