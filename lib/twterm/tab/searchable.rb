@@ -1,6 +1,5 @@
 require 'twterm/event/notification/info'
 require 'twterm/event/notification/warning'
-require 'twterm/search_query'
 require 'twterm/search_query_window'
 
 module Twterm
@@ -10,6 +9,10 @@ module Twterm
       extend Forwardable
 
       def_delegators :scroller, :search_query
+
+      def matches?(item, query)
+        raise NotImplementedError, '`matches?` method must be implemented'
+      end
 
       class Scroller < Scrollable::Scroller
         extend Forwardable
@@ -23,9 +26,9 @@ module Twterm
                        :searching_forward!, :searching_forward?,
                        :searching_up!, :searching_up?
 
-        def initialize
+        def initialize(*)
           super
-          @search_query = SearchQuery.empty
+          @search_query = ''
         end
 
         def find_next
@@ -86,7 +89,7 @@ module Twterm
         private
 
         def ask
-          @search_query = search_query_window.input || SearchQuery.empty
+          @search_query = search_query_window.input || ''
         end
 
         def search
@@ -105,7 +108,7 @@ module Twterm
             *f.(items.each_with_index.drop(index.succ) + items.each_with_index.take(index)),
             [current_item, index]
           ]
-          _, index = xs.find { |x, _| search_query === x }
+          _, index = xs.find { |x, _| tab.matches?(x, search_query) }
 
           if index.nil?
             publish(Event::Notification::Warning.new("No matches found: \"#{search_query}\""))

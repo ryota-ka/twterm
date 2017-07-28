@@ -22,14 +22,14 @@ module Twterm
         end
 
         def fetch
-          Client.current.search(@query).then do |statuses|
+          client.search(@query).then do |statuses|
             statuses.each(&method(:append))
             sort
           end
         end
 
-        def initialize(query)
-          super()
+        def initialize(app, client, query)
+          super(app, client)
 
           @query = query
           @title = "\"#{@query}\""

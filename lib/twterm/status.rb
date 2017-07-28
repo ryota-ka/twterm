@@ -32,7 +32,6 @@ module Twterm
     def initialize(tweet)
       unless tweet.retweeted_status.is_a? Twitter::NullObject
         @retweeted_by_user_id = tweet.user.id
-        App.instance.user_repository.create(tweet.user)
         retweeted_at = tweet.created_at.dup.localtime
         tweet = tweet.retweeted_status
       end
@@ -52,7 +51,6 @@ module Twterm
       @urls = tweet.urls
 
       @user_id = tweet.user.id
-      App.instance.user_repository.create(tweet.user)
 
       @splitted_text = {}
 
@@ -62,10 +60,6 @@ module Twterm
     def retweet!
       @retweet_count += 1
       @retweeted = true
-    end
-
-    def retweeted_by
-      App.instance.user_repository.find(@retweeted_by_user_id)
     end
 
     def split(width)
@@ -85,10 +79,6 @@ module Twterm
       @favorited = tweet.favorited?
 
       self
-    end
-
-    def user
-      App.instance.user_repository.find(user_id)
     end
   end
 end

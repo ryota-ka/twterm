@@ -8,6 +8,11 @@ module Twterm
         repository.values
       end
 
+      def create(tweet)
+        create(tweet.retweeted_status) unless tweet.retweeted_status.is_a?(Twitter::NullObject)
+        super
+      end
+
       def delete(id)
         @touched_at.delete(id)
         repository.delete(id)

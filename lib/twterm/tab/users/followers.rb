@@ -13,14 +13,14 @@ module Twterm
         end
 
         def fetch
-          Client.current.followers(user_id) do |users|
+          client.followers(user_id) do |users|
             @user_ids.concat(users.map(&:id)).uniq!
             render
           end
         end
 
-        def initialize(user_id)
-          super()
+        def initialize(app, client, user_id)
+          super(app, client)
 
           @user_id = user_id
 
@@ -37,7 +37,7 @@ module Twterm
         private
 
         def user
-          App.instance.user_repository.find(user_id)
+          app.user_repository.find(user_id)
         end
       end
     end

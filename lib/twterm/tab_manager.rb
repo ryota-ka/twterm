@@ -6,7 +6,6 @@ require 'twterm/view'
 
 module Twterm
   class TabManager
-    include Singleton
     include Curses
     include Publisher
     include Subscriber
@@ -70,7 +69,9 @@ module Twterm
       end
     end
 
-    def initialize
+    def initialize(app, client)
+      @app, @client = app, client
+
       @tabs = []
       @index = 0
       @history = []
@@ -81,26 +82,26 @@ module Twterm
     end
 
     def open_my_profile
-      current_user_id = Client.current.user_id
-      tab = Tab::UserTab.new(current_user_id)
+      current_user_id = client.user_id
+      tab = Tab::UserTab.new(app, client, current_user_id)
       add_and_show(tab)
     end
 
     def open_new
-      tab = Tab::New::Start.new
+      tab = Tab::New::Start.new(app, client)
       add_and_show(tab)
     end
 
     def recover_tabs
       unless File.exist? DUMPED_TABS_FILE
-        tab = Tab::KeyAssignmentsCheatsheet.new
+        tab = Tab::KeyAssignmentsCheatsheet.new(app, client)
         add(tab)
         return
       end
 
       data = YAML.load(File.read(DUMPED_TABS_FILE))
       data.each do |klass, title, arg|
-        tab = klass.recover(title, arg)
+        tab = klass.recover(app, client, title, arg)
         add(tab)
       end
     rescue
@@ -191,6 +192,8 @@ module Twterm
     end
 
     private
+
+    attr_reader :app, :client
 
     def resize(event)
       @window.resize(3, stdscr.maxx)

@@ -19,10 +19,10 @@ module Twterm
 
           if in_reply_to_status_id.nil?
             Concurrent::Promise.fulfill(nil)
-          elsif (instance = App.instance.status_repository.find(in_reply_to_status_id))
+          elsif (instance = app.status_repository.find(in_reply_to_status_id))
             Concurrent::Promise.fulfill(instance)
           else
-            Client.current.show_status(in_reply_to_status_id)
+            client.show_status(in_reply_to_status_id)
           end
             .then do |in_reply_to|
               next if in_reply_to.nil?
@@ -33,7 +33,7 @@ module Twterm
         end
 
         def find_descendants(status)
-          App.instance.status_repository.find_replies_for(status.id).each do |reply|
+          app.status_repository.find_replies_for(status.id).each do |reply|
             prepend(reply)
             find_descendants(reply)
           end
@@ -44,8 +44,8 @@ module Twterm
           @status.id
         end
 
-        def initialize(status_id)
-          super()
+        def initialize(app, client, status_id)
+          super(app, client)
 
           find_or_fetch_status(status_id).then do |status|
             @status = status

@@ -6,5 +6,5 @@ if ARGV.count == 1 && (%w(-v --version).include?(ARGV.first))
   exit
 else
   require 'twterm'
-  Twterm::App.instance.run
+  Twterm::App.new.run
 end

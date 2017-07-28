@@ -17,20 +17,20 @@ module Twterm
         end
 
         def fetch
-          Client.current.favorites(@user.id).then do |statuses|
+          client.favorites(@user.id).then do |statuses|
             statuses.reverse.each(&method(:prepend))
             sort
           end
         end
 
-        def initialize(user_id)
-          super()
+        def initialize(app, client, user_id)
+          super(app, client)
 
           @user_id = user_id
 
           find_or_fetch_user(user_id).then do |user|
             @user = user
-            TabManager.instance.refresh_window
+            app.tab_manager.refresh_window
 
             fetch.then do
               initially_loaded!

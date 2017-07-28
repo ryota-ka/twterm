@@ -8,15 +8,15 @@ module Twterm
 
         attr_reader :list
 
-        def initialize(list_id)
-          super()
+        def initialize(app, client, list_id)
+          super(app, client)
 
           self.title = 'Loading...'.freeze
 
           find_or_fetch_list(list_id).then do |list|
             @list = list
             self.title = @list.full_name
-            TabManager.instance.refresh_window
+            app.tab_manager.refresh_window
 
             fetch.then do
               initially_loaded!
@@ -28,7 +28,7 @@ module Twterm
         end
 
         def fetch
-          Client.current.list_timeline(@list).then do |statuses|
+          client.list_timeline(@list).then do |statuses|
             statuses.reverse.each(&method(:prepend))
             sort
           end

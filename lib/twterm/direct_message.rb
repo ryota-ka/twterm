@@ -3,7 +3,7 @@ require 'twterm/utils'
 
 module Twterm
   class DirectMessage
-    attr_reader :id, :created_at, :recipient, :sender, :text
+    attr_reader :id, :created_at, :recipient_id, :sender_id, :text
 
     def initialize(message)
       @id = message.id
@@ -21,8 +21,8 @@ module Twterm
 
     def update!(message)
       @created_at = message.created_at.dup.localtime
-      @recipient = App.instance.user_repository.create(message.recipient)
-      @sender = App.instance.user_repository.create(message.sender)
+      @recipient_id = message.recipient.id
+      @sender_id = message.sender.id
       @text = message.text
 
       self
@@ -31,12 +31,10 @@ module Twterm
     class Conversation
       include Utils
 
-      attr_reader :collocutor, :messages
+      attr_reader :collocutor_id, :messages
 
-      def initialize(collocutor)
-        check_type User, collocutor
-
-        @collocutor = collocutor
+      def initialize(collocutor_id)
+        @collocutor_id = collocutor_id
         @messages = []
       end
 

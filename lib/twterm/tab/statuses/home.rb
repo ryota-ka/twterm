@@ -15,17 +15,15 @@ module Twterm
         end
 
         def fetch
-          @client.home_timeline.then do |statuses|
+          client.home_timeline.then do |statuses|
             statuses.each(&method(:prepend))
             sort
           end
         end
 
-        def initialize(client)
-          check_type Client, client
+        def initialize(app, client)
+          super(app, client)
 
-          super()
-          @client = client
           subscribe(Event::Status::Timeline) { |e| prepend e.status }
 
           fetch.then do

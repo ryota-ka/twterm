@@ -17,18 +17,18 @@ module Twterm
 
       @@lists = Concurrent::Array.new
 
-      def initialize(user_id)
-        super()
+      def initialize(app, client, user_id)
+        super(app, client)
 
         @user_id = user_id
         @list_ids = Concurrent::Array.new
 
-        Client.current.owned_lists.then do |lists|
+        client.owned_lists.then do |lists|
           @@lists = lists.sort_by(&:full_name)
           render
         end
 
-        Client.current.memberships(user_id, filter_to_owned_lists: true, count: 1000).then do |lists|
+        client.memberships(user_id, filter_to_owned_lists: true, count: 1000).then do |lists|
           @list_ids = lists.map(&:id)
           initially_loaded!
         end
@@ -61,6 +61,13 @@ module Twterm
         @@lists
       end
 
+      def matches?(list, query)
+        [
+          list.description,
+          list.full_name,
+        ].any? { |x| x.downcase.include?(query.downcase) }
+      end
+
       def respond_to_key(key)
         return true if scroller.respond_to_key(key)
 
@@ -78,19 +85,19 @@ module Twterm
       attr_reader :list_ids, :user_id
 
       def user
-        App.instance.user_repository.find(user_id)
+        app.user_repository.find(user_id)
       end
 
       def toggle
         list = scroller.current_item
 
         if list_ids.include?(list.id)
-          Client.current.remove_list_member(list.id, user_id).then do
+          client.remove_list_member(list.id, user_id).then do
             @list_ids.delete(list.id)
             publish(Event::Notification::Success.new("Removed @#{user.screen_name} from #{list.name}"))
           end
         else
-          Client.current.add_list_member(list.id, user_id).then do
+          client.add_list_member(list.id, user_id).then do
             @list_ids.push(list.id)
             publish(Event::Notification::Success.new("Added @#{user.screen_name} to #{list.name}"))
           end
