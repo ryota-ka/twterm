@@ -70,7 +70,7 @@ module Twterm
         end
 
         def move_down
-          return if count == 0 || index == count - 1
+          return if count == 0 || index == count - 1 || (no_cursor_mode? && offset + drawable_item_count >= count)
           # return when there are no items or cursor is at the bottom
 
           @index += 1
@@ -82,7 +82,7 @@ module Twterm
         def move_to_bottom
           return if count == 0 || index == count - 1
 
-          @index = count - 1
+          @index = no_cursor_mode? ? count - drawable_item_count : count - 1
           @offset = [count - drawable_item_count + 1, 0].max
 
           @offset += 1 until last_item_shown?
