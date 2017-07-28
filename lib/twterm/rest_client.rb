@@ -258,6 +258,10 @@ module Twterm
       end
     end
 
+    def rate_limit_status
+      send_request { Twitter::REST::Request.new(rest_client, :get, '/1.1/application/rate_limit_status.json').perform }
+    end
+
     def remove_list_member(list_id, user_id)
       send_request { rest_client.remove_list_member(list_id, user_id) }
     end
