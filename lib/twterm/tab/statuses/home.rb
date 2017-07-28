@@ -16,7 +16,7 @@ module Twterm
 
         def fetch
           client.home_timeline.then do |statuses|
-            statuses.each(&method(:prepend))
+            statuses.each { |s| append(s) }
             sort
           end
         end
@@ -24,7 +24,7 @@ module Twterm
         def initialize(app, client)
           super(app, client)
 
-          subscribe(Event::Status::Timeline) { |e| prepend e.status }
+          subscribe(Event::Status::Timeline) { |e| prepend(e.status) }
 
           fetch.then do
             initially_loaded!

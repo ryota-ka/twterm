@@ -59,7 +59,6 @@ module Twterm
         end
 
         def item_appended!
-          @index -= 1
           @offset -= 1 if @offset > 0
         end
 
