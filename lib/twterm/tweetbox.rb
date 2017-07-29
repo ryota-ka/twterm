@@ -18,10 +18,11 @@ module Twterm
     def compose(in_reply_to = nil)
       @text = ''
 
-      if in_reply_to.is_a? Status
-        @in_reply_to = in_reply_to
+      @in_reply_to, screen_name =
+        if in_reply_to.is_a?(Status)
+          [in_reply_to, app.user_repository.find(in_reply_to.user_id).screen_name]
       else
-        @in_reply_to = nil
+        [nil, nil]
       end
 
       resetter = proc do
@@ -36,14 +37,14 @@ module Twterm
         if in_reply_to.nil?
           puts "\nCompose new tweet:"
         else
-          puts "\nReply to @#{in_reply_to.user.screen_name}'s tweet: \"#{in_reply_to.text}\""
+          puts "\nReply to @#{screen_name}'s tweet: \"#{in_reply_to.text}\""
         end
 
         app.completion_manager.set_default_mode!
 
         loop do
           loop do
-            msg = in_reply_to.nil? || !text.empty? ? '> ' : "> @#{in_reply_to.user.screen_name} "
+            msg = in_reply_to.nil? || !text.empty? ? '> ' : "> @#{screen_name} "
             line = (readline(msg, true) || '').strip
             break if line.empty?
 

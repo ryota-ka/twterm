@@ -30,6 +30,7 @@ module Twterm
 
       Readline.completion_proc = proc do |str|
         app.user_repository.all
+          .map { |user| user.screen_name }
           .select { |name| name.start_with?(str) }
       end
     end
