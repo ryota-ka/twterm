@@ -35,7 +35,7 @@ module Twterm
         end
 
         def destroy_status
-          status = highlighted_status
+          status = highlighted_original_status
 
           client.destroy_status(status)
         end
@@ -50,10 +50,17 @@ module Twterm
         end
 
         def favorite
-          return if highlighted_status.nil?
+          status = highlighted_original_status
 
-          method_name = highlighted_status.favorited ? :unfavorite : :favorite
-          client.method(method_name).call(highlighted_status)
+          return if status.nil?
+
+          if status.favorited?
+            client.unfavorite(status)
+              .then { status.unfavorite! }
+          else
+            client.favorite(status)
+              .then { status.favorite! }
+          end
             .then { render }
         end
 
@@ -84,9 +91,10 @@ module Twterm
         end
 
         def open_link
-          return if highlighted_status.nil?
+          status = highlighted_original_status
 
-          status = highlighted_status
+          return if status.nil?
+
           urls = status.urls.map(&:expanded_url) + status.media.map(&:expanded_url)
           urls
             .uniq
@@ -107,7 +115,8 @@ module Twterm
 
         def reply
           return if highlighted_status.nil?
-          app.tweetbox.compose(highlighted_status)
+
+          app.tweetbox.compose(highlighted_original_status)
         end
 
         def respond_to_key(key)
@@ -139,19 +148,35 @@ module Twterm
         end
 
         def retweet
-          return if highlighted_status.nil?
-          client.retweet(highlighted_status).then { render }
+          status = highlighted_original_status
+
+          return if status.nil?
+
+          if status.retweeted?
+            client.unretweet(status)
+              .then { status.unretweet! }
+          else
+            client.retweet(status)
+              .then { status.retweet! }
+          end
+            .then { render }
         end
 
         def show_conversation
-          return if highlighted_status.nil?
-          tab = Tab::Statuses::Conversation.new(app, client, highlighted_status.id)
+          status = highlighted_original_status
+
+          return if status.nil?
+
+          tab = Tab::Statuses::Conversation.new(app, client, highlighted_original_status.id)
           app.tab_manager.add_and_show(tab)
         end
 
         def show_user
-          return if highlighted_status.nil?
-          user_id = highlighted_status.user_id
+          status = highlighted_original_status
+
+          return if status.nil?
+
+          user_id = status.user_id
           user_tab = Tab::UserTab.new(app, client, user_id)
           app.tab_manager.add_and_show(user_tab)
         end
@@ -169,6 +194,12 @@ module Twterm
 
         private
 
+        def highlighted_original_status
+          status = highlighted_status
+
+          status.retweet? ? app.status_repository.find(status.retweeted_status_id) : status
+        end
+
         def highlighted_status
           statuses[scroller.index]
         end
@@ -177,21 +208,22 @@ module Twterm
           return Image.string(initially_loaded? ? 'No results found' : 'Loading...') if items.empty?
 
           scroller.drawable_items.map.with_index(0) do |status, i|
-            user = app.user_repository.find(status.user_id)
-            retweeted_by = app.user_repository.find(status.retweeted_by_user_id)
+            original = status.retweet? ? app.status_repository.find(status.retweeted_status_id) : status
+            user = app.user_repository.find(original.user_id)
+            retweeted_by = app.user_repository.find(status.user_id)
 
             header = [
               !Image.string(user.name).color(user.color),
               Image.string("@#{user.screen_name}").parens,
-              Image.string(status.date.to_s).brackets,
-              (Image.whitespace.color(:black, :red) if status.favorited?),
-              (Image.whitespace.color(:black, :green) if status.retweeted?),
-              ((Image.string('retweeted by ') - !Image.string("@#{retweeted_by.screen_name}")).parens unless status.retweeted_by_user_id.nil?),
-              ((Image.number(status.favorite_count) - Image.plural(status.favorite_count, 'like')).color(:red) if status.favorite_count.positive?),
-              ((Image.number(status.retweet_count) - Image.plural(status.retweet_count, 'RT')).color(:green) if status.retweet_count.positive?),
+              Image.string(original.date.to_s).brackets,
+              (Image.whitespace.color(:black, :red) if original.favorited?),
+              (Image.whitespace.color(:black, :green) if original.retweeted?),
+              ((Image.string('retweeted by ') - !Image.string("@#{retweeted_by.screen_name}")).parens if status.retweet?),
+              ((Image.number(original.favorite_count) - Image.plural(original.favorite_count, 'like')).color(:red) if original.favorite_count.positive?),
+              ((Image.number(original.retweet_count) - Image.plural(original.retweet_count, 'RT')).color(:green) if original.retweet_count.positive?),
             ].compact.intersperse(Image.whitespace).reduce(Image.empty, :-)
 
-            body = status
+            body = original
               .split(window.maxx - 4)
               .map(&Image.method(:string))
               .reduce(Image.empty, :|)
@@ -210,7 +242,7 @@ module Twterm
           repo = app.status_repository
 
           @status_ids &= repo.ids
-          @status_ids.sort_by! { |id| repo.find(id).appeared_at }.reverse!
+          @status_ids.sort_by! { |id| repo.find(id).created_at }.reverse!
 
           formerly_selected_status_id = scroller.current_item.id
 
