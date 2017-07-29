@@ -41,7 +41,7 @@ module Twterm
         end
 
         def drawable_item_count
-          statuses.reverse.drop(scroller.offset).lazy
+          statuses.drop(scroller.offset).lazy
           .map { |s| s.split(window.maxx - 4).count + 2 }
           .scan(0, :+)
           .each_cons(2)
