@@ -1,6 +1,6 @@
 # twterm
 
-A full-featured CLI Twitter client
+A full-featured TUI Twitter client
 
 ## Screenshot
 
@@ -8,8 +8,8 @@ A full-featured CLI Twitter client
 
 ## Requirements
 
-- Ruby (>= 2.1, compiled with C Curses and Readline)
-- C curses
+- Ruby (>= 2.1, compiled with ncurses and Readline)
+- ncurses
 - Readline
 
 ## Installation
@@ -26,25 +26,21 @@ To launch twterm, just type in your console:
 $ twterm
 ```
 
-### Basic key assignments
+### Default key assignments
+
+Key assignments can be configured by editing `~/.twterm/keys.toml`
 
 key | operation
 --- | ---
-`F` | add to favorite
-`d` `C-d` | scroll down
-`h` `C-b` `←` | show previous tab
-`j` `C-n` `↓` | move down
-`k` `C-p` `↑` | move up
-`l` `C-f` `→` | show next tab
-`n` | compose new tweet
-`N` | open new tab
-`r` | reply
-`R` | retweet
+`h` `←` | previous tab
+`j` `↓` | move down
+`k` `↑` | move up
+`l` `→` | next tab
+`^N` | new tweet
+`^T` | new tab
 `w` | close current tab
-`Q` | quit
-`?` | open key assignments cheatsheet
-
-Type `?` key to see the full list of key assignments.
+`F10` | quit
+`F1` | key assignments cheatsheet
 
 ## License
 

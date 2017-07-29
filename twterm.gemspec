@@ -8,15 +8,15 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Ryota Kameoka']
   spec.email         = ['kameoka.ryota@gmail.com']
 
-  spec.summary       = 'A full-featured CLI Twitter client'
-  spec.description   = 'A full-featured CLI Twitter client'
+  spec.summary       = 'A full-featured TUI Twitter client'
+  spec.description   = 'A full-featured TUI Twitter client'
   spec.homepage      = 'http://twterm.ryota-ka.me/'
   spec.license       = 'MIT'
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |i| i == 'Gemfile.lock' }
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
-  spec.required_ruby_version = '>= 2.0.0'
+  spec.required_ruby_version = '>= 2.1.0'
 
   spec.add_dependency 'curses', '~> 1.2.2'
   spec.add_dependency 'concurrent-ruby', '~> 1.0.5'
