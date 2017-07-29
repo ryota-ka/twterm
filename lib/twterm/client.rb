@@ -8,8 +8,6 @@ module Twterm
 
     attr_reader :user_id, :screen_name
 
-    @@instances = []
-
     def initialize(user_id, screen_name, access_token, access_token_secret, repositories)
       @user_id, @screen_name = user_id, screen_name
       @access_token, @access_token_secret = access_token, access_token_secret
@@ -33,18 +31,6 @@ module Twterm
       end
 
       direct_message_manager
-
-      @@instances << self
-    end
-
-    def self.new(user_id, screen_name, token, secret, repositories)
-      detector = -> (instance) { instance.user_id == user_id }
-      instance = @@instances.find(&detector)
-      instance.nil? ? super : instance
-    end
-
-    def self.current
-      @@instances[0]
     end
 
     private

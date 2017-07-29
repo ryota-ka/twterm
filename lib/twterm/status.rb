@@ -2,8 +2,6 @@ require 'concurrent'
 
 module Twterm
   class Status
-    MAX_CACHED_TIME = 3600
-
     attr_reader :created_at, :favorite_count, :favorited, :id,
       :in_reply_to_status_id, :media, :retweet_count, :retweeted,
       :retweeted_status_id, :text, :urls, :user_id
