@@ -4,9 +4,9 @@ module Twterm
   class Status
     MAX_CACHED_TIME = 3600
 
-    attr_reader :appeared_at, :created_at, :favorite_count, :favorited, :id,
+    attr_reader :created_at, :favorite_count, :favorited, :id,
       :in_reply_to_status_id, :media, :retweet_count, :retweeted,
-      :retweeted_by_user_id, :text, :urls, :user_id
+      :retweeted_status_id, :text, :urls, :user_id
     alias_method :favorited?, :favorited
     alias_method :retweeted?, :retweeted
 
@@ -25,27 +25,20 @@ module Twterm
     end
 
     def favorite!
-      @favorite_count += 1
       @favorited = true
     end
 
-    def initialize(tweet)
+    def initialize(tweet, is_retweeted_status = false)
       unless tweet.retweeted_status.is_a? Twitter::NullObject
-        @retweeted_by_user_id = tweet.user.id
-        retweeted_at = tweet.created_at.dup.localtime
-        tweet = tweet.retweeted_status
+        @retweeted_status_id = tweet.retweeted_status.id
       end
 
       @id = tweet.id
       @text = CGI.unescapeHTML(tweet.full_text.dup)
       @created_at = tweet.created_at.dup.localtime
-      @appeared_at = retweeted_at || @created_at
-      @retweet_count = tweet.retweet_count
-      @favorite_count = tweet.favorite_count
       @in_reply_to_status_id = tweet.in_reply_to_status_id
 
-      @retweeted = tweet.retweeted?
-      @favorited = tweet.favorited?
+      update!(tweet, is_retweeted_status)
 
       @media = tweet.media
       @urls = tweet.urls
@@ -57,8 +50,11 @@ module Twterm
       expand_url!
     end
 
+    def retweet?
+      !retweeted_status_id.nil?
+    end
+
     def retweet!
-      @retweet_count += 1
       @retweeted = true
     end
 
@@ -67,15 +63,17 @@ module Twterm
     end
 
     def unfavorite!
-      @favorite_count -= 1
       @favorited = false
     end
 
+    def unretweet!
+      @retweeted = false
+    end
 
-    def update!(tweet)
+    def update!(tweet, is_retweeted_status = false)
       @retweet_count = tweet.retweet_count
       @favorite_count = tweet.favorite_count
-      @retweeted = tweet.retweeted?
+      @retweeted = tweet.retweeted? unless is_retweeted_status
       @favorited = tweet.favorited?
 
       self

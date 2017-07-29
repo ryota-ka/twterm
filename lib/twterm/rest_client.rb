@@ -72,10 +72,11 @@ module Twterm
 
       send_request do
         rest_client.favorite(status.id)
-      end.then do
-        status.favorite!
+      end.then do |tweet, *_|
+        status_repository.create(tweet)
+
         publish(Event::Notification::Success.new('Successfully liked: @%s "%s"' % [
-          status.user.screen_name, status.text
+          tweet.user.screen_name, status.text
         ]))
       end
     end
@@ -272,10 +273,11 @@ module Twterm
 
       send_request_without_catch do
         rest_client.retweet!(status.id)
-      end.then do
-        status.retweet!
+      end.then do |tweet, *_|
+        status_repository.create(tweet)
+
         publish(Event::Notification::Success.new('Successfully retweeted: @%s "%s"' % [
-          status.user.screen_name, status.text
+          tweet.user.screen_name, status.text
         ]))
       end.catch do |reason|
         message =
@@ -285,11 +287,7 @@ module Twterm
           when Twitter::Error::NotFound
             'The status is not found'
           when Twitter::Error::Forbidden
-            if status.user.id == user_id  # when the status is mine
-              'You cannot retweet your own status'
-            else  # when the status is not mine
-              'The status is protected'
-            end
+            'The status is protected'
           else
             raise e
           end
@@ -352,10 +350,11 @@ module Twterm
 
       send_request do
         rest_client.unfavorite(status.id)
-      end.then do
-        status.unfavorite!
+      end.then do |tweet, *_|
+        status_repository.create(tweet)
+
         publish(Event::Notification::Success.new('Successfully unliked: @%s "%s"' % [
-          status.user.screen_name, status.text
+          tweet.user.screen_name, status.text
         ]))
       end
     end
@@ -384,15 +383,21 @@ module Twterm
       send_request do
         Twitter::REST::Request.new(rest_client, :post, "/1.1/statuses/unretweet/#{status.id}.json").perform
       end
-        .then do
-          status.unretweet!
+        .then do |json, *_|
+          json[:retweet_count] -= 1
+          json[:retweeted] = false
+
+          Twitter::Tweet.new(json)
+        end
+        .then do |tweet|
+          status = status_repository.create(tweet)
+
           publish(Event::Notification::Success.new('Successfully unretweeted: @%s "%s"' % [
-            status.user.screen_name, status.text
+            tweet.user.screen_name, status.text
           ]))
 
           status
         end
-          .catch { |e| publish(Event::Notification::Error.new(e.inspect)) }
     end
 
     def user_timeline(user_id)

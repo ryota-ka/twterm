@@ -8,8 +8,8 @@ module Twterm
         repository.values
       end
 
-      def create(tweet)
-        create(tweet.retweeted_status) unless tweet.retweeted_status.is_a?(Twitter::NullObject)
+      def create(tweet, is_retweeted_status = false)
+        create(tweet.retweeted_status, true) unless tweet.retweeted_status.is_a?(Twitter::NullObject)
         super
       end
 

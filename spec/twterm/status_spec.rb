@@ -26,24 +26,6 @@ describe Twterm::Status do
     end
   end
 
-  describe '#favorite!' do
-    subject { -> { status.favorite! } }
-
-    before { status.update!(Hashie::Mash.new(favorite_count: 0, favorited: false)) }
-
-    it { is_expected.to change { status.favorite_count }.by 1 }
-    it { is_expected.to change { status.favorited? }.from(false).to(true) }
-  end
-
-  describe '#retweet!' do
-    subject { -> { status.retweet! } }
-
-    before { status.update!(Hashie::Mash.new(retweet_count: 0, retweeted: false)) }
-
-    it { is_expected.to change { status.retweet_count }.by 1 }
-    it { is_expected.to change { status.retweeted? }.from(false).to(true) }
-  end
-
   describe '#update!' do
     subject { -> { status.update!(Hashie::Mash.new(params)) } }
 

@@ -10,7 +10,7 @@ module Twterm
         @touched_at = Concurrent::Hash.new
       end
 
-      def create(args)
+      def create(args, *)
         touch(args.id)
         super
       end
