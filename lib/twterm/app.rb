@@ -70,6 +70,9 @@ module Twterm
 
       reset_interruption_handler
 
+      Signal.trap(:WINCH) { on_resize }
+      Scheduler.new(60) { on_resize }
+
       URIOpener.instance
 
       Scheduler.new(300) do
@@ -166,6 +169,14 @@ module Twterm
 
     def config
       @config ||= Config.new
+    end
+
+    def on_resize
+      return if Curses.closed?
+
+      lines = `tput lines`.to_i
+      cols = `tput cols`.to_i
+      publish(Event::Screen::Resize.new(lines, cols))
     end
   end
 end
