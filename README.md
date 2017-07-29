@@ -8,8 +8,8 @@ A full-featured TUI Twitter client
 
 ## Requirements
 
-- Ruby (>= 2.1, compiled with C Curses and Readline)
-- C curses
+- Ruby (>= 2.1, compiled with ncurses and Readline)
+- ncurses
 - Readline
 
 ## Installation
