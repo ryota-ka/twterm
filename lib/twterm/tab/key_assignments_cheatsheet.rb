@@ -1,4 +1,6 @@
+require 'twterm/image'
 require 'twterm/tab/base'
+require 'twterm/tab/searchable'
 
 module Twterm
   module Tab
@@ -10,39 +12,44 @@ module Twterm
       end
 
       SHORTCUTS = {
-        'General' => {
-          '[d] [C-d]'         => 'Scroll down',
-          '[g]'               => 'Move to top',
-          '[G]'               => 'Move to bottom',
-          '[j] [C-p] [DOWN]'  => 'Move down',
-          '[k] [C-n] [UP]'    => 'Move up',
-          '[u] [C-u]'         => 'Scroll up',
-          '[Q]'               => 'Quit twterm'
+        ['General', :general] => {
+          page_down: 'Page down',
+          top: 'Move to top',
+          bottom: 'Move to bottom',
+          down: 'Move down',
+          up: 'Move up',
+          page_up: 'Page up',
+          left: 'Left',
+          right: 'Right',
         },
-        'Tabs' => {
-          '[h] [C-b] [LEFT]'  => 'Previous tab',
-          '[l] [C-f] [RIGHT]' => 'Next tab',
-          '[N]'               => 'New tab',
-          '[C-R]'             => 'Reload',
-          '[w]'               => 'Close tab',
-          '[q]'               => 'Quit filter mode',
-          '[/]'               => 'Filter mode',
-          '[1] - [9]'         => 'Nth tab',
-          '[0]'               => 'Last tab'
+        ['Tabs', :tab] => {
+          new: 'New tab',
+          reload: 'Reload',
+          close: 'Close tab',
+          search_down: 'Search down',
+          search_up: 'Search up',
+          find_next: 'Find next',
+          find_previous: 'Find previous',
         },
-        'Tweets' => {
-          '[c]'               => 'Conversation',
-          '[D]'               => 'Delete',
-          '[L]'               => 'Like',
-          '[n]'               => 'New tweet',
-          '[o]'               => 'Open URLs',
-          '[r]'               => 'Reply',
-          '[R]'               => 'Retweet',
-          '[U]'               => 'User'
+        ['Tweets', :status] => {
+          compose: 'New tweet',
+          conversation: 'Conversation',
+          destroy: 'Delete',
+          like: 'Like',
+          open_link: 'Open URLs',
+          reply: 'Reply',
+          retweet: 'Retweet',
+          user: 'User',
         },
-        'Others' => {
-          '[P]'               => 'My profile',
-          '[?]'               => 'Key assignments cheatsheet'
+        ['Cursor', :cursor] => {
+          top_of_window: 'Top of window',
+          middle_of_window: 'Middle of window',
+          bottom_of_window: 'Bottom of window'
+        },
+        ['Others', :app] => {
+          me: 'My profile',
+          cheatsheet: 'Key assignments cheatsheet',
+          quit: 'Quit',
         }
       }
 
@@ -50,8 +57,27 @@ module Twterm
         window.maxy - 3
       end
 
-      def initialize
-        super
+      def image
+        k = KeyMapper.instance
+
+        SHORTCUTS
+          .flat_map { |(cat_str, cat_sym), shortcuts|
+            [
+              !Image.string(cat_str).color(:green),
+              Image.blank_line,
+              *shortcuts.map { |cmd, desc|
+                Image.string('  ') - !Image.string(k.as_string(cat_sym, cmd).center(3)).color(:cyan) - Image.whitespace - Image.string(desc)
+              },
+              Image.blank_line,
+            ]
+          }
+          .drop(scroller.offset)
+          .take(drawable_item_count)
+          .reduce(Image.empty, :|)
+      end
+
+      def initialize(app, client)
+        super(app, client)
         scroller.set_no_cursor_mode!
       end
 
@@ -67,31 +93,6 @@ module Twterm
 
       def total_item_count
         @count ||= SHORTCUTS.count * 4 + SHORTCUTS.values.map(&:count).reduce(0, :+) + 1
-      end
-
-      def update
-        offset = scroller.offset
-        line = 0
-
-        window.setpos(line - offset + 2, 3)
-        window.bold { window.addstr('Key assignments') } if scroller.nth_item_drawable?(line)
-
-        SHORTCUTS.each do |category, shortcuts|
-          line += 3
-          window.setpos(line - offset + 2, 5)
-          window.bold { window.addstr("<#{category}>") } if scroller.nth_item_drawable?(line)
-          line += 1
-
-          shortcuts.each do |key, description|
-            line += 1
-            next unless scroller.nth_item_drawable?(line)
-
-            window.setpos(line - offset + 2, 7)
-            window.bold { window.addstr(key.rjust(17)) }
-            window.setpos(line - offset + 2, 25)
-            window.addstr(": #{description}")
-          end
-        end
       end
     end
   end

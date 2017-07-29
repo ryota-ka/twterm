@@ -8,24 +8,26 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Ryota Kameoka']
   spec.email         = ['kameoka.ryota@gmail.com']
 
-  spec.summary       = 'A full-featured CLI Twitter client'
-  spec.description   = 'A full-featured CLI Twitter client'
+  spec.summary       = 'A full-featured TUI Twitter client'
+  spec.description   = 'A full-featured TUI Twitter client'
   spec.homepage      = 'http://twterm.ryota-ka.me/'
   spec.license       = 'MIT'
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |i| i == 'Gemfile.lock' }
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
-  spec.required_ruby_version = '>= 2.0.0'
+  spec.required_ruby_version = '>= 2.1.0'
 
-  spec.add_dependency 'curses', '>= 1.0.1'
-  spec.add_dependency 'launchy', '>= 2.4.3'
-  spec.add_dependency 'oauth', '>= 0.4.7'
-  spec.add_dependency 'tweetstream', '~> 2.6'
-  spec.add_dependency 'twitter', '~> 5.13'
-  spec.add_dependency 'twitter-text', '>= 1.11.0'
+  spec.add_dependency 'curses', '~> 1.2.2'
+  spec.add_dependency 'concurrent-ruby', '~> 1.0.5'
+  spec.add_dependency 'launchy', '~> 2.4.3'
+  spec.add_dependency 'oauth', '~> 0.5.1'
+  spec.add_dependency 'toml-rb', '~> 0.3.14'
+  spec.add_dependency 'twitter', '~> 6.1.0'
+  spec.add_dependency 'twitter-text', '~> 1.14.0'
 
   spec.add_development_dependency 'bundler', '~> 1.8'
-  spec.add_development_dependency 'rake', '~> 10.0'
-  spec.add_development_dependency 'rspec', '~> 3.2.0'
+  spec.add_development_dependency 'hashie', '~> 3.5.6'
+  spec.add_development_dependency 'rake', '~> 12.0'
+  spec.add_development_dependency 'rspec', '~> 3.5.0'
 end

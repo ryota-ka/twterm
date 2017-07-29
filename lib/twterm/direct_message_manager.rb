@@ -21,22 +21,21 @@ module Twterm
       Scheduler.new(300) { fetch }
     end
 
-    def add(collocutor, message)
-      check_type User, collocutor
+    def add(collocutor_id, message)
       check_type DirectMessage, message
 
-      @conversations[collocutor.id] ||= DirectMessage::Conversation.new(collocutor)
-      @conversations[collocutor.id] << message
+      @conversations[collocutor_id] ||= DirectMessage::Conversation.new(collocutor_id)
+      @conversations[collocutor_id] << message
     end
 
     def fetch
       client.direct_messages_received.then do |messages|
-        messages.each { |m| add(m.sender, m) }
+        messages.each { |m| add(m.sender_id, m) }
         publish(Event::DirectMessage::Fetched.new)
       end
 
       client.direct_messages_sent.then do |messages|
-        messages.each { |m| add(m.recipient, m) }
+        messages.each { |m| add(m.recipient_id, m) }
         publish(Event::DirectMessage::Fetched.new)
       end
     end

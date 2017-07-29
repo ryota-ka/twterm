@@ -22,23 +22,26 @@ module Twterm
         end
 
         def fetch
-          Client.current.user_timeline(@user.id).then do |statuses|
-            statuses.reverse.each(&method(:prepend))
+          client.user_timeline(@user.id).then do |statuses|
+            statuses.each { |s| append(s) }
             sort
-            yield if block_given?
           end
         end
 
-        def initialize(user_id)
-          super()
+        def initialize(app, client, user_id)
+          super(app, client)
 
           @user_id = user_id
 
-          User.find_or_fetch(user_id).then do |user|
+          find_or_fetch_user(user_id).then do |user|
             @user = user
-            TabManager.instance.refresh_window
+            app.tab_manager.refresh_window
 
-            fetch { scroller.move_to_top }
+            fetch.then do
+              initially_loaded!
+              scroller.move_to_top
+            end
+
             @auto_reloader = Scheduler.new(120) { fetch }
           end
         end

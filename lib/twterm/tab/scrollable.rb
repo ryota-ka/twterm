@@ -9,9 +9,9 @@ module Twterm
       def scroller
         return @scroller unless @scroller.nil?
 
-        @scroller = Scroller.new
+        @scroller = self.class::Scroller.new(self)
         @scroller.delegate = self
-        @scroller.after_move { refresh }
+        @scroller.after_move { render }
         @scroller
       end
 
@@ -21,10 +21,9 @@ module Twterm
         items.count
       end
 
-      private
-
       class Scroller
         extend Forwardable
+        include Publisher
 
         attr_reader :index, :offset
 
@@ -35,19 +34,21 @@ module Twterm
           add_hook(:after_move, &block)
         end
 
-        def current_item
-          items[index]
+        def current_index?(i)
+          index == offset + i
         end
 
-        def current_item?(i)
-          index == offset + i
+        def current_item
+          items[index]
         end
 
         def no_cursor_mode?
           !!@no_cursor_mode
         end
 
-        def initialize
+        def initialize(tab)
+          @tab = tab
+
           @index = 0
           @offset = 0
           @no_cursor_mode = false
@@ -58,7 +59,6 @@ module Twterm
         end
 
         def item_appended!
-          @index -= 1
           @offset -= 1 if @offset > 0
         end
 
@@ -69,7 +69,7 @@ module Twterm
         end
 
         def move_down
-          return if count == 0 || index == count - 1
+          return if count == 0 || index == count - 1 || (no_cursor_mode? && offset + drawable_item_count >= count)
           # return when there are no items or cursor is at the bottom
 
           @index += 1
@@ -81,10 +81,20 @@ module Twterm
         def move_to_bottom
           return if count == 0 || index == count - 1
 
-          @index = count - 1
+          @index = no_cursor_mode? ? count - drawable_item_count : count - 1
           @offset = [count - drawable_item_count + 1, 0].max
 
           @offset += 1 until last_item_shown?
+
+          hook :after_move
+        end
+
+        def move_to(n)
+          if nth_item_drawable?(n)
+            @index = n
+          else
+            @index = @offset = n
+          end
 
           hook :after_move
         end
@@ -108,23 +118,31 @@ module Twterm
         end
 
         def nth_item_drawable?(n)
-          n.between?(offset, offset + drawable_item_count)
+          n.between?(offset, offset + drawable_item_count - 1)
         end
 
         def respond_to_key(key)
+          k = KeyMapper.instance
+
           case key
-          when ?d, 4
+          when k[:general, :page_down]
             10.times { move_down }
-          when ?g
+          when k[:general, :top]
             move_to_top
-          when ?G
+          when k[:general, :bottom]
             move_to_bottom
-          when ?j, 14, Curses::Key::DOWN
+          when k[:general, :down], Curses::Key::DOWN
             move_down
-          when ?k, 16, Curses::Key::UP
+          when k[:general, :up], Curses::Key::UP
             move_up
-          when ?u, 21
+          when k[:general, :page_up]
             10.times { move_up }
+          when k[:cursor, :top_of_window]
+            move_to(offset)
+          when k[:cursor, :middle_of_window]
+            move_to((2 * offset + [drawable_item_count, total_item_count - offset].min - 1) / 2)
+          when k[:cursor, :bottom_of_window]
+            move_to(offset + [drawable_item_count, total_item_count - offset].min - 1)
           else
             return false
           end
@@ -137,6 +155,8 @@ module Twterm
         end
 
         private
+
+        attr_reader :tab
 
         def add_hook(name, &block)
           @hooks ||= {}

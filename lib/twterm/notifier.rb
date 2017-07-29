@@ -1,6 +1,6 @@
 require 'twterm/subscriber'
 require 'twterm/event/favorite'
-require 'twterm/event/notification'
+require 'twterm/event/notification/abstract_notification'
 require 'twterm/event/screen/resize'
 
 module Twterm
@@ -14,15 +14,15 @@ module Twterm
       @queue = Queue.new
 
       subscribe(Event::Favorite) do |e|
-        break if e.source.id == e.authenticating_user.user_id
+        next if e.source.id == e.authenticating_user.user_id
 
         msg = '@%s has favorited your tweet: %s' % [
           e.source.screen_name, e.target.text
         ]
-        show_message(msg)
+        show_info(msg)
       end
 
-      subscribe(Event::Notification) do |e|
+      subscribe(Event::Notification::AbstractNotification) do |e|
         queue(e)
       end
 
@@ -37,8 +37,8 @@ module Twterm
       end
     end
 
-    def show_message(message)
-      notification = Event::Notification.new(:message, message)
+    def show_info(message)
+      notification = Event::Notification::Info.new(message)
       @queue.push(notification)
       self
     end
@@ -51,7 +51,7 @@ module Twterm
 
       @window.clear
 
-      if notification.is_a?(Event::Notification)
+      if notification.is_a?(Event::Notification::AbstractNotification)
         fg_color, bg_color = notification.color
 
         @window.with_color(fg_color, bg_color) do

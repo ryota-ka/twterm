@@ -1,18 +1,21 @@
+require 'concurrent'
+
 require 'twterm/event/open_uri'
 require 'twterm/event/status/delete'
 require 'twterm/publisher'
 require 'twterm/subscriber'
 require 'twterm/tab/base'
+require 'twterm/tab/loadable'
 require 'twterm/utils'
 
 module Twterm
   module Tab
     module Statuses
       class Base < Tab::Base
-        include FilterableList
         include Publisher
-        include Scrollable
+        include Searchable
         include Subscriber
+        include Loadable
         include Utils
 
         def append(status)
@@ -20,62 +23,81 @@ module Twterm
 
           return if @status_ids.include?(status.id)
 
-          @status_ids.unshift(status.id)
+          @status_ids.push(status.id)
           status.split(window.maxx - 4)
-          status.touch!
           scroller.item_appended!
-          refresh
+          render
         end
 
         def delete(status_id)
-          Status.delete(status_id)
-          refresh
+          app.status_repository.delete(status_id)
+          render
         end
 
         def destroy_status
-          status = highlighted_status
+          status = highlighted_original_status
 
-          Client.current.destroy_status(status)
+          client.destroy_status(status)
         end
 
         def drawable_item_count
-          statuses.reverse.drop(scroller.offset).lazy
+          statuses.drop(scroller.offset).lazy
           .map { |s| s.split(window.maxx - 4).count + 2 }
           .scan(0, :+)
-          .select { |l| l < window.maxy }
+          .each_cons(2)
+          .select { |_, l| l < window.maxy }
           .count
         end
 
         def favorite
-          return if highlighted_status.nil?
+          status = highlighted_original_status
 
-          method_name = highlighted_status.favorited ? :unfavorite : :favorite
-          Client.current.method(method_name).call(highlighted_status)
-            .then { refresh }
+          return if status.nil?
+
+          if status.favorited?
+            client.unfavorite(status)
+              .then { status.unfavorite! }
+          else
+            client.favorite(status)
+              .then { status.favorite! }
+          end
+            .then { render }
         end
 
         def fetch
           fail NotImplementedError, 'fetch method must be implemented'
         end
 
-        def initialize
-          super
+        def initialize(app, client)
+          super(app, client)
 
-          @status_ids = []
+          @status_ids = Concurrent::Array.new
 
           subscribe(Event::Status::Delete) { |e| delete(e.status_id) }
         end
 
         def items
-          statuses.reverse
+          statuses
+        end
+
+        def matches?(status, query)
+          user = app.user_repository.find(status.user_id)
+
+          [
+            status.text,
+            user.screen_name,
+            user.name
+          ].any? { |x| x.downcase.include?(query.downcase) }
         end
 
         def open_link
-          return if highlighted_status.nil?
+          status = highlighted_original_status
 
-          status = highlighted_status
+          return if status.nil?
+
           urls = status.urls.map(&:expanded_url) + status.media.map(&:expanded_url)
           urls
+            .uniq
             .map { |url| Event::OpenURI.new(url) }
             .each { |e| publish(e) }
         end
@@ -85,42 +107,40 @@ module Twterm
 
           return if @status_ids.include?(status.id)
 
-          @status_ids << status.id
+          @status_ids.unshift(status.id)
           status.split(window.maxx - 4)
-          status.touch!
           scroller.item_prepended!
-          refresh
+          render
         end
 
         def reply
           return if highlighted_status.nil?
-          Tweetbox.instance.compose(highlighted_status)
+
+          app.tweetbox.compose(highlighted_original_status)
         end
 
         def respond_to_key(key)
           return true if scroller.respond_to_key(key)
 
+          k = KeyMapper.instance
+
           case key
-          when ?c
+          when k[:status, :conversation]
             show_conversation
-          when ?D
+          when k[:status, :destroy]
             destroy_status
-          when ?F, ?L
+          when k[:status, :like]
             favorite
-          when ?o
+          when k[:status, :open_link]
             open_link
-          when ?r
+          when k[:status, :reply]
             reply
-          when ?R
+          when k[:status, :retweet]
             retweet
-          when 18
+          when k[:tab, :reload]
             fetch
-          when ?U
+          when k[:status, :user]
             show_user
-          when ?/
-            filter
-          when ?q
-            reset_filter
           else
             return false
           end
@@ -128,120 +148,110 @@ module Twterm
         end
 
         def retweet
-          return if highlighted_status.nil?
-          Client.current.retweet(highlighted_status).then { refresh }
+          status = highlighted_original_status
+
+          return if status.nil?
+
+          if status.retweeted?
+            client.unretweet(status)
+              .then { status.unretweet! }
+          else
+            client.retweet(status)
+              .then { status.retweet! }
+          end
+            .then { render }
         end
 
         def show_conversation
-          return if highlighted_status.nil?
-          tab = Tab::Statuses::Conversation.new(highlighted_status.id)
-          TabManager.instance.add_and_show(tab)
+          status = highlighted_original_status
+
+          return if status.nil?
+
+          tab = Tab::Statuses::Conversation.new(app, client, highlighted_original_status.id)
+          app.tab_manager.add_and_show(tab)
         end
 
         def show_user
-          return if highlighted_status.nil?
-          user = highlighted_status.user
-          user_tab = Tab::UserTab.new(user.id)
-          TabManager.instance.add_and_show(user_tab)
+          status = highlighted_original_status
+
+          return if status.nil?
+
+          user_id = status.user_id
+          user_tab = Tab::UserTab.new(app, client, user_id)
+          app.tab_manager.add_and_show(user_tab)
         end
 
         def statuses
-          statuses = @status_ids.map { |id| Status.find(id) }.reject(&:nil?)
+          statuses = @status_ids.map { |id| app.status_repository.find(id) }.compact
           @status_ids = statuses.map(&:id)
 
-          if filter_query.empty?
-            statuses
-          else
-            statuses.select { |s| s.matches?(filter_query) }
-          end
-        end
-
-        def touch_statuses
-          statuses.reverse.take(100).each(&:touch!)
+          statuses
         end
 
         def total_item_count
-          filter_query.empty? ? @status_ids.count : statuses.count
-        end
-
-        def update
-          line = 0
-
-          scroller.drawable_items.each.with_index(0) do |status, i|
-            formatted_lines = status.split(window.maxx - 4).count
-            window.with_color(:black, :magenta) do
-              (formatted_lines + 1).times do |j|
-                window.setpos(line + j, 0)
-                window.addch(' ')
-              end
-            end if scroller.current_item?(i)
-
-            window.setpos(line, 2)
-
-            window.bold do
-              window.with_color(status.user.color) do
-                window.addstr(status.user.name)
-              end
-            end
-
-            window.addstr(" (@#{status.user.screen_name}) [#{status.date}] ")
-
-            unless status.retweeted_by.nil?
-              window.addstr('(retweeted by ')
-              window.bold do
-                window.addstr("@#{status.retweeted_by.screen_name}")
-              end
-              window.addstr(') ')
-            end
-
-            if status.favorited?
-              window.with_color(:black, :red) do
-                window.addch(' ')
-              end
-
-              window.addch(' ')
-            end
-
-            if status.retweeted?
-              window.with_color(:black, :green) do
-                window.addch(' ')
-              end
-              window.addch(' ')
-            end
-
-            if status.favorite_count > 0
-              window.with_color(:red) do
-                window.addstr("#{status.favorite_count}like#{status.favorite_count > 1 ? 's' : ''}")
-              end
-              window.addch(' ')
-            end
-
-            if status.retweet_count > 0
-              window.with_color(:green) do
-                window.addstr("#{status.retweet_count}RT#{status.retweet_count > 1 ? 's' : ''}")
-              end
-              window.addch(' ')
-            end
-
-            status.split(window.maxx - 4).each do |str|
-              line += 1
-              window.setpos(line, 2)
-              window.addstr(str)
-            end
-
-            line += 2
-          end
+          search_query.empty? ? @status_ids.count : statuses.count
         end
 
         private
 
+        def highlighted_original_status
+          status = highlighted_status
+
+          status.retweet? ? app.status_repository.find(status.retweeted_status_id) : status
+        end
+
         def highlighted_status
-          statuses[scroller.count - scroller.index - 1]
+          statuses[scroller.index]
+        end
+
+        def image
+          return Image.string(initially_loaded? ? 'No results found' : 'Loading...') if items.empty?
+
+          scroller.drawable_items.map.with_index(0) do |status, i|
+            original = status.retweet? ? app.status_repository.find(status.retweeted_status_id) : status
+            user = app.user_repository.find(original.user_id)
+            retweeted_by = app.user_repository.find(status.user_id)
+
+            header = [
+              !Image.string(user.name).color(user.color),
+              Image.string("@#{user.screen_name}").parens,
+              Image.string(original.date.to_s).brackets,
+              (Image.whitespace.color(:black, :red) if original.favorited?),
+              (Image.whitespace.color(:black, :green) if original.retweeted?),
+              ((Image.string('retweeted by ') - !Image.string("@#{retweeted_by.screen_name}")).parens if status.retweet?),
+              ((Image.number(original.favorite_count) - Image.plural(original.favorite_count, 'like')).color(:red) if original.favorite_count.positive?),
+              ((Image.number(original.retweet_count) - Image.plural(original.retweet_count, 'RT')).color(:green) if original.retweet_count.positive?),
+            ].compact.intersperse(Image.whitespace).reduce(Image.empty, :-)
+
+            body = original
+              .split(window.maxx - 4)
+              .map(&Image.method(:string))
+              .reduce(Image.empty, :|)
+
+            s = header | body
+
+            Image.cursor(s.height, scroller.current_index?(i)) - Image.whitespace - s
+          end
+            .intersperse(Image.blank_line)
+            .reduce(Image.empty, :|)
         end
 
         def sort
-          @status_ids &= Status.all.map(&:id)
-          @status_ids.sort_by! { |id| Status.find(id).appeared_at }
+          return if items.empty? || scroller.current_item.nil?
+
+          repo = app.status_repository
+
+          @status_ids &= repo.ids
+          @status_ids.sort_by! { |id| repo.find(id).created_at }.reverse!
+
+          formerly_selected_status_id = scroller.current_item.id
+
+          unless formerly_selected_status_id.nil?
+            new_index = @status_ids.index(formerly_selected_status_id)
+            scroller.move_to(new_index) unless new_index.nil?
+          end
+
+          self
         end
       end
     end

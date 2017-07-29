@@ -3,15 +3,11 @@ require 'twterm/utils'
 
 module Twterm
   class DirectMessage
-    attr_reader :id, :created_at, :recipient, :sender, :text
-
-    @@instances = {}
+    attr_reader :id, :created_at, :recipient_id, :sender_id, :text
 
     def initialize(message)
       @id = message.id
       update!(message)
-
-      @@instances[id] = self
     end
 
     def ==(other)
@@ -23,18 +19,10 @@ module Twterm
       @created_at.strftime(format)
     end
 
-    def matches?(q)
-      [
-        sender.name,
-        sender.screen_name,
-        text
-      ].map(&:downcase).any? { |x| x.include?(q) }
-    end
-
     def update!(message)
       @created_at = message.created_at.dup.localtime
-      @recipient = User.new(message.recipient)
-      @sender = User.new(message.sender)
+      @recipient_id = message.recipient.id
+      @sender_id = message.sender.id
       @text = message.text
 
       self
@@ -43,12 +31,10 @@ module Twterm
     class Conversation
       include Utils
 
-      attr_reader :collocutor, :messages
+      attr_reader :collocutor_id, :messages
 
-      def initialize(collocutor)
-        check_type User, collocutor
-
-        @collocutor = collocutor
+      def initialize(collocutor_id)
+        @collocutor_id = collocutor_id
         @messages = []
       end
 
@@ -57,14 +43,6 @@ module Twterm
         @messages.sort_by!(&:created_at).reverse!
 
         self
-      end
-
-      def matches?(q)
-        [
-          collocutor.screen_name,
-          collocutor.name,
-          preview
-        ].map(&:downcase).any? { |x| x.include?(q.downcase) }
       end
 
       def preview

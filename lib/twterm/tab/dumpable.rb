@@ -2,7 +2,7 @@ module Twterm
   module Tab
     module Dumpable
       def dump
-        fail NotImplementedError 'dump method must be implemented'
+        fail NotImplementedError, 'dump method must be implemented'
       end
 
       def self.included(klass)
@@ -10,8 +10,8 @@ module Twterm
       end
 
       module ClassMethods
-        def recover(title, arg)
-          tab = new(arg)
+        def recover(app, client, title, arg)
+          tab = new(app, client, arg)
           tab.title = title
           tab
         end

@@ -2,10 +2,10 @@ require 'twterm/event/screen/resize'
 require 'twterm/publisher'
 require 'twterm/subscriber'
 require 'twterm/utils'
+require 'twterm/view'
 
 module Twterm
   class TabManager
-    include Singleton
     include Curses
     include Publisher
     include Subscriber
@@ -31,7 +31,7 @@ module Twterm
     def add_and_show(tab)
       result = add(tab)
       @index = @tabs.count - 1 if result
-      current_tab.refresh
+      current_tab.render
       refresh_window
       result
     end
@@ -42,10 +42,10 @@ module Twterm
       @history.delete_if { |n| n == @index }
       @history = @history.map { |i| i > @index ? i - 1 : i }
       @index = @history.first
-      current_tab.refresh
+      current_tab.render
       refresh_window
     rescue Tab::NotClosableError
-      publish(Event::Notification.new(:error, 'this tab cannot be closed'))
+      publish(Event::Notification::Warning.new('this tab cannot be closed'))
     end
 
     def current_tab
@@ -69,7 +69,9 @@ module Twterm
       end
     end
 
-    def initialize
+    def initialize(app, client)
+      @app, @client = app, client
+
       @tabs = []
       @index = 0
       @history = []
@@ -80,71 +82,83 @@ module Twterm
     end
 
     def open_my_profile
-      current_user_id = Client.current.user_id
-      tab = Tab::UserTab.new(current_user_id)
+      current_user_id = client.user_id
+      tab = Tab::UserTab.new(app, client, current_user_id)
       add_and_show(tab)
     end
 
     def open_new
-      tab = Tab::New::Start.new
+      tab = Tab::New::Start.new(app, client)
       add_and_show(tab)
     end
 
     def recover_tabs
       unless File.exist? DUMPED_TABS_FILE
-        tab = Tab::KeyAssignmentsCheatsheet.new
+        tab = Tab::KeyAssignmentsCheatsheet.new(app, client)
         add(tab)
         return
       end
 
       data = YAML.load(File.read(DUMPED_TABS_FILE))
       data.each do |klass, title, arg|
-        tab = klass.recover(title, arg)
+        tab = klass.recover(app, client, title, arg)
         add(tab)
       end
     rescue
-      publish(Event::Notification.new(:error, 'Failed to recover tabs'))
+      publish(Event::Notification::Error.new('Failed to recover tabs'))
     end
 
     def refresh_window
       @window.clear
-      current_tab_id = current_tab.object_id
-
-      @window.setpos(1, 1)
-      @window.addstr('|  ')
-      @tabs.each do |tab|
-        if tab.object_id == current_tab_id
-          @window.bold do
-            @window.addstr(tab.title)
-          end
-        else
-          @window.addstr(tab.title)
-        end
-        @window.addstr('  |  ')
-      end
-
+      view.render
       @window.refresh
     end
 
+    def view
+      wss = Image.string('  ')
+      pipe = Image.string('|')
+
+      image = @tabs
+        .map { |t| [t, Image.string(t.title)] }
+        .map { |t, r| t.equal?(current_tab) ? !r : r }
+        .reduce(pipe) { |acc, x| acc - wss - x - wss - pipe }
+
+      View.new(@window, image).at(1, 1)
+    end
+
     def respond_to_key(key)
+      k = KeyMapper.instance
+
       case key
-      when ?1..?9
-        @index = key.to_i - 1 if @tabs.count >= key.to_i
-        current_tab.refresh
-        refresh_window
-      when ?0
-        @index = @tabs.count - 1
-        current_tab.refresh
-        refresh_window
-      when ?h, 2, Key::LEFT
+      when k[:tab, :'1st']
+        show_nth_tab(0)
+      when k[:tab, :'2nd']
+        show_nth_tab(1)
+      when k[:tab, :'3rd']
+        show_nth_tab(2)
+      when k[:tab, :'4th']
+        show_nth_tab(3)
+      when k[:tab, :'5th']
+        show_nth_tab(4)
+      when k[:tab, :'6th']
+        show_nth_tab(5)
+      when k[:tab, :'7th']
+        show_nth_tab(6)
+      when k[:tab, :'8th']
+        show_nth_tab(7)
+      when k[:tab, :'9th']
+        show_nth_tab(8)
+      when k[:tab, :last]
+        show_nth_tab(@tabs.count - 1)
+      when k[:general, :left], Curses::Key::LEFT
         show_previous
-      when ?l, 6, Key::RIGHT
+      when k[:general, :right], Curses::Key::RIGHT
         show_next
-      when ?P
+      when k[:app, :me]
         open_my_profile
-      when ?N
+      when k[:tab, :new]
         open_new
-      when ?w
+      when k[:tab, :close]
         close
       else
         return false
@@ -154,13 +168,21 @@ module Twterm
 
     def show_next
       @index = (@index + 1) % @tabs.count
-      current_tab.refresh
+      current_tab.render
+      refresh_window
+    end
+
+    def show_nth_tab(n)
+      return unless n < @tabs.count
+
+      @index = n
+      current_tab.render
       refresh_window
     end
 
     def show_previous
       @index = (@index - 1) % @tabs.count
-      current_tab.refresh
+      current_tab.render
       refresh_window
     end
 
@@ -170,6 +192,8 @@ module Twterm
     end
 
     private
+
+    attr_reader :app, :client
 
     def resize(event)
       @window.resize(3, stdscr.maxx)

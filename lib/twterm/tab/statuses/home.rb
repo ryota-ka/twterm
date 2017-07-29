@@ -15,21 +15,22 @@ module Twterm
         end
 
         def fetch
-          @client.home_timeline.then do |statuses|
-            statuses.each(&method(:prepend))
+          client.home_timeline.then do |statuses|
+            statuses.each { |s| append(s) }
             sort
-            yield if block_given?
           end
         end
 
-        def initialize(client)
-          check_type Client, client
+        def initialize(app, client)
+          super(app, client)
 
-          super()
-          @client = client
-          subscribe(Event::Status::Timeline) { |e| prepend e.status }
+          subscribe(Event::Status::Timeline) { |e| prepend(e.status) }
 
-          fetch { scroller.move_to_top }
+          fetch.then do
+            initially_loaded!
+            scroller.move_to_top
+          end
+
           @auto_reloader = Scheduler.new(180) { fetch }
         end
 

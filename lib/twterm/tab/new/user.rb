@@ -1,5 +1,6 @@
 require 'twterm/publisher'
 require 'twterm/tab/base'
+require 'twterm/event/notification/error'
 
 module Twterm
   module Tab
@@ -16,10 +17,10 @@ module Twterm
           resetter = proc do
             reset_prog_mode
             sleep 0.1
-            Screen.instance.refresh
+            app.screen.refresh
           end
 
-          CompletionManager.instance.set_screen_name_mode!
+          app.completion_manager.set_screen_name_mode!
 
           input_thread = Thread.new do
             close_screen
@@ -28,25 +29,25 @@ module Twterm
             resetter.call
 
             if screen_name.nil? || screen_name.empty?
-              TabManager.instance.switch(Tab::New::Start.new)
+              app.tab_manager.switch(Tab::New::Start.new(app, client))
             else
-              Client.current.show_user(screen_name).then do |user|
+              client.show_user(screen_name).then do |user|
                 if user.nil?
-                  publish(Event::Notification.new(:error, 'User not found'))
-                  tab = Tab::New::Start.new
+                  publish(Event::Notification::Error.new('User not found'))
+                  tab = Tab::New::Start.new(app, client)
                 else
-                  tab = Tab::UserTab.new(user.id)
+                  tab = Tab::UserTab.new(app, client, user.id)
                 end
-                TabManager.instance.switch(tab)
+                app.tab_manager.switch(tab)
               end
             end
           end
 
-          App.instance.register_interruption_handler do
+          app.register_interruption_handler do
             input_thread.kill
             resetter.call
-            tab = Tab::New::Start.new
-            TabManager.instance.switch(tab)
+            tab = Tab::New::Start.new(app, client)
+            app.tab_manager.switch(tab)
           end
 
           input_thread.join
@@ -62,7 +63,9 @@ module Twterm
 
         private
 
-        def update; end
+        def image
+          Image.empty
+        end
       end
     end
   end

@@ -12,7 +12,7 @@ module Twterm
 
     def dispatch(event)
       @subscriptions
-        .select { |s| s.event == event.class }
+        .select { |s| event.is_a?(s.event) }
         .map(&:callback)
         .each { |cb| cb.call(event) }
 

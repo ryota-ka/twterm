@@ -1,55 +1,120 @@
 require 'curses'
+
+require 'twterm/completion_mamanger'
+require 'twterm/direct_message_composer'
 require 'twterm/event/screen/resize'
+require 'twterm/repository/direct_message_repository'
+require 'twterm/repository/friendship_repository'
+require 'twterm/repository/hashtag_repository'
+require 'twterm/repository/list_repository'
+require 'twterm/repository/status_repository'
+require 'twterm/repository/user_repository'
+require 'twterm/tab_manager'
+require 'twterm/tweetbox'
 require 'twterm/uri_opener'
 
 module Twterm
   class App
     include Publisher
-    include Singleton
+
+    attr_reader :screen
 
     DATA_DIR = "#{ENV['HOME']}/.twterm".freeze
 
-    def initialize
+    def completion_manager
+      @completion_mamanger ||= CompletionManager.new(self)
+    end
+
+    def direct_message_composer
+      @direct_message_composer ||= DirectMessageComposer.new(self, client)
+    end
+
+    def direct_message_repository
+      @direct_messages_repository ||= Repository::DirectMessageRepository.new
+    end
+
+    def friendship_repository
+      @friendship_repository ||= Repository::FriendshipRepository.new
+    end
+
+    def hashtag_repository
+      @hashtag_repository ||= Repository::HashtagRepository.new
+    end
+
+    def list_repository
+      @list_repository ||= Repository::ListRepository.new
+    end
+
+    def run
       Dir.mkdir(DATA_DIR, 0700) unless File.directory?(DATA_DIR)
 
       Auth.authenticate_user(config) if config[:user_id].nil?
 
-      Screen.instance
-      FilterQueryWindow.instance
+      KeyMapper.instance
 
-      timeline = Tab::Statuses::Home.new(client)
-      TabManager.instance.add_and_show(timeline)
+      @screen = Screen.new(self, client)
 
-      mentions_tab = Tab::Statuses::Mentions.new(client)
+      SearchQueryWindow.instance
 
-      TabManager.instance.add(mentions_tab)
-      TabManager.instance.recover_tabs
+      timeline = Tab::Statuses::Home.new(self, client)
+      tab_manager.add_and_show(timeline)
 
-      Screen.instance.refresh
+      mentions_tab = Tab::Statuses::Mentions.new(self, client)
+
+      tab_manager.add(mentions_tab)
+      tab_manager.recover_tabs
+
+      screen.refresh
 
       client.connect_user_stream
 
       reset_interruption_handler
 
+      Signal.trap(:WINCH) { on_resize }
+      Scheduler.new(60) { on_resize }
+
       URIOpener.instance
 
-      resize = proc do
-        next if Curses.closed?
+      Scheduler.new(300) do
+        status_repository.expire(3600)
 
-        lines = `tput lines`.to_i
-        cols = `tput cols`.to_i
-        publish(Event::Screen::Resize.new(lines, cols))
+        _ = status_repository.all.map { |user_id| user_repository.find(user_id) }
+        user_repository.expire(3600)
       end
 
-      Signal.trap(:WINCH, &resize)
-      Scheduler.new(60, &resize)
-    end
+      direct_message_repository.before_create do |dm|
+        user_repository.create(dm.recipient)
+        user_repository.create(dm.sender)
+      end
 
-    def run
-      run_periodic_cleanup
+      user_repository.before_create do |user|
+        client_id = client.user_id
 
-      Screen.instance.wait
-      Screen.instance.refresh
+        if user.following?
+          friendship_repository.follow(client_id, user.id)
+        else
+          friendship_repository.unfollow(client_id, user.id)
+        end
+
+        if user.follow_request_sent?
+          friendship_repository.following_requested(client_id, user.id)
+        else
+          friendship_repository.following_not_requested(client_id, user.id)
+        end
+      end
+
+      status_repository.before_create do |tweet|
+        user_repository.create(tweet.user)
+      end
+
+      status_repository.before_create do |tweet|
+        tweet.hashtags.each do |hashtag|
+          hashtag_repository.create(hashtag.text)
+        end
+      end
+
+      screen.wait
+      screen.refresh
     end
 
     def register_interruption_handler(&block)
@@ -58,13 +123,29 @@ module Twterm
     end
 
     def reset_interruption_handler
-      Signal.trap(:INT) { App.instance.quit }
+      Signal.trap(:INT) { quit }
     end
 
     def quit
       Curses.close_screen
-      TabManager.instance.dump_tabs
+      tab_manager.dump_tabs
       exit
+    end
+
+    def status_repository
+      @status_repository ||= Repository::StatusRepository.new
+    end
+
+    def tab_manager
+      @tab_manager ||= TabManager.new(self, client)
+    end
+
+    def tweetbox
+      @tweetbox = Tweetbox.new(self, client)
+    end
+
+    def user_repository
+      @user_repository ||= Repository::UserRepository.new
     end
 
     private
@@ -74,7 +155,15 @@ module Twterm
         config[:user_id].to_i,
         config[:screen_name],
         config[:access_token],
-        config[:access_token_secret]
+        config[:access_token_secret],
+        {
+          friendship: friendship_repository,
+          direct_message: direct_message_repository,
+          hashtag: hashtag_repository,
+          list: list_repository,
+          status: status_repository,
+          user: user_repository,
+        }
       )
     end
 
@@ -82,11 +171,12 @@ module Twterm
       @config ||= Config.new
     end
 
-    def run_periodic_cleanup
-      Scheduler.new(300) do
-        Status.cleanup
-        User.cleanup
-      end
+    def on_resize
+      return if Curses.closed?
+
+      lines = `tput lines`.to_i
+      cols = `tput cols`.to_i
+      publish(Event::Screen::Resize.new(lines, cols))
     end
   end
 end

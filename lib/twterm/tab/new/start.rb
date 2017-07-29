@@ -1,5 +1,6 @@
 require 'twterm/tab/base'
 require 'twterm/tab/direct_message/conversation_list'
+require 'twterm/tab/rate_limit_status'
 
 module Twterm
   module Tab
@@ -22,28 +23,21 @@ module Twterm
             search_tab
             user_tab
             key_assignments_cheatsheet
+            rate_limit_status
           ).freeze
         end
 
-        def initialize
-          super
-          refresh
+        def initialize(app, client)
+          super(app, client)
+          render
         end
 
         def respond_to_key(key)
           return true if scroller.respond_to_key(key)
 
           case key
-          when 'D'
-            open_direct_messages
           when 10
             perform_selected_action
-          when 'L'
-            open_list_tab
-          when 'S'
-            open_search_tab
-          when 'U'
-            open_user_tab
           else
             return false
           end
@@ -56,26 +50,57 @@ module Twterm
 
         private
 
+        def image
+          drawable_items
+            .map.with_index(0) { |item, i|
+              cursor = Image.cursor(1, scroller.current_index?(i))
+
+              desc =
+                case item
+                when :direct_messages
+                  'Direct messages'
+                when :list_tab
+                  'List tab'
+                when :search_tab
+                  'Search tab'
+                when :user_tab
+                  'User tab'
+                when :key_assignments_cheatsheet
+                  'Key assignments cheatsheet'
+                when :rate_limit_status
+                  'Rate limit status'
+                end
+
+              cursor - Image.whitespace - Image.string(desc)
+            }
+            .intersperse(Image.blank_line)
+            .reduce(Image.empty, :|)
+        end
+
         def open_direct_messages
-          switch(Tab::DirectMessage::ConversationList.new)
+          switch(Tab::DirectMessage::ConversationList.new(app, client))
         end
 
         def open_list_tab
-          switch(Tab::New::List.new)
+          switch(Tab::New::List.new(app, client))
         end
 
         def open_search_tab
-          switch(Tab::New::Search.new)
+          switch(Tab::New::Search.new(app, client))
+        end
+
+        def open_rate_limit_status
+          switch(Tab::RateLimitStatus.new(app, client))
         end
 
         def open_user_tab
-          tab = Tab::New::User.new
+          tab = Tab::New::User.new(app, client)
           switch(tab)
           tab.invoke_input
         end
 
         def open_key_assignments_cheatsheet
-          switch(Tab::KeyAssignmentsCheatsheet.new)
+          switch(Tab::KeyAssignmentsCheatsheet.new(app, client))
         end
 
         def perform_selected_action
@@ -90,49 +115,13 @@ module Twterm
             open_user_tab
           when :key_assignments_cheatsheet
             open_key_assignments_cheatsheet
+          when :rate_limit_status
+            open_rate_limit_status
           end
         end
 
         def switch(tab)
-          TabManager.instance.switch(tab)
-        end
-
-        def update
-          window.setpos(2, 3)
-          window.bold { window.addstr('Open new tab') }
-
-          drawable_items.each.with_index(0) do |item, i|
-            line = 4 + i * 2
-            window.setpos(line, 5)
-
-            case item
-            when :direct_messages
-              window.addstr('[D] Direct messages')
-              window.setpos(line, 6)
-              window.bold { window.addch(?D) }
-            when :list_tab
-              window.addstr('[L] List tab')
-              window.setpos(line, 6)
-              window.bold { window.addch(?L) }
-            when :search_tab
-              window.addstr('[S] Search tab')
-              window.setpos(line, 6)
-              window.bold { window.addch(?S) }
-            when :user_tab
-              window.addstr('[U] User tab')
-              window.setpos(line, 6)
-              window.bold { window.addch(?U) }
-            when :key_assignments_cheatsheet
-              window.addstr('[?] Key assignments cheatsheet')
-              window.setpos(line, 6)
-              window.bold { window.addch(??) }
-            end
-
-            window.with_color(:black, :magenta) do
-              window.setpos(line, 3)
-              window.addch(' ')
-            end if scroller.current_item?(i)
-          end
+          app.tab_manager.switch(tab)
         end
       end
     end

@@ -8,25 +8,29 @@ module Twterm
 
         attr_reader :list
 
-        def initialize(list_id)
-          super()
+        def initialize(app, client, list_id)
+          super(app, client)
 
           self.title = 'Loading...'.freeze
 
-          List.find_or_fetch(list_id).then do |list|
+          find_or_fetch_list(list_id).then do |list|
             @list = list
             self.title = @list.full_name
-            TabManager.instance.refresh_window
-            fetch { scroller.move_to_top }
+            app.tab_manager.refresh_window
+
+            fetch.then do
+              initially_loaded!
+              scroller.move_to_top
+            end
+
             @auto_reloader = Scheduler.new(300) { fetch }
           end
         end
 
         def fetch
-          Client.current.list_timeline(@list).then do |statuses|
-            statuses.reverse.each(&method(:prepend))
+          client.list_timeline(@list).then do |statuses|
+            statuses.each { |s| append(s) }
             sort
-            yield if block_given?
           end
         end
 

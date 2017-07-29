@@ -1,4 +1,7 @@
+require 'concurrent'
+
 require 'twterm/event/screen/resize'
+require 'twterm/image'
 require 'twterm/subscriber'
 
 module Twterm
@@ -19,13 +22,45 @@ module Twterm
         window.close
       end
 
-      def initialize
+      def find_or_fetch_status(id)
+        status = app.status_repository.find(id)
+
+        if status
+          Concurrent::Promise.fulfill(status)
+        else
+          client.show_status(id)
+        end
+      end
+
+      def find_or_fetch_list(id)
+        list = app.list_repository.find(id)
+
+        if list
+          Concurrent::Promise.fulfill(list)
+        else
+          client.list(id)
+        end
+      end
+
+      def find_or_fetch_user(id)
+        user = app.user_repository.find(id)
+
+        if user
+          Concurrent::Promise.fulfill(user)
+        else
+          client.show_user(id)
+        end
+      end
+
+      def initialize(app, client)
+        @app, @client = app, client
+
         @window = stdscr.subwin(stdscr.maxy - 5, stdscr.maxx, 3, 0)
 
         subscribe(Event::Screen::Resize, :resize)
       end
 
-      def refresh
+      def render
         Thread.new do
           refresh_mutex.synchronize do
             window.clear
@@ -38,8 +73,7 @@ module Twterm
               end
             end
 
-            update
-            window.refresh
+            view.at(1, 2).render
           end if refreshable?
         end
       end
@@ -50,10 +84,16 @@ module Twterm
 
       def title=(title)
         @title = title
-        TabManager.instance.refresh_window
+        app.tab_manager.refresh_window
       end
 
       private
+
+      attr_reader :app, :client
+
+      def image
+        Image.string('view method is not implemented')
+      end
 
       def refresh_mutex
         @refresh_mutex ||= Mutex.new
@@ -63,7 +103,7 @@ module Twterm
         !(
           refresh_mutex.locked? ||
             closed? ||
-            TabManager.instance.current_tab.object_id != object_id
+            app.tab_manager.current_tab.object_id != object_id
         )
       end
 
@@ -72,8 +112,8 @@ module Twterm
         window.move(3, 0)
       end
 
-      def update
-        fail NotImplementedError, 'update method must be implemented'
+      def view
+        View.new(window, image)
       end
     end
   end

@@ -1,14 +1,17 @@
+require 'concurrent'
+
 require 'twterm/tab/base'
+require 'twterm/tab/loadable'
 
 module Twterm
   module Tab
     module New
       class Search < Base
+        include Loadable
         include Readline
-        include FilterableList
-        include Scrollable
+        include Searchable
 
-        @@queries = []
+        @@queries = Concurrent::Array.new
 
         def ==(other)
           other.is_a?(self.class)
@@ -18,8 +21,8 @@ module Twterm
           (window.maxy - 6).div(3)
         end
 
-        def initialize
-          super
+        def initialize(app, client)
+          super(app, client)
 
           update_saved_search
         end
@@ -28,36 +31,32 @@ module Twterm
           resetter = proc do
             reset_prog_mode
             sleep 0.1
-            Screen.instance.refresh
+            app.screen.refresh
           end
 
           input_thread = Thread.new do
             close_screen
-            CompletionManager.instance.set_default_mode!
+            app.completion_manager.set_default_mode!
             puts "\ninput search query"
             query = (readline('> ') || '').strip
             resetter.call
 
-            tab = query.nil? || query.empty? ? Tab::New::Search.new : Tab::Statuses::Search.new(query)
-            TabManager.instance.switch(tab)
+            tab = query.nil? || query.empty? ? Tab::New::Search.new(app, client) : Tab::Statuses::Search.new(app, client, query)
+            app.tab_manager.switch(tab)
           end
 
-          App.instance.register_interruption_handler do
+          app.register_interruption_handler do
             input_thread.kill
             resetter.call
             tab = Tab::New::Search.new
-            TabManager.instance.switch(tab)
+            app.tab_manager.switch(tab)
           end
 
           input_thread.join
         end
 
         def items
-          if filter_query.empty?
-            ['<Input search query>'] + @@queries
-          else
-            @@queries.select { |q| q.matches?(filter_query) }
-          end
+          ['<Input search query>', *@@queries]
         end
 
         def respond_to_key(key)
@@ -66,10 +65,6 @@ module Twterm
           case key
           when 10
             open_search_tab_with_current_query
-          when ?q
-            reset_filter
-          when ?/
-            filter
           else
             return false
           end
@@ -92,42 +87,34 @@ module Twterm
         def open_search_tab_with_current_query
           index = scroller.index
 
-          if filter_query.empty? && index.zero?
+          if search_query.empty? && index.zero?
             invoke_input
           else
             query = items[index]
-            tab = Tab::Statuses::Search.new(query)
-            TabManager.instance.switch(tab)
+            tab = Tab::Statuses::Search.new(app, client, query)
+            app.tab_manager.switch(tab)
           end
         end
 
-        def update
-          offset = scroller.offset
-
-          window.setpos(2, 3)
-          window.bold { window.addstr('Open search tab') }
-
-          drawable_items.each.with_index(0) do |query, i|
-            line = 3 * i + 5
-
-            window.with_color(:black, :magenta) do
-              window.setpos(line, 4)
-              window.addstr(' ')
-              window.setpos(line + 1, 4)
-              window.addstr(' ')
-            end if scroller.current_item?(i)
-
-            window.setpos(line, 6)
-            window.addstr(query)
-          end
+        def image
+          [
+            *drawable_items
+              .map.with_index(0) { |query, i|
+                Image.cursor(1, scroller.current_index?(i)) - Image.whitespace - Image.string(query)
+              },
+            (Image.string('  Loading saved searches...') unless initially_loaded?),
+          ]
+            .reject(&:nil?)
+            .intersperse(Image.blank_line)
+            .reduce(Image.empty, :|)
         end
 
         def update_saved_search
           return unless @@queries.empty?
 
-          Client.current.saved_search.then do |searches|
+          client.saved_search.then do |searches|
             @@queries = searches.map(&:query)
-            refresh
+            initially_loaded!
           end
         end
       end

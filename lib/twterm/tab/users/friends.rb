@@ -13,18 +13,21 @@ module Twterm
         end
 
         def fetch
-          Client.current.friends(user_id) do |users|
+          client.friends(user_id) do |users|
             @user_ids.concat(users.map(&:id)).uniq!
-            refresh
+            render
           end
         end
 
-        def initialize(user_id)
-          super()
+        def initialize(app, client, user_id)
+          super(app, client)
 
           @user_id = user_id
 
-          fetch { move_to_top }
+          fetch.then do
+            initially_loaded!
+            move_to_top
+          end
         end
 
         def title
@@ -34,7 +37,7 @@ module Twterm
         private
 
         def user
-          User.find(user_id)
+          app.user_repository.find(user_id)
         end
       end
     end

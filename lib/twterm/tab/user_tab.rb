@@ -1,6 +1,7 @@
 require 'twterm/event/open_uri'
 require 'twterm/publisher'
 require 'twterm/tab/base'
+require 'twterm/tab/user_list_management'
 
 module Twterm
   module Tab
@@ -24,19 +25,19 @@ module Twterm
       end
 
       def fetch
-        update
+        render
       end
 
-      def initialize(user_id)
-        super()
+      def initialize(app, client, user_id)
+        super(app, client)
 
         self.title = 'Loading...'.freeze
         @user_id = user_id
 
-        User.find_or_fetch(user_id).then do |user|
-          refresh
+        find_or_fetch_user(user_id).then do |user|
+          render
 
-          Client.current.lookup_friendships
+          client.lookup_friendships.then { render } unless app.friendship_repository.already_looked_up?(user_id)
           self.title = "@#{user.screen_name}"
         end
       end
@@ -47,6 +48,7 @@ module Twterm
           show_friends
           show_followers
           show_likes
+          manage_lists
         )
         items << :compose_direct_message unless myself?
         items << :open_website  unless user.website.nil?
@@ -60,17 +62,11 @@ module Twterm
       def respond_to_key(key)
         return true if scroller.respond_to_key(key)
 
+        k = KeyMapper.instance
+
         case key
-        when ?D
-          compose_direct_message unless myself?
-        when ?F
-          follow unless myself?
         when 10
           perform_selected_action
-        when ?t
-          open_timeline_tab
-        when ?W
-          open_website
         else
           return false
         end
@@ -85,25 +81,25 @@ module Twterm
       end
 
       def block
-        Client.current.block(user_id).then do |users|
-          refresh
+        client.block(user_id).then do |users|
+          render
 
           user = users.first
-          publish(Event::Notification.new(:message, 'Blocked @%s' % user.screen_name))
+          publish(Event::Notification::Success.new('Blocked @%s' % user.screen_name))
         end
       end
 
       def blocking?
-        user.blocked_by?(Client.current.user_id)
+        app.friendship_repository.blocking?(client.user_id, user_id)
       end
 
       def compose_direct_message
-        DirectMessageComposer.instance.compose(user)
+        app.direct_message_composer.compose(user)
       end
 
       def follow
-        Client.current.follow(user_id).then do |users|
-          refresh
+        client.follow(user_id).then do |users|
+          render
 
           user = users.first
           if user.protected?
@@ -111,42 +107,47 @@ module Twterm
           else
             msg = "Followed @#{user.screen_name}"
           end
-          publish(Event::Notification.new(:message, msg))
+          publish(Event::Notification::Success.new(msg))
         end
       end
 
       def followed?
-        user.followed_by?(Client.current.user_id)
+        app.friendship_repository.following?(user_id, client.user_id)
       end
 
       def following?
-        user.followed_by?(Client.current.user_id)
+        app.friendship_repository.following?(client.user_id, user_id)
       end
 
       def following_requested?
-        user.following_requested_by?(Client.current.user_id)
+        app.friendship_repository.following_requested?(client.user_id, user_id)
       end
 
       def mute
-        Client.current.mute(user_id).then do |users|
-          refresh
+        client.mute(user_id).then do |users|
+          render
 
           user = users.first
-          publish(Event::Notification.new(:message, 'Muted @%s' % user.screen_name))
+          publish(Event::Notification::Success.new('Muted @%s' % user.screen_name))
         end
       end
 
       def muting?
-        user.muted_by?(Client.current.user_id)
+        app.friendship_repository.muting?(client.user_id, user_id)
       end
 
       def myself?
-        user_id == Client.current.user_id
+        user_id == client.user_id
+      end
+
+      def open_list_management_tab
+        tab = Tab::UserListManagement.new(app, client, user_id)
+        app.tab_manager.add_and_show(tab)
       end
 
       def open_timeline_tab
-        tab = Tab::Statuses::UserTimeline.new(user_id)
-        TabManager.instance.add_and_show(tab)
+        tab = Tab::Statuses::UserTimeline.new(app, client, user_id)
+        app.tab_manager.add_and_show(tab)
       end
 
       def open_website
@@ -159,6 +160,8 @@ module Twterm
         case scroller.current_item
         when :compose_direct_message
           compose_direct_message
+        when :manage_lists
+          open_list_management_tab
         when :open_timeline_tab
           open_timeline_tab
         when :open_website
@@ -185,138 +188,134 @@ module Twterm
       end
 
       def show_likes
-        tab = Tab::Statuses::Favorites.new(user_id)
-        TabManager.instance.add_and_show(tab)
+        tab = Tab::Statuses::Favorites.new(app, client, user_id)
+        app.tab_manager.add_and_show(tab)
       end
 
       def show_followers
-        tab = Tab::Users::Followers.new(user_id)
-        TabManager.instance.add_and_show(tab)
+        tab = Tab::Users::Followers.new(app, client, user_id)
+        app.tab_manager.add_and_show(tab)
       end
 
       def show_friends
-        tab = Tab::Users::Friends.new(user_id)
-        TabManager.instance.add_and_show(tab)
+        tab = Tab::Users::Friends.new(app, client, user_id)
+        app.tab_manager.add_and_show(tab)
       end
 
       def unblock
-        Client.current.unblock(user_id).then do |users|
-          refresh
+        client.unblock(user_id).then do |users|
+          render
 
           user = users.first
-          publish(Event::Notification.new(:message, 'Unblocked @%s' % user.screen_name))
+          publish(Event::Notification::Success.new('Unblocked @%s' % user.screen_name))
         end
       end
 
       def unfollow
-        Client.current.unfollow(user_id).then do |users|
-          refresh
+        client.unfollow(user_id).then do |users|
+          render
 
           user = users.first
-          publish(Event::Notification.new(:message, 'Unfollowed @%s' % user.screen_name))
+          publish(Event::Notification::Success.new('Unfollowed @%s' % user.screen_name))
         end
       end
 
       def unmute
-        Client.current.unmute(user_id).then do |users|
-          refresh
+        client.unmute(user_id).then do |users|
+          render
 
           user = users.first
-          publish(Event::Notification.new(:message, 'Unmuted @%s' % user.screen_name))
+          publish(Event::Notification::Success.new('Unmuted @%s' % user.screen_name))
         end
       end
 
-      def update
+      def image
         if user.nil?
-          User.find_or_fetch(user_id).then { update }
-          return
+          find_or_fetch_user(user_id).then { render }
+          return Image.empty
         end
 
-        window.setpos(2, 3)
-        window.bold { window.addstr(user.name) }
-        window.addstr(" (@#{user.screen_name})")
+        name = !Image.string(user.name) - Image.whitespace - Image.string("@#{user.screen_name}").parens
 
-        window.with_color(:yellow) { window.addstr(' [protected]') } if user.protected?
-        window.with_color(:cyan) { window.addstr(' [verified]') } if user.verified?
+        badges = [
+          (Image.string('protected').brackets.color(:yellow) if user.protected?),
+          (Image.string('verified').brackets.color(:cyan) if user.verified?),
+        ].compact.intersperse(Image.whitespace).reduce(Image.empty, :-)
 
-        window.setpos(5, 4)
-        if myself?
-          window.with_color(:yellow) { window.addstr(' [your account]') }
-        else
-          window.with_color(:green) { window.addstr(' [following]') } if following?
-          window.with_color(:white) { window.addstr(' [not following]') } if !following? && !blocking? && !following_requested?
-          window.with_color(:yellow) { window.addstr(' [following requested]') } if following_requested?
-          window.with_color(:cyan) { window.addstr(' [follows you]') } if followed?
-          window.with_color(:red) { window.addstr(' [muting]') } if muting?
-          window.with_color(:red) { window.addstr(' [blocking]') } if blocking?
-        end
-
-        user.description.split_by_width(window.maxx - 6).each.with_index(7) do |line, i|
-          window.setpos(i, 5)
-          window.addstr(line)
-        end
-
-        window.setpos(8 + bio_height, 5)
-        window.addstr("Location: #{user.location}") unless user.location.nil?
-
-        current_line = 11 + bio_height
-
-        drawable_items.each.with_index(0) do |item, i|
-          if scroller.current_item? i
-            window.setpos(current_line, 3)
-            window.with_color(:black, :magenta) { window.addch(' ') }
+        status =
+          if myself?
+            Image.string('your account').brackets.color(:yellow)
+          else
+            [
+              ['following', :green, following?],
+              ['not following', :white, !following? && !blocking? && !following_requested?],
+              ['following requested', :yellow, following_requested?],
+              ['follows you', :cyan, followed?],
+              ['muting', :red, muting?],
+              ['blocking', :red, blocking?],
+            ]
+              .select { |_, _, p| p }
+              .map { |s, c, _| Image.string(s).brackets.color(c) }
+              .intersperse(Image.whitespace)
+              .reduce(Image.empty, :-)
           end
 
-          window.setpos(current_line, 5)
-          case item
-          when :compose_direct_message
-            window.addstr('[ ] Compose direct message')
-            window.setpos(current_line, 6)
-            window.bold { window.addch(?D) }
-          when :toggle_block
-            if blocking?
-              window.addstr('    Unblock this user')
-            else
-              window.addstr('    Block this user')
-            end
-          when :toggle_follow
-            if following?
-              window.addstr('    Unfollow this user')
-            elsif following_requested?
-              window.addstr('    Following request sent')
-            else
-              window.addstr('[ ] Follow this user')
-              window.setpos(current_line, 6)
-              window.bold { window.addch(?F) }
-            end
-          when :toggle_mute
-            if muting?
-              window.addstr('    Unmute this user')
-            else
-              window.addstr('    Mute this user')
-            end
-          when :open_timeline_tab
-            window.addstr("[ ] #{user.statuses_count.format} tweets")
-            window.setpos(current_line, 6)
-            window.bold { window.addch(?t) }
-          when :open_website
-            window.addstr("[ ] Open website (#{user.website})")
-            window.setpos(current_line, 6)
-            window.bold { window.addch(?W) }
-          when :show_likes
-            window.addstr("    #{user.favorites_count.format} likes")
-          when :show_followers
-            window.addstr("    #{user.followers_count.format} followers")
-          when :show_friends
-            window.addstr("    #{user.friends_count.format} following")
-          end
+        description = user.description.split_by_width(window.maxx - 4)
+          .map(&Image.method(:string))
+          .reduce(Image.empty, :|)
 
-          current_line += 2
+        location = Image.string("Location: #{user.location}")
+
+        foo = drawable_items.map.with_index(0) do |item, i|
+          Image.cursor(1, scroller.current_index?(i)) - Image.whitespace -
+            case item
+            when :compose_direct_message
+              Image.string('Compose direct message')
+            when :toggle_block
+              if blocking?
+                Image.string('Unblock this user')
+              else
+                Image.string('Block this user')
+              end
+            when :toggle_follow
+              if following?
+                Image.string('Unfollow this user')
+              elsif following_requested?
+                Image.string('Following request sent')
+              else
+                Image.string('Follow this user')
+              end
+            when :toggle_mute
+              if muting?
+                Image.string('Unmute this user')
+              else
+                Image.string('Mute this user')
+              end
+            when :open_timeline_tab
+              Image.number(user.statuses_count) - Image.whitespace - Image.plural(user.statuses_count, 'tweet')
+            when :open_website
+              Image.string("Open website (#{user.website})")
+            when :show_likes
+              Image.number(user.favorites_count) - Image.whitespace - Image.plural(user.favorites_count, 'like')
+            when :show_followers
+              Image.number(user.followers_count) - Image.whitespace - Image.plural(user.followers_count, 'follower')
+            when :show_friends
+              Image.number(user.friends_count) - Image.whitespace - Image.string('following')
+            when :manage_lists
+              Image.string('Add to / Remove from lists')
+            end
         end
+          .intersperse(Image.blank_line)
+          .reduce(Image.empty, :|)
+
+        [name, badges, status, description, location, foo]
+          .compact
+          .intersperse(Image.blank_line)
+          .reduce(Image.empty, :|)
       end
 
       def user
-        User.find(user_id)
+        app.user_repository.find(user_id)
       end
     end
   end

@@ -1,12 +1,14 @@
-require 'twterm/event/notification'
+require 'twterm/event/notification/info'
 require 'twterm/tab/base'
+require 'twterm/tab/loadable'
 
 module Twterm
   module Tab
     module New
       class List < Base
-        include FilterableList
-        include Scrollable
+        include Loadable
+        include Publisher
+        include Searchable
 
         @@lists = nil
 
@@ -18,28 +20,36 @@ module Twterm
           (window.maxy - 6).div(3)
         end
 
-        def initialize
-          super
+        def initialize(app, client)
+          super(app, client)
 
-          refresh
+          client.lists.then do |lists|
+            @@lists = lists.sort_by(&:full_name)
+            initially_loaded!
+          end
         end
 
         def items
-          (@@lists || []).select { |l| l.matches?(filter_query) }
+          @@lists || []
+        end
+
+        def matches?(list, query)
+          [
+            other.description,
+            other.full_name,
+          ].any? { |x| x.downcase.include?(query.downcase) }
         end
 
         def respond_to_key(key)
           return true if scroller.respond_to_key(key)
 
+          k = KeyMapper.instance
+
           case key
           when 10
             return true if current_list.nil?
-            list_tab = Tab::Statuses::ListTimeline.new(current_list.id)
-            TabManager.instance.switch(list_tab)
-          when ?q
-            reset_filter
-          when ?/
-            filter
+            list_tab = Tab::Statuses::ListTimeline.new(app, client, current_list.id)
+            app.tab_manager.switch(list_tab)
           else
             return false
           end
@@ -61,40 +71,19 @@ module Twterm
           @@lists.nil? ? nil : items[scroller.index]
         end
 
-        def show_lists
-          return if @@lists.nil?
+        def image
+          return Image.string(initially_loaded? ? 'No results found' : 'Loading...') if items.empty?
 
-          index, offset = scroller.index, scroller.offset
+          drawable_items.map.with_index(0) do |list, i|
+            cursor = Image.cursor(2, scroller.current_index?(i))
 
-          drawable_items.each.with_index(0) do |list, i|
-            window.with_color(:black, :magenta) do
-              window.setpos(i * 3 + 5, 4)
-              window.addstr(' ')
-              window.setpos(i * 3 + 6, 4)
-              window.addstr(' ')
-            end if scroller.current_item?(i)
+            summary = Image.string("#{list.full_name} (#{list.member_count} members / #{list.subscriber_count} subscribers)")
+            desc = Image.string('  ') - Image.string(list.description)
 
-            window.setpos(i * 3 + 5, 6)
-            window.addstr("#{list.full_name} (#{list.member_count} members / #{list.subscriber_count} subscribers)")
-            window.setpos(i * 3 + 6, 8)
-            window.addstr(list.description)
+            cursor - Image.whitespace - (summary | desc)
           end
-        end
-
-        def update
-          window.setpos(2, 3)
-          window.bold { window.addstr('Open list tab') }
-
-          Thread.new do
-            publish(Event::Notification.new(:message, 'Loading lists ...'))
-            Client.current.lists.then do |lists|
-              @@lists = lists.sort_by(&:full_name)
-              show_lists
-              window.refresh if TabManager.instance.current_tab == self
-            end
-          end if @@lists.nil?
-
-          show_lists
+            .intersperse(Image.blank_line)
+            .reduce(Image.empty, :|)
         end
       end
     end

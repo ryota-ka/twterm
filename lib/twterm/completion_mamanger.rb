@@ -1,8 +1,8 @@
 module Twterm
   class CompletionManager
-    include Singleton
+    def initialize(app)
+      @app = app
 
-    def initialize
       Readline.basic_word_break_characters = " \t\n\"\\'`$><=;|&{("
       Readline.completion_case_fold = false
     end
@@ -12,12 +12,12 @@ module Twterm
 
       Readline.completion_proc = proc do |str|
         if str.start_with?('#')
-          History::Hashtag.instance.history
+          app.hashtag_repository.all
           .map { |tag| "##{tag}" }
           .select { |tag| tag.start_with?(str) }
         elsif str.start_with?('@')
-          History::ScreenName.instance.history
-          .map { |name| "@#{name}" }
+          app.user_repository.all
+          .map { |user| "@#{user.screen_name}" }
           .select { |name| name.start_with?(str) }
         else
           []
@@ -29,9 +29,14 @@ module Twterm
       Readline.completion_append_character = ''
 
       Readline.completion_proc = proc do |str|
-        History::ScreenName.instance.history
+        app.user_repository.all
+          .map { |user| user.screen_name }
           .select { |name| name.start_with?(str) }
       end
     end
+
+    private
+
+    attr_reader :app
   end
 end

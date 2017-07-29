@@ -2,49 +2,83 @@ require 'twterm/direct_message_composer'
 require 'twterm/event/direct_message/fetched'
 require 'twterm/subscriber'
 require 'twterm/tab/base'
+require 'twterm/tab/loadable'
+require 'twterm/tab/searchable'
 
 module Twterm
   module Tab
     module DirectMessage
       class Conversation < Base
-        include FilterableList
-        include Scrollable
+        include Searchable
         include Subscriber
+        include Loadable
 
         def drawable_item_count
           messages.drop(scroller.offset).lazy
             .map { |m| m.text.split_by_width(window.maxx - 4).count + 2 }
             .scan(0, :+)
-            .select { |l| l < window.maxy }
+            .each_cons(2)
+            .select { |_, l| l < window.maxy }
             .count
         end
 
-        def initialize(conversation)
-          super()
+        def image
+          return Image.string(initially_loaded? ? 'No results found' : 'Loading...') if items.empty?
+
+          scroller.drawable_items.map.with_index(0) do |message, i|
+            sender = app.user_repository.find(message.sender_id)
+
+            header = [
+              !Image.string(sender.name).color(sender.color),
+              Image.string("@#{sender.screen_name}").parens,
+              Image.string(message.date.to_s).brackets,
+            ].intersperse(Image.whitespace).reduce(Image.empty, :-)
+
+            body = message.text.split_by_width(window.maxx - 4)
+              .map { |x| Image.string(x) }
+              .reduce(Image.empty, :|)
+
+            m = header | body
+
+            cursor = Image.cursor(m.height, scroller.current_index?(i))
+
+            cursor - Image.whitespace - m
+          end
+            .intersperse(Image.blank_line)
+            .reduce(Image.empty, :|)
+        end
+
+        def initialize(app, client, conversation)
+          super(app, client)
 
           @conversation = conversation
 
-          subscribe(Event::DirectMessage::Fetched) { refresh }
+          subscribe(Event::DirectMessage::Fetched) { initially_loaded! }
         end
 
         def items
-          if filter_query.empty?
-            messages
-          else
-            messages.select { |m| m.matches?(filter_query) }
-          end
+          messages
+        end
+
+        def matches?(message, query)
+          sender = app.user_repository.find(message.sender_id)
+
+          [
+            message.text,
+            sender.screen_name,
+            sender.name
+          ].any? { |x| x.downcase.include?(query.downcase) }
         end
 
         def respond_to_key(key)
           return true if scroller.respond_to_key(key)
 
+          k = KeyMapper.instance
+
           case key
-          when ?/
-            filter
-          when ?n, ?r
-            DirectMessageComposer.instance.compose(conversation.collocutor)
-          when ?q
-            reset_filter
+          when k[:status, :compose], k[:status, :reply]
+            collocutor = app.user_repository.find(conversation.collocutor_id)
+            app.direct_message_composer.compose(collocutor)
           else
             return false
           end
@@ -52,42 +86,9 @@ module Twterm
           true
         end
 
-        def update
-          line = 0
-
-          scroller.drawable_items.each.with_index(0) do |message, i|
-            formatted_lines = message.text.split_by_width(window.maxx - 4).count
-
-            window.with_color(:black, :magenta) do
-              formatted_lines.+(1).times do |j|
-                window.setpos(line + j, 0)
-                window.addch(' ')
-              end
-            end if scroller.current_item?(i)
-
-            window.setpos(line, 2)
-
-            window.bold do
-              window.with_color(message.sender.color) do
-                window.addstr(message.sender.name)
-              end
-            end
-
-            window.addstr(' (@%s)' % message.sender.screen_name)
-            window.addstr(' [%s]' % message.date)
-
-            message.text.split_by_width(window.maxx - 4).each do |str|
-              line += 1
-              window.setpos(line, 2)
-              window.addstr(str)
-            end
-
-            line += 2
-          end
-        end
-
         def title
-          '@%s messages' % conversation.collocutor.screen_name
+          collocutor = app.user_repository.find(conversation.collocutor_id)
+          '@%s messages' % collocutor.screen_name
         end
 
         private

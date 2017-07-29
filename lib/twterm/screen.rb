@@ -1,16 +1,18 @@
 require 'twterm/event/screen/resize'
+require 'twterm/key_mapper'
 require 'twterm/subscriber'
 
 module Twterm
   class Screen
-    include Singleton
     include Subscriber
     include Curses
 
-    def initialize
+    def initialize(app, client)
+      @app, @client = app, client
+
       @screen = init_screen
       noecho
-      cbreak
+      raw
       curs_set(0)
       stdscr.keypad(true)
       start_color
@@ -20,21 +22,23 @@ module Twterm
     end
 
     def refresh
-      TabManager.instance.refresh_window
-      TabManager.instance.current_tab.refresh
+      app.tab_manager.refresh_window
+      app.tab_manager.current_tab.render
       Notifier.instance.show
     end
 
     def respond_to_key(key)
+      k = KeyMapper.instance
+
       case key
-      when ?n
-        Tweetbox.instance.compose
+      when k[:status, :compose]
+        app.tweetbox.compose
         return
-      when ?Q
-        App.instance.quit
-      when ??
-        tab = Tab::KeyAssignmentsCheatsheet.new
-        TabManager.instance.add_and_show tab
+      when k[:app, :quit], 3
+        app.quit
+      when k[:app, :cheatsheet]
+        tab = Tab::KeyAssignmentsCheatsheet.new(app, client)
+        app.tab_manager.add_and_show tab
       else
         return false
       end
@@ -51,6 +55,8 @@ module Twterm
 
     private
 
+    attr_reader :app, :client
+
     def resize(event)
       return if closed?
 
@@ -62,12 +68,12 @@ module Twterm
     end
 
     def scan
-      App.instance.reset_interruption_handler
+      app.reset_interruption_handler
 
       key = getch
 
-      return if TabManager.instance.current_tab.respond_to_key(key)
-      return if TabManager.instance.respond_to_key(key)
+      return if app.tab_manager.current_tab.respond_to_key(key)
+      return if app.tab_manager.respond_to_key(key)
       respond_to_key(key)
     end
   end

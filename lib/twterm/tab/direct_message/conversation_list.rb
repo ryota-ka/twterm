@@ -2,24 +2,47 @@ require 'twterm/direct_message_composer'
 require 'twterm/event/direct_message/fetched'
 require 'twterm/subscriber'
 require 'twterm/tab/base'
+require 'twterm/tab/loadable'
 require 'twterm/tab/direct_message/conversation'
 
 module Twterm
   module Tab
     module DirectMessage
       class ConversationList < Base
-        include FilterableList
-        include Scrollable
+        include Loadable
+        include Searchable
         include Subscriber
 
         def drawable_item_count
           window.maxy.-(2).div(3)
         end
 
-        def initialize
-          super
+        def image
+          return Image.string(initially_loaded? ? 'No results found' : 'Loading...') if items.empty?
 
-          subscribe(Event::DirectMessage::Fetched) { refresh }
+          scroller.drawable_items.map.with_index(0) do |conversation, i|
+            cursor = Image.cursor(2, scroller.current_index?(i))
+
+            collocutor = app.user_repository.find(conversation.collocutor_id)
+
+            header = [
+              !Image.string(collocutor.name).color(collocutor.color),
+              Image.string("@#{collocutor.screen_name}").parens,
+              Image.string(conversation.updated_at.to_s).brackets,
+            ].intersperse(Image.whitespace).reduce(Image.empty, :-)
+
+            body = Image.string(conversation.preview.split_by_width(window.maxx - 4).first)
+
+            cursor - Image.whitespace - (header | body)
+          end
+            .intersperse(Image.blank_line)
+            .reduce(Image.empty, :|)
+        end
+
+        def initialize(app, client)
+          super(app, client)
+
+          subscribe(Event::DirectMessage::Fetched) { initially_loaded! }
         end
 
         def ==(other)
@@ -27,58 +50,36 @@ module Twterm
         end
 
         def items
-          if filter_query.empty?
-            Client.current.direct_message_conversations
-          else
-            Client.current.direct_message_conversations.select { |c| c.matches?(filter_query) }
-          end
+          client.direct_message_conversations
+        end
+
+        def matches?(conversation, query)
+          collocutor = app.user_repository.find(conversation.collocutor_id)
+
+          [
+            collocutor.name,
+            collocutor.screen_name,
+            conversation.preview
+          ].any? { |x| x.downcase.include?(query.downcase) }
         end
 
         def respond_to_key(key)
           return true if scroller.respond_to_key(key)
 
+          k = KeyMapper.instance
+
           case key
           when 10
             open_conversation
-          when ?n, ?r
+          when k[:status, :compose], k[:status, :reply]
             conversation = current_item
-            DirectMessageComposer.instance.compose(conversation.collocutor)
-          when ?/
-            filter
-          when ?q
-            reset_filter
+            collocutor = app.user_repository.find(conversation.collocutor_id)
+            app.direct_message_composer.compose(collocutor)
           else
             return false
           end
 
           true
-        end
-
-        def update
-          scroller.drawable_items.each.with_index(0) do |conversation, i|
-            line = 3 * i
-
-            window.with_color(:black, :magenta) do
-              2.times do |j|
-                window.setpos(line + j, 0)
-                window.addch(' ')
-              end
-            end if scroller.current_item?(i)
-
-            window.setpos(line, 2)
-
-            window.bold do
-              window.with_color(conversation.collocutor.color) do
-                window.addstr(conversation.collocutor.name)
-              end
-            end
-
-            window.addstr(' (@%s)' % conversation.collocutor.screen_name)
-            window.addstr(' [%s]' % conversation.updated_at)
-
-            window.setpos(line + 1, 2)
-            window.addstr(conversation.preview.split_by_width(window.maxx - 4).first)
-          end
         end
 
         def title
@@ -90,8 +91,8 @@ module Twterm
         def open_conversation
           conversation = scroller.current_item
 
-          tab = Tab::DirectMessage::Conversation.new(conversation)
-          TabManager.instance.add_and_show(tab)
+          tab = Tab::DirectMessage::Conversation.new(app, client, conversation)
+          app.tab_manager.add_and_show(tab)
         end
       end
     end

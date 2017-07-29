@@ -1,5 +1,7 @@
 require 'twterm/event/favorite'
-require 'twterm/event/notification'
+require 'twterm/event/follow'
+require 'twterm/event/notification/error'
+require 'twterm/event/notification/info'
 require 'twterm/event/status/mention'
 require 'twterm/event/status/timeline'
 require 'twterm/publisher'
@@ -12,71 +14,75 @@ module Twterm
     CONSUMER_SECRET = 'OFLKzrepRG2p1hq0nUB9j2S9ndFQoNTPheTpmOY0GYw55jGgS5'.freeze
 
     def connect_user_stream
-      streaming_client.stop_stream
+      return if user_stream_connected?
 
       @streaming_thread = Thread.new do
         begin
-          publish(Event::Notification.new(:message, 'Trying to connect to Twitter...'))
-          streaming_client.userstream
-        rescue EventMachine::ConnectionError
-          publish(Event::Notification.new(:error, 'Connection failed'))
+          publish(Event::Notification::Info.new('Trying to connect to Twitter...'))
+          streaming_client.user do |event|
+            keep_alive!
+
+            case event
+            when Twitter::Tweet
+              status = status_repository.create(event)
+              publish(Event::Status::Timeline.new(status))
+              publish(Event::Status::Mention.new(status)) if status.text.include?('@%s' % screen_name)
+            when Twitter::Streaming::Event
+              case event.name
+              when :favorite
+                user = user_repository.create(event.source)
+                status = status_repository.create(event.target_object)
+
+                event = Event::Favorite.new(user, status, self)
+                publish(event)
+              when :follow
+                source = user_repository.create(event.source)
+                target = user_repository.create(event.target)
+
+                event = Event::Follow.new(source, target, self)
+
+                publish(event)
+              end
+            when Twitter::DirectMessage
+            when Twitter::Streaming::FriendList
+              user_stream_connected!
+            when Twitter::Streaming::DeletedTweet
+              publish(Event::Status::Delete.new(event.id))
+            end
+          end
+        rescue Twitter::Error::TooManyRequests
+          publish(Event::Notification::Error.new('Rate limit exceeded'))
+          sleep 120
+          retry
+        rescue Errno::ENETUNREACH, Errno::ETIMEDOUT, Resolv::ResolvError
+          publish(Event::Notification::Error.new('Network is unavailable'))
           sleep 30
           retry
+        rescue Twitter::Error => e
+          publish(Event::Notification::Error.new(e.message))
         end
       end
     end
 
-    def initialize_user_stream
-      return if user_stream_initialized?
-
-      streaming_client.on_friends do
-        user_stream_connected!
-      end
-
-      streaming_client.on_timeline_status do |tweet|
-        status = Status.new(tweet)
-        publish(Event::Status::Timeline.new(status))
-        publish(Event::Status::Mention.new(status)) if status.text.include?('@%s' % screen_name)
-      end
-
-      streaming_client.on_delete do |status_id|
-        publish(Event::StatusDeleted.new(status_id))
-      end
-
-      streaming_client.on_event(:favorite) do |event|
-        user = User.new(Twitter::User.new(event[:source]))
-        status = Status.new(Twitter::Status.new(event[:target_object]))
-
-        event = Event::Favorite.new(user, status, self)
-        publish(event)
-      end
-
-      streaming_client.on_event(:follow) do |event|
-        source = User.new(Twitter::User.new(event[:source]))
-        target = User.new(Twitter::User.new(event[:target]))
-
-        event = Event::Follow.new(source, target, self)
-        publish(:followed, event)
-      end
-
-      streaming_client.on_no_data_received do
-        user_stream_disconnected!
-        connect_user_stream
-      end
-
-      user_stream_initialized!
-    end
-
     private
 
+    def keep_alive!
+      @keep_alive_timer.kill if @keep_alive_timer.is_a?(Thread)
+      @keep_alive_timer = Thread.new do
+        sleep(120)
+        @user_stream_connected = false
+        @streaming_thread.kill
+        connect_user_stream
+      end
+    end
+
     def streaming_client
-      @streaming_client ||= TweetStream::Client.new(
-        consumer_key:       CONSUMER_KEY,
-        consumer_secret:    CONSUMER_SECRET,
-        oauth_token:        @access_token,
-        oauth_token_secret: @access_token_secret,
-        auth_method:        :oauth
-      )
+      @streaming_client ||= Twitter::Streaming::Client.new do |config|
+        config.consumer_key       = CONSUMER_KEY
+        config.consumer_secret    = CONSUMER_SECRET
+        config.access_token        = @access_token
+        config.access_token_secret = @access_token_secret
+      end
     end
 
     def user_stream_connected?
@@ -84,7 +90,7 @@ module Twterm
     end
 
     def user_stream_connected!
-      publish(Event::Notification.new(:message, 'Connection established')) unless user_stream_connected?
+      publish(Event::Notification::Info.new('Connection established')) unless user_stream_connected?
       @user_stream_connected = true
     end
 
