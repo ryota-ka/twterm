@@ -73,8 +73,8 @@ module Twterm
             header = [
               !Image.string(user.name).color(user.color),
               Image.string("@#{user.screen_name}"),
-              (Image.string('protected').brackets if user.protected?),
-              (Image.string('verified').brackets if user.verified?),
+              (Image.string('protected').brackets.color(:yellow) if user.protected?),
+              (Image.string('verified').brackets.color(:cyan) if user.verified?),
             ].compact.intersperse(Image.whitespace).reduce(Image.empty, :-)
 
             bio_chunks = user.description.gsub(/[\n\r]/, ' ').split_by_width(window.maxx - 10)
