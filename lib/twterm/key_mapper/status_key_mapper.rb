@@ -5,7 +5,7 @@ class Twterm::KeyMapper::StatusKeyMapper < Twterm::KeyMapper::AbstractKeyMapper
     compose: '^N',
     conversation: 'c',
     destroy: 'D',
-    like: 'L',
+    like: 'F',
     open_link: 'o',
     reply: 'r',
     retweet: 'R',
