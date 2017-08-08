@@ -250,7 +250,8 @@ module Twterm
     def post(text, in_reply_to = nil)
       send_request do
         if in_reply_to.is_a? Status
-          text = "@#{in_reply_to.user.screen_name} #{text}"
+          user = user_repository.find(in_reply_to.user_id)
+          text = "@#{user.screen_name} #{text}"
           rest_client.update(text, in_reply_to_status_id: in_reply_to.id)
         else
           rest_client.update(text)
