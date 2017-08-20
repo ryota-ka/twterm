@@ -39,7 +39,7 @@ key | operation
 `^N` | new tweet
 `^T` | new tab
 `w` | close current tab
-`F10` | quit
+`F10` `^C` | quit
 `F1` | key assignments cheatsheet
 
 ## License
