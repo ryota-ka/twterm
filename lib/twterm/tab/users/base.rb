@@ -1,5 +1,6 @@
 require 'concurrent'
 
+require 'twterm/event/user_garbage_collected'
 require 'twterm/tab/base'
 require 'twterm/tab/loadable'
 
@@ -21,6 +22,8 @@ module Twterm
         def initialize(app, client)
           super(app, client)
           @user_ids = Concurrent::Array.new
+
+          subscribe(Event::UserGarbageCollected) { |id| @user_ids.delete(id) }
         end
 
         def items

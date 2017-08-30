@@ -1,3 +1,4 @@
+require 'twterm/event/status_garbage_collected'
 require 'twterm/repository/abstract_expirable_entity_repository'
 require 'twterm/status'
 
@@ -27,6 +28,10 @@ module Twterm
       end
 
       private
+
+      def garbage_collection_event_class
+        Event::StatusGarbageCollected
+      end
 
       def type
         Status
