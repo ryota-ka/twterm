@@ -2,6 +2,7 @@ require 'concurrent'
 
 require 'twterm/event/open_uri'
 require 'twterm/event/status/delete'
+require 'twterm/event/status_garbage_collected'
 require 'twterm/publisher'
 require 'twterm/subscriber'
 require 'twterm/tab/base'
@@ -74,6 +75,7 @@ module Twterm
           @status_ids = Concurrent::Array.new
 
           subscribe(Event::Status::Delete) { |e| delete(e.status_id) }
+          subscribe(Event::StatusGarbageCollected) { |e| @status_ids.delete(e.id) }
         end
 
         def items
@@ -182,10 +184,7 @@ module Twterm
         end
 
         def statuses
-          statuses = @status_ids.map { |id| app.status_repository.find(id) }.compact
-          @status_ids = statuses.map(&:id)
-
-          statuses
+          @status_ids.map { |id| app.status_repository.find(id) }.compact
         end
 
         def total_item_count
@@ -238,11 +237,6 @@ module Twterm
 
         def sort
           return if items.empty? || scroller.current_item.nil?
-
-          repo = app.status_repository
-
-          @status_ids &= repo.ids
-          @status_ids.sort_by! { |id| repo.find(id).created_at }.reverse!
 
           formerly_selected_status_id = scroller.current_item.id
 

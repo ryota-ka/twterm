@@ -1,3 +1,4 @@
+require 'twterm/event/status_garbage_collected'
 require 'twterm/repository/abstract_expirable_entity_repository'
 require 'twterm/status'
 
@@ -18,6 +19,14 @@ module Twterm
         repository.delete(id)
       end
 
+      def find(id)
+        status = super
+
+        touch(status.retweeted_status_id) if !status.nil? && status.retweet?
+
+        status
+      end
+
       def find_replies_for(id)
         repository.values.select { |s| s.in_reply_to_status_id == id }
       end
@@ -27,6 +36,10 @@ module Twterm
       end
 
       private
+
+      def garbage_collection_event_class
+        Event::StatusGarbageCollected
+      end
 
       def type
         Status
