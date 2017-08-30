@@ -15,10 +15,7 @@ module Twterm
         end
 
         def fetch
-          client.home_timeline.then do |statuses|
-            statuses.each { |s| append(s) }
-            sort
-          end
+          client.home_timeline
         end
 
         def initialize(app, client)
@@ -26,12 +23,12 @@ module Twterm
 
           subscribe(Event::Status::Timeline) { |e| prepend(e.status) }
 
-          fetch.then do
+          reload.then do
             initially_loaded!
             scroller.move_to_top
           end
 
-          @auto_reloader = Scheduler.new(180) { fetch }
+          @auto_reloader = Scheduler.new(180) { reload }
         end
 
         def title

@@ -18,20 +18,17 @@ module Twterm
             self.title = @list.full_name
             app.tab_manager.refresh_window
 
-            fetch.then do
+            reload.then do
               initially_loaded!
               scroller.move_to_top
             end
 
-            @auto_reloader = Scheduler.new(300) { fetch }
+            @auto_reloader = Scheduler.new(300) { reload }
           end
         end
 
         def fetch
-          client.list_timeline(@list).then do |statuses|
-            statuses.each { |s| append(s) }
-            sort
-          end
+          client.list_timeline(@list)
         end
 
         def close

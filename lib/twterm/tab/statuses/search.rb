@@ -22,10 +22,7 @@ module Twterm
         end
 
         def fetch
-          client.search(@query).then do |statuses|
-            statuses.each(&method(:append))
-            sort
-          end
+          client.search(@query)
         end
 
         def initialize(app, client, query)
@@ -34,12 +31,12 @@ module Twterm
           @query = query
           @title = "\"#{@query}\""
 
-          fetch.then do
+          reload.then do
             initially_loaded!
             scroller.move_to_top
           end
 
-          @auto_reloader = Scheduler.new(300) { fetch }
+          @auto_reloader = Scheduler.new(300) { reload }
         end
       end
     end

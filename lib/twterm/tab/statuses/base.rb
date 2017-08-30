@@ -138,7 +138,7 @@ module Twterm
           when k[:status, :retweet]
             retweet
           when k[:tab, :reload]
-            fetch
+            reload
           when k[:status, :user]
             show_user
           else

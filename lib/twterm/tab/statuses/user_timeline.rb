@@ -22,10 +22,7 @@ module Twterm
         end
 
         def fetch
-          client.user_timeline(@user.id).then do |statuses|
-            statuses.each { |s| append(s) }
-            sort
-          end
+          client.user_timeline(@user.id)
         end
 
         def initialize(app, client, user_id)
@@ -37,12 +34,12 @@ module Twterm
             @user = user
             app.tab_manager.refresh_window
 
-            fetch.then do
+            reload.then do
               initially_loaded!
               scroller.move_to_top
             end
 
-            @auto_reloader = Scheduler.new(120) { fetch }
+            @auto_reloader = Scheduler.new(120) { reload }
           end
         end
 
