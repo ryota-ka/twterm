@@ -19,6 +19,14 @@ module Twterm
         repository.delete(id)
       end
 
+      def find(id)
+        status = super
+
+        touch(status.retweeted_status_id) if !status.nil? && status.retweet?
+
+        status
+      end
+
       def find_replies_for(id)
         repository.values.select { |s| s.in_reply_to_status_id == id }
       end
