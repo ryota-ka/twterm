@@ -82,7 +82,7 @@ module Twterm
           return if count == 0 || index == count - 1
 
           @index = no_cursor_mode? ? count - drawable_item_count : count - 1
-          @offset = [count - drawable_item_count + 1, 0].max
+          @offset = [count - drawable_item_count, 0].max
 
           @offset += 1 until last_item_shown?
 
