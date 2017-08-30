@@ -78,7 +78,7 @@ module Twterm
       Scheduler.new(300) do
         status_repository.expire(3600)
 
-        _ = status_repository.all.map { |user_id| user_repository.find(user_id) }
+        _ = status_repository.all.map { |status| user_repository.find(status.user_id) }
         user_repository.expire(3600)
       end
 
