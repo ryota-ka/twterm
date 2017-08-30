@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    twterm (2.0.0.beta2)
+    twterm (2.0.0.beta3)
       concurrent-ruby (~> 1.0.5)
       curses (~> 1.2.2)
       launchy (~> 2.4.3)
@@ -88,4 +88,4 @@ DEPENDENCIES
   twterm!
 
 BUNDLED WITH
-   1.14.6
+   1.15.4
