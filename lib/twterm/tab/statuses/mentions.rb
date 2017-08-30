@@ -21,20 +21,13 @@ module Twterm
 
           subscribe(Event::Status::Mention) { |e| prepend(e.status) }
 
-          fetch.then do |statuses|
+          reload.then do |statuses|
             initially_loaded!
             statuses.each { |s| append(s) }
             scroller.move_to_top
           end
 
           @auto_reloader = Scheduler.new(300) { reload }
-        end
-
-        def reload
-          fetch.then do |statuses|
-            statuses.each { |s| append(s) }
-            sort
-          end
         end
 
         def title

@@ -17,10 +17,7 @@ module Twterm
         end
 
         def fetch
-          client.favorites(@user.id).then do |statuses|
-            statuses.each { |s| append(s) }
-            sort
-          end
+          client.favorites(@user.id)
         end
 
         def initialize(app, client, user_id)
@@ -32,7 +29,7 @@ module Twterm
             @user = user
             app.tab_manager.refresh_window
 
-            fetch.then do
+            reload.then do
               initially_loaded!
               scroller.move_to_top
             end

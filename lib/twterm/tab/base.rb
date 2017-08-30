@@ -107,6 +107,13 @@ module Twterm
         )
       end
 
+      def reload
+        fetch.then do |statuses|
+          statuses.each { |s| append(s) }
+          sort
+        end
+      end
+
       def resize(event)
         window.resize(stdscr.maxy - 5, stdscr.maxx)
         window.move(3, 0)

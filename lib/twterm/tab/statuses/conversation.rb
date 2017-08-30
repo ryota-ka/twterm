@@ -8,10 +8,18 @@ module Twterm
       class Conversation < Base
         include Dumpable
 
-        attr_reader :status
+        attr_reader :status_id
 
         def ==(other)
           other.is_a?(self.class) && status == other.status
+        end
+
+        def fetch
+          find_or_fetch_status(status_id).then do |status|
+            append(status)
+            fetch_ancestor(status)
+            find_descendants(status)
+          end
         end
 
         def fetch_ancestor(status)
@@ -41,19 +49,17 @@ module Twterm
         end
 
         def dump
-          @status.id
+          @status_id
         end
 
         def initialize(app, client, status_id)
           super(app, client)
 
-          find_or_fetch_status(status_id).then do |status|
-            @status = status
+          @status_id = status_id
 
-            append(status)
+          reload.then do
             scroller.move_to_top
-            fetch_ancestor(status)
-            find_descendants(status)
+            sort
           end
         end
 
