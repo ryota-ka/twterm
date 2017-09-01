@@ -30,9 +30,9 @@ module Twterm
         rest_client.create_direct_message(recipient.id, text)
       end.then do |message|
         msg = direct_message_repository.create(message)
-        direct_message_manager.add(msg.recipient, msg)
+        direct_message_manager.add(recipient.id, msg)
         publish(Event::DirectMessage::Fetched.new)
-        publish(Event::Notification::Success.new('Your message to @%s has been sent' % msg.recipient.screen_name))
+        publish(Event::Notification::Success.new('Your message to @%s has been sent' % recipient.screen_name))
       end
     end
 
