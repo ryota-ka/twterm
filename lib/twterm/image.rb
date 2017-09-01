@@ -45,7 +45,7 @@ class Twterm::Image
   end
 
   def self.checkbox(checked)
-    string(checked ? 'x' : ' ').brackets
+    string(checked ? '*' : ' ').brackets
   end
 
   def color(fg, bg = :transparent)
