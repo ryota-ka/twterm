@@ -161,11 +161,9 @@ module Twterm
       end
     end
 
-    def list_timeline(list)
-      fail ArgumentError,
-        'argument must be an instance of List class' unless list.is_a? List
+    def list_timeline(list_id)
       send_request do
-        rest_client.list_timeline(list.id, count: 200)
+        rest_client.list_timeline(list_id, count: 200)
       end.then do |statuses|
         statuses
         .select(&@mute_filter)

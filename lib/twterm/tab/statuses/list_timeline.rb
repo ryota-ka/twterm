@@ -6,16 +6,17 @@ module Twterm
       class ListTimeline < Base
         include Dumpable
 
-        attr_reader :list
+        attr_reader :list_id
 
         def initialize(app, client, list_id)
           super(app, client)
 
+          @list_id = list_id
+
           self.title = 'Loading...'.freeze
 
           find_or_fetch_list(list_id).then do |list|
-            @list = list
-            self.title = @list.full_name
+            self.title = list.full_name
             app.tab_manager.refresh_window
 
             reload.then do
@@ -28,7 +29,7 @@ module Twterm
         end
 
         def fetch
-          client.list_timeline(@list)
+          client.list_timeline(list_id)
         end
 
         def close
@@ -37,11 +38,11 @@ module Twterm
         end
 
         def ==(other)
-          other.is_a?(self.class) && list == other.list
+          other.is_a?(self.class) && list_id == other.list_id
         end
 
         def dump
-          @list.id
+          list_id
         end
       end
     end
