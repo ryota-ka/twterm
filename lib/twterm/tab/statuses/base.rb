@@ -235,6 +235,13 @@ module Twterm
             .reduce(Image.empty, :|)
         end
 
+        def reload
+          fetch.then do |statuses|
+            statuses.each { |s| append(s) }
+            sort
+          end
+        end
+
         def sort
           return if items.empty? || scroller.current_item.nil?
 
