@@ -110,8 +110,6 @@ module Twterm
         end
 
         def update_saved_search
-          return unless @@queries.empty?
-
           client.saved_search.then do |searches|
             @@queries = searches.map(&:query)
             initially_loaded!
