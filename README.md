@@ -2,9 +2,7 @@
 
 A full-featured TUI Twitter client
 
-## Screenshot
-
-![screenshot](http://twterm.ryota-ka.me/screenshot.png)
+![screencast](http://twterm.ryota-ka.me/screencast.gif)
 
 ## Requirements
 
