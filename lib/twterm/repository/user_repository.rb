@@ -19,6 +19,10 @@ module Twterm
         Event::UserGarbageCollected
       end
 
+      def should_keep?(_)
+        true
+      end
+
       def type
         User
       end

@@ -19,8 +19,10 @@ module Twterm
       end
 
       def find(id)
-        touch(id)
-        super
+        instance = super
+        touch(id) if !instance.nil? && should_keep?(instance)
+
+        instance
       end
 
       def expire(threshold)
@@ -36,6 +38,10 @@ module Twterm
 
       def garbage_collection_event_class
         raise NotImplementedError, '`garbage_collection_event_class` must be implemented'
+      end
+
+      def should_keep?(instance)
+        raise NotImplementedError, '`should_keep?` method must be implemented'
       end
 
       def touch(id)
