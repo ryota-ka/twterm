@@ -32,6 +32,7 @@ module Twterm
 
         def delete(status_id)
           app.status_repository.delete(status_id)
+          @status_ids.delete(status_id)
           render
         end
 
@@ -188,7 +189,7 @@ module Twterm
         end
 
         def total_item_count
-          search_query.empty? ? @status_ids.count : statuses.count
+          statuses.count
         end
 
         private
@@ -246,6 +247,10 @@ module Twterm
           return if items.empty? || scroller.current_item.nil?
 
           formerly_selected_status_id = scroller.current_item.id
+
+          repo = app.status_repository
+
+          @status_ids.sort_by! { |status_id| repo.find(status_id).created_at }.reverse!
 
           unless formerly_selected_status_id.nil?
             new_index = @status_ids.index(formerly_selected_status_id)
