@@ -11,7 +11,7 @@ module Twterm
         attr_reader :status_id
 
         def ==(other)
-          other.is_a?(self.class) && status == other.status
+          other.is_a?(self.class) && status_id == other.status_id
         end
 
         def fetch
