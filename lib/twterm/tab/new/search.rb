@@ -36,7 +36,7 @@ module Twterm
 
           input_thread = Thread.new do
             close_screen
-            app.completion_manager.set_default_mode!
+            app.completion_manager.set_search_mode!
             puts "\ninput search query"
             query = (readline('> ', true) || '').strip
             resetter.call
