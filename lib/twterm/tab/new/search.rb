@@ -38,7 +38,7 @@ module Twterm
             close_screen
             app.completion_manager.set_default_mode!
             puts "\ninput search query"
-            query = (readline('> ') || '').strip
+            query = (readline('> ', true) || '').strip
             resetter.call
 
             tab = query.nil? || query.empty? ? Tab::New::Search.new(app, client) : Tab::Statuses::Search.new(app, client, query)
