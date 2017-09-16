@@ -19,6 +19,7 @@ module Twterm
             append(status)
             fetch_ancestor(status)
             find_descendants(status)
+            fetch_possible_replies(status)
           end
         end
 
@@ -38,6 +39,21 @@ module Twterm
               sort
               fetch_ancestor(in_reply_to)
             end
+        end
+
+        def fetch_possible_replies(status)
+          user = app.user_repository.find(status.user_id)
+
+          return if user.nil?
+
+          client.search("to:#{user.screen_name}").then do |statuses|
+            statuses
+              .select { |s| s.in_reply_to_status_id == status.id }
+              .each { |s| prepend(s) }
+
+            sort
+            render
+          end
         end
 
         def find_descendants(status)
