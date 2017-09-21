@@ -5,10 +5,6 @@ require 'twterm/user'
 module Twterm
   module Repository
     class UserRepository < AbstractExpirableEntityRepository
-      def all
-        repository.values
-      end
-
       def ids
         repository.keys
       end

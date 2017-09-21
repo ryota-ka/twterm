@@ -5,6 +5,10 @@ require 'twterm/repository/abstract_repository'
 module Twterm
   module Repository
     class AbstractEntityRepository < AbstractRepository
+      def all
+        repository.values
+      end
+
       def create(*args)
         invoke_callbacks(:before_create, *args)
 
