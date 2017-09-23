@@ -25,7 +25,7 @@ module Twterm
           input_thread = Thread.new do
             close_screen
             puts "\nSearch user"
-            screen_name = (readline('> @') || '').strip
+            screen_name = (readline('> @', true) || '').strip
             resetter.call
 
             if screen_name.nil? || screen_name.empty?

@@ -5,10 +5,6 @@ require 'twterm/status'
 module Twterm
   module Repository
     class StatusRepository < AbstractExpirableEntityRepository
-      def all
-        repository.values
-      end
-
       def create(tweet, is_retweeted_status = false)
         create(tweet.retweeted_status, true) unless tweet.retweeted_status.is_a?(Twitter::NullObject)
         super

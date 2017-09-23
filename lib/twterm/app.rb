@@ -1,6 +1,6 @@
 require 'curses'
 
-require 'twterm/completion_mamanger'
+require 'twterm/completion_manager'
 require 'twterm/direct_message_composer'
 require 'twterm/event/screen/resize'
 require 'twterm/repository/direct_message_repository'
@@ -22,7 +22,7 @@ module Twterm
     DATA_DIR = "#{ENV['HOME']}/.twterm".freeze
 
     def completion_manager
-      @completion_mamanger ||= CompletionManager.new(self)
+      @completion_manager ||= CompletionManager.new(self)
     end
 
     def direct_message_composer
