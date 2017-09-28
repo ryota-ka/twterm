@@ -7,6 +7,7 @@ class Twterm::KeyMapper::StatusKeyMapper < Twterm::KeyMapper::AbstractKeyMapper
     destroy: 'D',
     like: 'F',
     open_link: 'o',
+    quote: 'Q',
     reply: 'r',
     retweet: 'R',
     user: 'U',

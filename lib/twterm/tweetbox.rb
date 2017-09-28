@@ -15,109 +15,98 @@ module Twterm
       @app, @client = app, client
     end
 
-    def compose(in_reply_to = nil)
-      @text = ''
+    def compose
+      ask_and_post("\e[1mCompose new Tweet\e[0m", '> ', -> body { body })
+    end
 
-      @in_reply_to, screen_name =
-        if in_reply_to.is_a?(Status)
-          [in_reply_to, app.user_repository.find(in_reply_to.user_id).screen_name]
-      else
-        [nil, nil]
-      end
+    def quote(status)
+      screen_name = app.user_repository.find(status.user_id).screen_name
+      leading_text = "\e[1mQuoting @#{screen_name}'s Tweet\e[0m\n\n#{status.text}"
+      prompt = '> '
 
-      resetter = proc do
-        reset_prog_mode
-        sleep 0.1
-        app.screen.refresh
-      end
+      ask_and_post(leading_text, prompt, -> body { "#{body} #{status.url}" })
+    end
 
-      thread = Thread.new do
-        close_screen
+    def reply(status)
+      screen_name = app.user_repository.find(status.user_id).screen_name
+      leading_text = "\e[1mReplying to @#{screen_name}\e[0m\n\n#{status.text}"
+      prompt = "> @#{screen_name} "
 
-        if in_reply_to.nil?
-          puts "\nCompose new tweet:"
-        else
-          puts "\nReply to @#{screen_name}'s tweet: \"#{in_reply_to.text}\""
-        end
-
-        app.completion_manager.set_default_mode!
-
-        loop do
-          loop do
-            msg = in_reply_to.nil? || !text.empty? ? '> ' : "> @#{screen_name} "
-            line = (readline(msg, true) || '').strip
-            break if line.empty?
-
-            if line.end_with?('\\')
-              @text << line.chop.rstrip + "\n"
-            else
-              @text << line
-              break
-            end
-          end
-
-          puts "\n"
-
-          begin
-            validate_text!
-            break
-          rescue EmptyTextError
-            break
-          rescue InvalidCharactersError
-            puts 'Text contains invalid characters'
-          rescue TextTooLongError
-            puts "Text is too long (#{text_length} / 140 characters)"
-          end
-
-          puts "\n"
-          clear
-        end
-
-        resetter.call
-        post
-      end
-
-      app.register_interruption_handler do
-        thread.kill
-        clear
-        puts "\nCanceled"
-        resetter.call
-      end
-
-      thread.join
+      ask_and_post(leading_text, prompt, -> body { "@#{screen_name} #{body}" }, { in_reply_to_status_id: status.id })
     end
 
     private
 
     attr_reader :app, :client, :in_reply_to
 
-    def clear
-      @text = ''
-      @in_reply_to = nil
+    def ask(prompt, postprocessor, &cont)
+      app.completion_manager.set_default_mode!
+
+      thread = Thread.new do
+        raw_text = ''
+
+        loop do
+          loop do
+            line = (readline(prompt, true) || '').strip
+            break if line.empty?
+
+            if line.end_with?('\\')
+              raw_text << line.chop.rstrip + "\n"
+            else
+              raw_text << line
+              break
+            end
+          end
+
+          puts "\n"
+
+          text = postprocessor.call(raw_text)
+
+          begin
+            validate!(text)
+            break
+          rescue EmptyTextError
+            break
+          rescue InvalidCharactersError
+            puts 'Text contains invalid characters'
+          rescue TextTooLongError
+            puts "Text is too long (#{text_length(text)} / 140 characters)"
+          end
+
+          puts "\n"
+          raw_text = ''
+        end
+
+        reset
+        cont.call(raw_text) unless raw_text.empty?
+      end
+
+      app.register_interruption_handler do
+        thread.kill
+        puts "\nCanceled"
+        reset
+      end
+
+      thread.join
     end
 
-    def post
-      validate_text!
-      client.post(text, in_reply_to)
-    rescue EmptyTextError
-      # do nothing
-    rescue InvalidCharactersError
-      publish(Event::Notification::Error.new('Text contains invalid characters'))
-    rescue TextTooLongError
-      publish(Event::Notification::Error.new("Text is too long (#{text_length} / 140 characters)"))
-    ensure
-      clear
+    def ask_and_post(leading_text, prompt, postprocessor, options = {})
+      close_screen
+      puts "\e[H\e[2J#{leading_text}\n\n"
+      ask(prompt, postprocessor) { |text| client.post(postprocessor.call(text), options) }
     end
 
-    def text
-      @text || ''
+    def reset
+      reset_prog_mode
+      sleep 0.1
+      app.screen.refresh
     end
 
-    def text_length
+    def text_length(text)
       Twitter::Validation.tweet_length(text)
     end
 
-    def validate_text!
+    def validate!(text)
       case Twitter::Validation.tweet_invalid?(text)
       when :empty
         fail EmptyTextError
