@@ -5,19 +5,26 @@ require 'twterm/key_mapper/no_such_key'
 module Twterm
   class KeyMapper
     class AbstractKeyMapper
-      def initialize(mappings)
+      def initialize(dict)
         commands = self.class.commands
 
-        mappings.keys.each do |k|
+        dict ||= {}
+
+        dict.keys.each do |k|
           raise NoSuchCommand.new(self.class.category, k) unless commands.include?(k)
         end
 
-        @mappings = Hash[mappings.map { |k, v| [k, translate(v)] }]
+        @mappings = Hash[dict.map { |k, v| [k, translate(v)] }]
+        @dict = dict
       end
 
       def [](key)
         raise NoSuchCommand.new(self.class.category, key) unless @mappings.keys.include?(key)
         @mappings[key]
+      end
+
+      def to_h
+        @dict
       end
 
       private

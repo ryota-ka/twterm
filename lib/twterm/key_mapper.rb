@@ -74,9 +74,15 @@ module Twterm
       exit
     end
 
+    def complete_missing_commands!(dict)
+      completed_dict = default_mappings.merge(dict.map { |k, v| [k, v.to_h] }.to_h) { |_, l, r| l.merge(r.to_h) }
+
+      assign_mappings!(completed_dict)
+      save!(completed_dict)
+    end
+
     def create_default_dict_file!
-      dict = TOML.dump(default_mappings).gsub("\n[", "\n\n[")
-      File.open(dict_file_path, 'w', 0644) { |f| f.write(dict) }
+      save!(default_mappings)
     end
 
     def default_mappings
@@ -122,6 +128,12 @@ Press any key to continue
       getc
     ensure
       assign_mappings!(dict || default_mappings)
+      complete_missing_commands!(dict) unless dict.nil?
+    end
+
+    def save!(mappings)
+      dict = TOML.dump(mappings).gsub("\n[", "\n\n[")
+      File.open(dict_file_path, 'w', 0644) { |f| f.write(dict) }
     end
   end
 end
