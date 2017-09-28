@@ -4,7 +4,7 @@ module Twterm
   class Status
     attr_reader :created_at, :favorite_count, :favorited, :id,
       :in_reply_to_status_id, :media, :retweet_count, :retweeted,
-      :retweeted_status_id, :text, :urls, :user_id
+      :retweeted_status_id, :text, :url, :urls, :user_id
     alias_method :favorited?, :favorited
     alias_method :retweeted?, :retweeted
 
@@ -35,6 +35,7 @@ module Twterm
       @text = CGI.unescapeHTML(tweet.full_text.dup)
       @created_at = tweet.created_at.dup.localtime
       @in_reply_to_status_id = tweet.in_reply_to_status_id
+      @url = tweet.url
 
       update!(tweet, is_retweeted_status)
 
