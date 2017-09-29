@@ -1,10 +1,19 @@
 require 'concurrent'
 
+class Twitter::Tweet
+  attr_reader :quoted_status_id
+
+  def initialize(*args)
+    @quoted_status_id = args[0][:quoted_status_id]
+    super
+  end
+end
+
 module Twterm
   class Status
     attr_reader :created_at, :favorite_count, :favorited, :id,
       :in_reply_to_status_id, :media, :retweet_count, :retweeted,
-      :retweeted_status_id, :text, :url, :urls, :user_id
+      :quoted_status_id, :retweeted_status_id, :text, :url, :urls, :user_id
     alias_method :favorited?, :favorited
     alias_method :retweeted?, :retweeted
 
@@ -35,6 +44,7 @@ module Twterm
       @text = CGI.unescapeHTML(tweet.full_text.dup)
       @created_at = tweet.created_at.dup.localtime
       @in_reply_to_status_id = tweet.in_reply_to_status_id
+      @quoted_status_id = tweet.quoted_status_id
       @url = tweet.url
 
       update!(tweet, is_retweeted_status)
@@ -47,6 +57,10 @@ module Twterm
       @splitted_text = {}
 
       expand_url!
+    end
+
+    def quote?
+      !quoted_status_id.nil?
     end
 
     def retweet?
