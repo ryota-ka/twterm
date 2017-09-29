@@ -25,6 +25,10 @@ module Twterm
         status
       end
 
+      def find_quotes_for(id)
+        repository.values.select { |s| s.quoted_status_id == id }
+      end
+
       def find_replies_for(id)
         repository.values.select { |s| s.in_reply_to_status_id == id }
       end
