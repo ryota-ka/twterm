@@ -5,7 +5,8 @@ require 'twterm/status'
 module Twterm
   module Repository
     class StatusRepository < AbstractExpirableEntityRepository
-      def create(tweet, is_retweeted_status = false)
+      def create(tweet, is_referred_status = false)
+        create(tweet.quoted_status, true) unless tweet.quoted_status.is_a?(Twitter::NullObject)
         create(tweet.retweeted_status, true) unless tweet.retweeted_status.is_a?(Twitter::NullObject)
         super
       end
@@ -19,6 +20,7 @@ module Twterm
         status = super
 
         touch(status.retweeted_status_id) if !status.nil? && status.retweet?
+        touch(status.quoted_status_id) if !status.nil? && status.quote?
 
         status
       end
