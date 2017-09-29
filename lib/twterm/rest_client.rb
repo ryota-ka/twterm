@@ -245,17 +245,15 @@ module Twterm
       end
     end
 
-    def post(text, in_reply_to = nil)
+    def post(text, options = {})
       send_request do
-        if in_reply_to.is_a? Status
-          user = user_repository.find(in_reply_to.user_id)
-          text = "@#{user.screen_name} #{text}"
-          rest_client.update(text, in_reply_to_status_id: in_reply_to.id)
-        else
-          rest_client.update(text)
-        end
-        publish(Event::Notification::Success.new('Your tweet has been posted'))
+        rest_client.update(text, options)
       end
+        .then do |status|
+          publish(Event::Notification::Success.new('Your tweet has been posted'))
+
+          status
+        end
     end
 
     def rate_limit_status

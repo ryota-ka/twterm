@@ -116,10 +116,16 @@ module Twterm
           render
         end
 
+        def quote
+          return if highlighted_status.nil?
+
+          app.tweetbox.quote(highlighted_original_status)
+        end
+
         def reply
           return if highlighted_status.nil?
 
-          app.tweetbox.compose(highlighted_original_status)
+          app.tweetbox.reply(highlighted_original_status)
         end
 
         def respond_to_key(key)
@@ -142,6 +148,8 @@ module Twterm
             retweet
           when k[:tab, :reload]
             reload
+          when k[:status, :quote]
+            quote
           when k[:status, :user]
             show_user
           else
