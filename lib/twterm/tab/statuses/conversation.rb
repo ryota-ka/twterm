@@ -1,11 +1,14 @@
 require 'concurrent'
 
+require 'twterm/tab/dumpable'
 require 'twterm/tab/statuses/base'
+require 'twterm/tab/statuses/cacheable'
 
 module Twterm
   module Tab
     module Statuses
       class Conversation < Base
+        include Cacheable
         include Dumpable
 
         attr_reader :status_id
@@ -111,6 +114,8 @@ module Twterm
 
           @status_id = status_id
 
+          retrieve_from_cache!
+
           reload.then do
             scroller.move_to_top
             sort
@@ -119,6 +124,12 @@ module Twterm
 
         def title
           'Conversation'.freeze
+        end
+
+        private
+
+        def cached_statuses
+          [app.status_repository.find(status_id)].compact
         end
       end
     end
