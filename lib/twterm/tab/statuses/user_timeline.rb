@@ -31,6 +31,7 @@ module Twterm
           super(app, client)
 
           @user_id = user_id
+          @auto_reloader = Scheduler.new(120) { reload }
 
           retrieve_from_cache!
 
@@ -42,8 +43,6 @@ module Twterm
               initially_loaded!
               scroller.move_to_top
             end
-
-            @auto_reloader = Scheduler.new(120) { reload }
           end
         end
 
