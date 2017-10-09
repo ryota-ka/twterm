@@ -8,7 +8,7 @@ PATH
       oauth (~> 0.5.1)
       toml-rb (~> 0.3.14)
       twitter (~> 6.1.0)
-      twitter-text (~> 1.14.0)
+      twitter-text (= 1.14.5)
 
 GEM
   remote: https://rubygems.org/
