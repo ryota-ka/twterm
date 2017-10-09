@@ -15,6 +15,8 @@ module Twterm
 
           self.title = 'Loading...'.freeze
 
+          @auto_reloader = Scheduler.new(300) { reload }
+
           find_or_fetch_list(list_id).then do |list|
             self.title = list.full_name
             app.tab_manager.refresh_window
@@ -23,8 +25,6 @@ module Twterm
               initially_loaded!
               scroller.move_to_top
             end
-
-            @auto_reloader = Scheduler.new(300) { reload }
           end
         end
 
