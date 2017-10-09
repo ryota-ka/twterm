@@ -25,5 +25,6 @@ class Scheduler
 
   def run
     @block.call unless @paused
+  rescue
   end
 end
