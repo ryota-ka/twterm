@@ -10,7 +10,7 @@ module Twterm
 
       def_delegators :scroller, :search_query
 
-      def matches?(item, query)
+      def matches?(_item, _query)
         raise NotImplementedError, '`matches?` method must be implemented'
       end
 

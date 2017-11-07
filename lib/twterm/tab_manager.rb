@@ -104,7 +104,7 @@ module Twterm
         tab = klass.recover(app, client, title, arg)
         add(tab)
       end
-    rescue
+    rescue StandardError
       publish(Event::Notification::Error.new('Failed to recover tabs'))
     end
 
@@ -195,7 +195,7 @@ module Twterm
 
     attr_reader :app, :client
 
-    def resize(event)
+    def resize(_event)
       @window.resize(3, stdscr.maxx)
       @window.move(0, 0)
     end

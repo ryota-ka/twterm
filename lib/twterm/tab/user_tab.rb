@@ -62,8 +62,6 @@ module Twterm
       def respond_to_key(key)
         return true if scroller.respond_to_key(key)
 
-        k = KeyMapper.instance
-
         case key
         when 10
           perform_selected_action

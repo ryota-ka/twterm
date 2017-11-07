@@ -29,7 +29,7 @@ module Twterm
       subscribe(Event::Screen::Resize, :resize)
 
       Thread.new do
-        while notification = @queue.pop
+        while notification = @queue.pop # rubocop:disable Lint/AssignmentInCondition:
           show(notification)
           sleep 3
           show
@@ -74,7 +74,7 @@ module Twterm
       self
     end
 
-    def resize(event)
+    def resize(_event)
       @window.resize(1, stdscr.maxx)
       @window.move(stdscr.maxy - 2, 0)
     end

@@ -25,6 +25,6 @@ class Scheduler
 
   def run
     @block.call unless @paused
-  rescue
+  rescue StandardError # rubocop:disable Lint/HandleExceptions
   end
 end
