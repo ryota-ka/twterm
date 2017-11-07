@@ -43,7 +43,7 @@ module Twterm
 
                 publish(event)
               end
-            when Twitter::DirectMessage
+            when Twitter::DirectMessage # rubocop:disable Lint/EmptyWhen
             when Twitter::Streaming::FriendList
               user_stream_connected!
             when Twitter::Streaming::DeletedTweet

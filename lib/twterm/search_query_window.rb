@@ -45,7 +45,7 @@ module Twterm
 
             @str.chop!
             render_current_string
-          when 0..31
+          when 0..31 # rubocop:disable Lint/EmptyWhen
             # ignore control codes (\x00 - \x1f)
           else
             next if chars.empty?
@@ -116,7 +116,7 @@ module Twterm
 
     attr_reader :window
 
-    def resize(event)
+    def resize(_event)
       window.resize(1, stdscr.maxx)
       window.move(stdscr.maxy - 1, 0)
     end

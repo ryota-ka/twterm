@@ -3,7 +3,6 @@ module Twterm
     module Scrollable
       extend Forwardable
 
-      attr_reader :scroller
       def_delegators :scroller, :current_item, :drawable_items
 
       def scroller

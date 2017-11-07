@@ -33,7 +33,7 @@ module Twterm
           @@lists || []
         end
 
-        def matches?(list, query)
+        def matches?(_list, query)
           [
             other.description,
             other.full_name,
@@ -42,8 +42,6 @@ module Twterm
 
         def respond_to_key(key)
           return true if scroller.respond_to_key(key)
-
-          k = KeyMapper.instance
 
           case key
           when 10

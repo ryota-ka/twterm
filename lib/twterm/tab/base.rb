@@ -11,7 +11,6 @@ module Twterm
       include Subscriber
 
       attr_reader :window
-      attr_accessor :title
 
       def ==(other)
         self.equal?(other)
@@ -107,7 +106,7 @@ module Twterm
         )
       end
 
-      def resize(event)
+      def resize(_event)
         window.resize(stdscr.maxy - 5, stdscr.maxx)
         window.move(3, 0)
       end

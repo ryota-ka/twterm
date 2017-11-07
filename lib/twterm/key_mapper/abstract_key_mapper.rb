@@ -23,6 +23,10 @@ module Twterm
         @mappings[key]
       end
 
+      def self.commands
+        self::DEFAULT_MAPPINGS.keys
+      end
+
       def to_h
         @dict
       end
@@ -48,10 +52,6 @@ module Twterm
         else
           raise NoSuchKey.new(key)
         end
-      end
-
-      def self.commands
-        self::DEFAULT_MAPPINGS.keys
       end
     end
   end

@@ -201,7 +201,7 @@ module Twterm
         end
       end.catch do |e|
         case e
-        when Twitter::Error::TooManyRequests
+        when Twitter::Error::TooManyRequests # rubocop:disable Lint/EmptyWhen
           # do nothing
         else
           raise e

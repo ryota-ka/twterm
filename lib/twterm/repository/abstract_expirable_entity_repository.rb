@@ -40,7 +40,7 @@ module Twterm
         raise NotImplementedError, '`garbage_collection_event_class` must be implemented'
       end
 
-      def should_keep?(instance)
+      def should_keep?(_instance)
         raise NotImplementedError, '`should_keep?` method must be implemented'
       end
 
