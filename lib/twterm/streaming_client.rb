@@ -1,7 +1,7 @@
 require 'twterm/event/favorite'
 require 'twterm/event/follow'
-require 'twterm/event/notification/error'
-require 'twterm/event/notification/info'
+require 'twterm/event/message/error'
+require 'twterm/event/message/info'
 require 'twterm/event/status/mention'
 require 'twterm/event/status/timeline'
 require 'twterm/publisher'
@@ -18,7 +18,7 @@ module Twterm
 
       @streaming_thread = Thread.new do
         begin
-          publish(Event::Notification::Info.new('Trying to connect to Twitter...'))
+          publish(Event::Message::Info.new('Trying to connect to Twitter...'))
           streaming_client.user do |event|
             keep_alive!
 
@@ -51,15 +51,15 @@ module Twterm
             end
           end
         rescue Twitter::Error::TooManyRequests
-          publish(Event::Notification::Error.new('Rate limit exceeded'))
+          publish(Event::Message::Error.new('Rate limit exceeded'))
           sleep 120
           retry
         rescue Errno::ENETUNREACH, Errno::ETIMEDOUT, Resolv::ResolvError
-          publish(Event::Notification::Error.new('Network is unavailable'))
+          publish(Event::Message::Error.new('Network is unavailable'))
           sleep 30
           retry
         rescue Twitter::Error => e
-          publish(Event::Notification::Error.new(e.message))
+          publish(Event::Message::Error.new(e.message))
         end
       end
     end
@@ -90,7 +90,7 @@ module Twterm
     end
 
     def user_stream_connected!
-      publish(Event::Notification::Info.new('Connection established')) unless user_stream_connected?
+      publish(Event::Message::Info.new('Connection established')) unless user_stream_connected?
       @user_stream_connected = true
     end
 

@@ -2,8 +2,8 @@ require 'twterm/event/base'
 
 module Twterm
   module Event
-    module Notification
-      class AbstractNotification < Twterm::Event::Base
+    module Message
+      class AbstractMessage < Twterm::Event::Base
         attr_reader :time
 
         def initialize(message)
@@ -14,12 +14,8 @@ module Twterm
 
         def fields
           {
-            message: String
+            body: String
           }
-        end
-
-        def color
-          raise NotImplementedError, 'color method must be overridden'
         end
       end
     end

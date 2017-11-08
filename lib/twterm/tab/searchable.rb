@@ -1,5 +1,5 @@
-require 'twterm/event/notification/info'
-require 'twterm/event/notification/warning'
+require 'twterm/event/message/info'
+require 'twterm/event/message/warning'
 require 'twterm/search_query_window'
 
 module Twterm
@@ -96,7 +96,7 @@ module Twterm
           @search_query = search_query_window.last_query if search_query.empty?
 
           if @search_query.empty?
-            event = Event::Notification::Info.new("search query is empty. Press '/' or '?' to start searching.")
+            event = Event::Message::Info.new("search query is empty. Press '/' or '?' to start searching.")
             publish(event)
             return
           end
@@ -111,10 +111,10 @@ module Twterm
           _, index = xs.find { |x, _| tab.matches?(x, search_query) }
 
           if index.nil?
-            publish(Event::Notification::Warning.new("No matches found: \"#{search_query}\""))
+            publish(Event::Message::Warning.new("No matches found: \"#{search_query}\""))
           else
-            hit_bottom = Event::Notification::Info.new('search hit BOTTOM, continuing at TOP')
-            hit_top = Event::Notification::Info.new('search hit TOP, continuing at BOTTOM')
+            hit_bottom = Event::Message::Info.new('search hit BOTTOM, continuing at TOP')
+            hit_top = Event::Message::Info.new('search hit TOP, continuing at BOTTOM')
 
             publish(hit_bottom) if (searching_down? ^ searching_backward?) && index <= previous_index
             publish(hit_top) if (searching_up? ^ searching_backward?) && index >= previous_index
