@@ -2,7 +2,11 @@ require 'curses'
 
 require 'twterm/completion_manager'
 require 'twterm/direct_message_composer'
+require 'twterm/environment'
 require 'twterm/event/screen/resize'
+require 'twterm/notification_dispatcher'
+require 'twterm/persistable_configuration_proxy'
+require 'twterm/preferences'
 require 'twterm/repository/direct_message_repository'
 require 'twterm/repository/friendship_repository'
 require 'twterm/repository/hashtag_repository'
@@ -17,9 +21,19 @@ module Twterm
   class App
     include Publisher
 
-    attr_reader :screen
+    attr_reader :environment, :preferences, :screen
 
     DATA_DIR = "#{ENV['HOME']}/.twterm".freeze
+
+    def initialize
+      @environment = Environment.new
+      @preferences = Preferences.default
+    end
+
+    def load_preferences_from_file!
+      @preferences = PersistableConfigurationProxy
+        .load_from_file!(Preferences, "#{DATA_DIR}/preferences.toml")
+    end
 
     def completion_manager
       @completion_manager ||= CompletionManager.new(self)
@@ -50,11 +64,15 @@ module Twterm
 
       Auth.authenticate_user(config) if config[:user_id].nil?
 
+      load_preferences_from_file!
+
       KeyMapper.instance
 
       @screen = Screen.new(self, client)
 
       SearchQueryWindow.instance
+
+      @notification_dispatcher = NotificationDispatcher.new(preferences)
 
       timeline = Tab::Statuses::Home.new(self, client)
       tab_manager.add_and_show(timeline)

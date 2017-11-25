@@ -1,6 +1,6 @@
 require 'concurrent'
 
-require 'twterm/event/notification/success'
+require 'twterm/event/message/success'
 require 'twterm/image'
 require 'twterm/publisher'
 require 'twterm/tab/dumpable'
@@ -94,12 +94,12 @@ module Twterm
         if list_ids.include?(list.id)
           client.remove_list_member(list.id, user_id).then do
             @list_ids.delete(list.id)
-            publish(Event::Notification::Success.new("Removed @#{user.screen_name} from #{list.name}"))
+            publish(Event::Message::Success.new("Removed @#{user.screen_name} from #{list.name}"))
           end
         else
           client.add_list_member(list.id, user_id).then do
             @list_ids.push(list.id)
-            publish(Event::Notification::Success.new("Added @#{user.screen_name} to #{list.name}"))
+            publish(Event::Message::Success.new("Added @#{user.screen_name} to #{list.name}"))
           end
         end
           .then { render }

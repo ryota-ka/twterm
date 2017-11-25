@@ -2,7 +2,7 @@ module Twterm
   class User
     attr_reader :color, :description, :favorites_count, :followers_count,
                 :friends_count, :id, :location, :name, :protected,
-                :screen_name, :statuses_count, :verified, :website
+                :screen_name, :statuses_count, :url, :verified, :website
     alias_method :protected?, :protected
     alias_method :verified?, :verified
 
@@ -25,6 +25,7 @@ module Twterm
       @favorites_count = user.favorites_count
       @friends_count = user.friends_count
       @followers_count = user.followers_count
+      @url = user.url
       @verified = user.verified?
 
       self

@@ -3,7 +3,7 @@ require 'singleton'
 require 'twterm/event/open_uri'
 require 'twterm/publisher'
 require 'twterm/subscriber'
-require 'twterm/event/notification/warning'
+require 'twterm/event/message/warning'
 
 module Twterm
   class URIOpener
@@ -20,7 +20,7 @@ module Twterm
     def open(uri)
       Launchy.open(uri)
     rescue Launchy::CommandNotFoundError
-      publish(Event::Notification::Warning.new('Browser not found'))
+      publish(Event::Message::Warning.new('Browser not found'))
     end
   end
 end

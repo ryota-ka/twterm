@@ -1,6 +1,6 @@
 require 'twterm/publisher'
 require 'twterm/tab/base'
-require 'twterm/event/notification/error'
+require 'twterm/event/message/error'
 
 module Twterm
   module Tab
@@ -33,7 +33,7 @@ module Twterm
             else
               client.show_user(screen_name).then do |user|
                 if user.nil?
-                  publish(Event::Notification::Error.new('User not found'))
+                  publish(Event::Message::Error.new('User not found'))
                   tab = Tab::New::Start.new(app, client)
                 else
                   tab = Tab::UserTab.new(app, client, user.id)

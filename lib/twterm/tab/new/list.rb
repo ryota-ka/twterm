@@ -1,4 +1,4 @@
-require 'twterm/event/notification/info'
+require 'twterm/event/message/info'
 require 'twterm/tab/base'
 require 'twterm/tab/loadable'
 

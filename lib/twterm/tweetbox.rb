@@ -1,5 +1,5 @@
 require 'twterm/publisher'
-require 'twterm/event/notification/error'
+require 'twterm/event/message/error'
 
 module Twterm
   class Tweetbox

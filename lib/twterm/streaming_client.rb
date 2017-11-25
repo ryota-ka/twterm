@@ -1,7 +1,12 @@
-require 'twterm/event/favorite'
-require 'twterm/event/follow'
-require 'twterm/event/notification/error'
-require 'twterm/event/notification/info'
+require 'twterm/event/message/error'
+require 'twterm/event/message/info'
+require 'twterm/event/notification/direct_message'
+require 'twterm/event/notification/favorite'
+require 'twterm/event/notification/follow'
+require 'twterm/event/notification/list_member_added'
+require 'twterm/event/notification/mention'
+require 'twterm/event/notification/quote'
+require 'twterm/event/notification/retweet'
 require 'twterm/event/status/mention'
 require 'twterm/event/status/timeline'
 require 'twterm/publisher'
@@ -18,32 +23,62 @@ module Twterm
 
       @streaming_thread = Thread.new do
         begin
-          publish(Event::Notification::Info.new('Trying to connect to Twitter...'))
+          publish(Event::Message::Info.new('Trying to connect to Twitter...'))
           streaming_client.user do |event|
             keep_alive!
 
             case event
             when Twitter::Tweet
               status = status_repository.create(event)
-              publish(Event::Status::Timeline.new(status))
-              publish(Event::Status::Mention.new(status)) if status.text.include?('@%s' % screen_name)
+              user = user_repository.create(event.user)
+
+              if status.text.include?('@%s' % screen_name)
+                publish(Event::Status::Mention.new(status))
+
+                notification = Event::Notification::Mention.new(status, user)
+                publish(notification)
+              end
+
+              if status.retweet? && event.retweeted_status.user.id == user_id
+                retweeted_status = status_repository.create(event.retweeted_status)
+                notification = Event::Notification::Retweet.new(retweeted_status, user)
+                publish(notification)
+              end
             when Twitter::Streaming::Event
               case event.name
               when :favorite
+                next if event.source.id == user_id
                 user = user_repository.create(event.source)
                 status = status_repository.create(event.target_object)
-
-                event = Event::Favorite.new(user, status, self)
-                publish(event)
+                notification = Event::Notification::Like.new(status, user)
+                publish(notification)
               when :follow
-                source = user_repository.create(event.source)
-                target = user_repository.create(event.target)
+                next if event.source.id == user_id
 
-                event = Event::Follow.new(source, target, self)
+                user = user_repository.create(event.source)
+                notification = Event::Notification::Follow.new(user)
+                publish(notification)
+              when :list_member_added
+                next if event.source.id == user_id
 
-                publish(event)
+                list = list_repository.create(event.target_object)
+                notification = Event::Notification::ListMemberAdded.new(list)
+                publish(notification)
+              when :quoted_tweet
+                next if event.source.id == user_id
+
+                status = status_repository.create(event.target_object)
+                user = user_repository.create(event.source)
+                notification = Event::Notification::Quote.new(status, user)
+                publish(notification)
               end
-            when Twitter::DirectMessage # rubocop:disable Lint/EmptyWhen
+            when Twitter::DirectMessage
+              next if event.sender.id == user_id
+
+              user = user_repository.create(event.sender)
+              message = DirectMessage.new(event)
+              notification = Event::Notification::DirectMessage.new(message, user)
+              publish(notification)
             when Twitter::Streaming::FriendList
               user_stream_connected!
             when Twitter::Streaming::DeletedTweet
@@ -51,15 +86,15 @@ module Twterm
             end
           end
         rescue Twitter::Error::TooManyRequests
-          publish(Event::Notification::Error.new('Rate limit exceeded'))
+          publish(Event::Message::Error.new('Rate limit exceeded'))
           sleep 120
           retry
         rescue Errno::ENETUNREACH, Errno::ETIMEDOUT, Resolv::ResolvError
-          publish(Event::Notification::Error.new('Network is unavailable'))
+          publish(Event::Message::Error.new('Network is unavailable'))
           sleep 30
           retry
         rescue Twitter::Error => e
-          publish(Event::Notification::Error.new(e.message))
+          publish(Event::Message::Error.new(e.message))
         end
       end
     end
@@ -90,7 +125,7 @@ module Twterm
     end
 
     def user_stream_connected!
-      publish(Event::Notification::Info.new('Connection established')) unless user_stream_connected?
+      publish(Event::Message::Info.new('Connection established')) unless user_stream_connected?
       @user_stream_connected = true
     end
 

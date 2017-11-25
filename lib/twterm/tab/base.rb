@@ -10,7 +10,7 @@ module Twterm
       include Curses
       include Subscriber
 
-      attr_reader :window
+      attr_reader :window, :title
 
       def ==(other)
         self.equal?(other)

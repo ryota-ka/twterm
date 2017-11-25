@@ -45,7 +45,7 @@ module Twterm
       current_tab.render
       refresh_window
     rescue Tab::NotClosableError
-      publish(Event::Notification::Warning.new('this tab cannot be closed'))
+      publish(Event::Message::Warning.new('this tab cannot be closed', 'this tab cannot be closed'))
     end
 
     def current_tab
@@ -105,7 +105,7 @@ module Twterm
         add(tab)
       end
     rescue StandardError
-      publish(Event::Notification::Error.new('Failed to recover tabs'))
+      publish(Event::Message::Error.new('Failed to recover tabs'))
     end
 
     def refresh_window

@@ -1,6 +1,5 @@
 require 'twterm/subscriber'
-require 'twterm/event/favorite'
-require 'twterm/event/notification/abstract_notification'
+require 'twterm/event/message/abstract_message'
 require 'twterm/event/screen/resize'
 
 module Twterm
@@ -13,24 +12,15 @@ module Twterm
       @window = stdscr.subwin(1, stdscr.maxx, stdscr.maxy - 2, 0)
       @queue = Queue.new
 
-      subscribe(Event::Favorite) do |e|
-        next if e.source.id == e.authenticating_user.user_id
-
-        msg = '@%s has favorited your tweet: %s' % [
-          e.source.screen_name, e.target.text
-        ]
-        show_info(msg)
-      end
-
-      subscribe(Event::Notification::AbstractNotification) do |e|
+      subscribe(Event::Message::AbstractMessage) do |e|
         queue(e)
       end
 
       subscribe(Event::Screen::Resize, :resize)
 
       Thread.new do
-        while notification = @queue.pop # rubocop:disable Lint/AssignmentInCondition:
-          show(notification)
+        while message = @queue.pop # rubocop:disable Lint/AssignmentInCondition:
+          show(message)
           sleep 3
           show
         end
@@ -38,12 +28,11 @@ module Twterm
     end
 
     def show_info(message)
-      notification = Event::Notification::Info.new(message)
-      @queue.push(notification)
+      @queue.push(Event::Message::Info.new(message))
       self
     end
 
-    def show(notification = nil)
+    def show(message = nil)
       loop do
         break unless closed?
         sleep 0.5
@@ -51,16 +40,26 @@ module Twterm
 
       @window.clear
 
-      if notification.is_a?(Event::Notification::AbstractNotification)
-        fg_color, bg_color = notification.color
+      if message.is_a?(Event::Message::AbstractMessage)
+        fg_color, bg_color =
+          case message
+          when Event::Message::Error
+            [:white, :red]
+          when Event::Message::Info
+            [:black, :cyan]
+          when Event::Message::Success
+            [:black, :green]
+          when Event::Message::Warning
+            [:black, :yellow]
+          end
 
         @window.with_color(fg_color, bg_color) do
           @window.setpos(0, 0)
           @window.addstr(' ' * @window.maxx)
           @window.setpos(0, 1)
-          time = notification.time.strftime('[%H:%M:%S]')
-          message = notification.message.gsub("\n", ' ')
-          @window.addstr("#{time} #{message}")
+          time = message.time.strftime('[%H:%M:%S]')
+          body = message.body.gsub("\n", ' ')
+          @window.addstr("#{time} #{body}")
         end
       end
 
@@ -69,8 +68,8 @@ module Twterm
 
     private
 
-    def queue(notification)
-      @queue.push(notification)
+    def queue(message)
+      @queue.push(message)
       self
     end
 

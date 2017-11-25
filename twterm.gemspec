@@ -22,6 +22,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'concurrent-ruby', '~> 1.0.5'
   spec.add_dependency 'launchy', '~> 2.4.3'
   spec.add_dependency 'oauth', '~> 0.5.1'
+  spec.add_dependency 'terminal-notifier', '~> 2.0.0'
   spec.add_dependency 'toml-rb', '~> 0.3.14'
   spec.add_dependency 'twitter', '~> 6.1.0'
   spec.add_dependency 'twitter-text', '1.14.5'

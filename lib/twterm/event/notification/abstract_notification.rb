@@ -3,23 +3,28 @@ require 'twterm/event/base'
 module Twterm
   module Event
     module Notification
-      class AbstractNotification < Twterm::Event::Base
-        attr_reader :time
-
-        def initialize(message)
-          super(CGI.unescapeHTML(message))
-
-          @time = Time.now
+      # @abstract
+      class AbstractNotification < Event::Base
+        # @abstract
+        # @return [String] notification body
+        def body
+          raise NotImplementedError, '`body` must be implemented'
         end
 
-        def fields
-          {
-            message: String
-          }
+        # @return [String] a fallback text
+        def fallback
+          "#{title}: #{body}"
         end
 
-        def color
-          raise NotImplementedError, 'color method must be overridden'
+        # @abstract
+        # @return [String] notification title
+        def title
+          raise NotImplementedError, '`fallback` must be implemented'
+        end
+
+        # @return [String, nil] notification URL
+        def url
+          nil
         end
       end
     end
