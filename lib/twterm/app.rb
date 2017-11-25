@@ -4,6 +4,7 @@ require 'twterm/completion_manager'
 require 'twterm/direct_message_composer'
 require 'twterm/environment'
 require 'twterm/event/screen/resize'
+require 'twterm/message_window'
 require 'twterm/notification_dispatcher'
 require 'twterm/persistable_configuration_proxy'
 require 'twterm/preferences'
@@ -71,6 +72,7 @@ module Twterm
       @screen = Screen.new(self, client)
 
       SearchQueryWindow.instance
+      MessageWindow.instance
 
       @notification_dispatcher = NotificationDispatcher.new(preferences)
 
