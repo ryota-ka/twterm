@@ -30,23 +30,22 @@ module Twterm
     #
     # @param [Class] klass Must be a subclass of {Twterm::AbstractPersistableConfiguration}
     # @param [String] filepath File path to load configuration from
+    # @return [Twterm::PersistableConfigurationProxy] a configuration proxy
     def self.load_from_file!(klass, filepath)
-      instance =
-        begin
-          config = TOML.load_file(filepath, symbolize_keys: true)
-          new(klass.new(config), filepath).migrate!
-        rescue Errno::ENOENT
-          new(klass.default, filepath)
-        rescue TOML::ParseError, TOML::ValueOverwriteError => e
-          msg =
-            case e
-            when TOML::ParseError
-              "Your configuration file could not be parsed"
-            when TOML::ValueOverwriteError
-              "`#{e.key}` is declared more than once"
-            end
+      config = TOML.load_file(filepath, symbolize_keys: true)
+      new(klass.new(config), filepath).migrate!
+    rescue Errno::ENOENT
+      new(klass.default, filepath)
+    rescue TOML::ParseError, TOML::ValueOverwriteError => e
+      msg =
+        case e
+        when TOML::ParseError
+          "Your configuration file could not be parsed"
+        when TOML::ValueOverwriteError
+          "`#{e.key}` is declared more than once"
+        end
 
-          warn <<-EOS
+      warn <<-EOS
 \e[1mCould not load the configuration file: #{filepath}\e[0m
 (#{msg})
 
@@ -56,14 +55,11 @@ Check the syntax and edit the file manually,
 or remove it and launch twterm again to restore
 
 Press any key to continue
-      EOS
+  EOS
 
-          getc
+      getc
 
-          klass.default
-        end
-
-      new(instance, filepath)
+      new(klass.default, filepath)
     end
 
     # @return [self]
