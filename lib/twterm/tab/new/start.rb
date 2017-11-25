@@ -1,6 +1,7 @@
 require 'twterm/tab/base'
 require 'twterm/tab/direct_message/conversation_list'
 require 'twterm/tab/rate_limit_status'
+require 'twterm/tab/preferences/index'
 
 module Twterm
   module Tab
@@ -24,6 +25,7 @@ module Twterm
             user_tab
             key_assignments_cheatsheet
             rate_limit_status
+            preferences
           ).freeze
         end
 
@@ -69,6 +71,8 @@ module Twterm
                   'Key assignments cheatsheet'
                 when :rate_limit_status
                   'Rate limit status'
+                when :preferences
+                  'Preferences'
                 end
 
               cursor - Image.whitespace - Image.string(desc)
@@ -103,6 +107,10 @@ module Twterm
           switch(Tab::KeyAssignmentsCheatsheet.new(app, client))
         end
 
+        def open_preferences_tab
+          switch(Tab::Preferences::Index.new(app, client))
+        end
+
         def perform_selected_action
           case current_item
           when :direct_messages
@@ -117,6 +125,8 @@ module Twterm
             open_key_assignments_cheatsheet
           when :rate_limit_status
             open_rate_limit_status
+          when :preferences
+            open_preferences_tab
           end
         end
 

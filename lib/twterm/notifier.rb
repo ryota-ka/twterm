@@ -1,5 +1,4 @@
 require 'twterm/subscriber'
-require 'twterm/event/favorite'
 require 'twterm/event/message/abstract_message'
 require 'twterm/event/screen/resize'
 
@@ -12,15 +11,6 @@ module Twterm
     def initialize
       @window = stdscr.subwin(1, stdscr.maxx, stdscr.maxy - 2, 0)
       @queue = Queue.new
-
-      subscribe(Event::Favorite) do |e|
-        next if e.source.id == e.authenticating_user.user_id
-
-        msg = '@%s has favorited your tweet: %s' % [
-          e.source.screen_name, e.target.text
-        ]
-        show_info(msg)
-      end
 
       subscribe(Event::Message::AbstractMessage) do |e|
         queue(e)
