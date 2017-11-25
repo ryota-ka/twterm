@@ -24,7 +24,7 @@ module Twterm
     def refresh
       app.tab_manager.refresh_window
       app.tab_manager.current_tab.render
-      Notifier.instance.show
+      MessageWindow.instance.show
     end
 
     def respond_to_key(key)

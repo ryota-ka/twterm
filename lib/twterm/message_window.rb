@@ -3,7 +3,7 @@ require 'twterm/event/message/abstract_message'
 require 'twterm/event/screen/resize'
 
 module Twterm
-  class Notifier
+  class MessageWindow
     include Singleton
     include Curses
     include Subscriber
