@@ -32,7 +32,7 @@ module Twterm
               status = status_repository.create(event)
               user = user_repository.create(event.user)
 
-              if status.text.include?('@%s' % screen_name)
+              if !status.retweet? && status.text.include?('@%s' % screen_name)
                 publish(Event::Status::Mention.new(status))
 
                 notification = Event::Notification::Mention.new(status, user)
