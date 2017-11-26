@@ -30,6 +30,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'bundler', '~> 1.8'
   spec.add_development_dependency 'hashie', '~> 3.5.6'
   spec.add_development_dependency 'rake', '~> 12.0'
-  spec.add_development_dependency 'rspec', '~> 3.5.0'
+  spec.add_development_dependency 'rspec', '~> 3.7.0'
   spec.add_development_dependency 'rubocop', '~> 0.51.0'
 end
