@@ -32,6 +32,8 @@ module Twterm
               status = status_repository.create(event)
               user = user_repository.create(event.user)
 
+              publish(Event::Status::Timeline.new(status))
+
               if !status.retweet? && status.text.include?('@%s' % screen_name)
                 publish(Event::Status::Mention.new(status))
 
