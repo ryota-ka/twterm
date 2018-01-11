@@ -5,5 +5,8 @@ rvm:
   - 2.2
   - 2.3.0
   - 2.4.0
+  - 2.5.0
+
+before_install: gem update --system
 
 script: bundle exec rubocop --parallel --fail-level warning && bundle exec rspec
