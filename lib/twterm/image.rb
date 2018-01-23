@@ -36,8 +36,8 @@ class Twterm::Image
     BlankLine.new
   end
 
-  def bold
-    Bold.new(self)
+  def bold(on = true)
+    on ? Bold.new(self) : self
   end
 
   def brackets

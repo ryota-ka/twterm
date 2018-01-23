@@ -264,8 +264,9 @@ module Twterm
 
         location = Image.string("Location: #{user.location}")
 
-        foo = drawable_items.map.with_index(0) do |item, i|
-          Image.cursor(1, scroller.current_index?(i)) - Image.whitespace -
+        actions = drawable_items.map.with_index(0) do |item, i|
+          curr = scroller.current_index?(i)
+          Image.cursor(1, curr) - Image.whitespace -
             case item
             when :compose_direct_message
               Image.string('Compose direct message')
@@ -302,11 +303,12 @@ module Twterm
             when :manage_lists
               Image.string('Add to / Remove from lists')
             end
+              .bold(curr)
         end
           .intersperse(Image.blank_line)
           .reduce(Image.empty, :|)
 
-        [name, badges, status, description, location, foo]
+        [name, badges, status, description, location, Image.blank_line | actions]
           .compact
           .intersperse(Image.blank_line)
           .reduce(Image.empty, :|)
