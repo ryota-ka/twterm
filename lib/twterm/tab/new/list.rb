@@ -73,9 +73,10 @@ module Twterm
           return Image.string(initially_loaded? ? 'No results found' : 'Loading...') if items.empty?
 
           drawable_items.map.with_index(0) do |list, i|
-            cursor = Image.cursor(2, scroller.current_index?(i))
+            curr = scroller.current_index?(i)
+            cursor = Image.cursor(2, curr)
 
-            summary = Image.string("#{list.full_name} (#{list.member_count} members / #{list.subscriber_count} subscribers)")
+            summary = Image.string("#{list.full_name} (#{list.member_count} members / #{list.subscriber_count} subscribers)").bold(curr)
             desc = Image.string('  ') - Image.string(list.description)
 
             cursor - Image.whitespace - (summary | desc)

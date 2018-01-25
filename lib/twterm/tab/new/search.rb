@@ -100,7 +100,8 @@ module Twterm
           [
             *drawable_items
               .map.with_index(0) { |query, i|
-                Image.cursor(1, scroller.current_index?(i)) - Image.whitespace - Image.string(query)
+                curr = scroller.current_index?(i)
+                Image.cursor(1, curr) - Image.whitespace - Image.string(query).bold(curr)
               },
             (Image.string('  Loading saved searches...') unless initially_loaded?),
           ]

@@ -17,7 +17,8 @@ module Twterm
 
         def image
           drawable_items.map.with_index do |item, i|
-            cursor = Image.cursor(1, scroller.current_index?(i))
+            curr = scroller.current_index?(i)
+            cursor = Image.cursor(1, curr)
             checkbox = Image.checkbox(app.preferences[:notification_backend, item])
             desc =
               case item
@@ -29,7 +30,7 @@ module Twterm
                 'Terminal Notifier backend'
               end
 
-              cursor - Image.whitespace - checkbox - Image.whitespace - Image.string(desc)
+              cursor - Image.whitespace - checkbox - Image.whitespace - Image.string(desc).bold(curr)
           end
             .intersperse(Image.blank_line)
             .reduce(Image.empty) { |acc, x| acc | x }

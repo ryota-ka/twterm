@@ -21,14 +21,15 @@ module Twterm
 
         def image
           drawable_items.map.with_index do |item, i|
-            cursor = Image.cursor(1, scroller.current_index?(i))
+            curr = scroller.current_index?(i)
+            cursor = Image.cursor(1, curr)
             desc =
               case item
               when :notification_backend
                 'Notification backend preferences'
               end
 
-              cursor - Image.whitespace - Image.string(desc)
+              cursor - Image.whitespace - Image.string(desc).bold(curr)
           end
             .intersperse(Image.blank_line)
             .reduce(Image.empty) { |acc, x| acc | x }

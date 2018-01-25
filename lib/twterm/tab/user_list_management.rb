@@ -46,9 +46,10 @@ module Twterm
         return Image.string(initially_loaded? ? 'No lists found' : 'Loading...') if items.empty?
 
         drawable_items.map.with_index do |list, i|
-          cursor = Image.cursor(2, scroller.current_index?(i))
+          curr = scroller.current_index?(i)
+          cursor = Image.cursor(2, curr)
 
-          summary = Image.checkbox(@list_ids.include?(list.id)) - Image.whitespace - Image.string(list.full_name)
+          summary = Image.checkbox(@list_ids.include?(list.id)) - Image.whitespace - Image.string(list.full_name).bold(curr)
           description = Image.string('    ') - Image.string(list.description)
 
           cursor - Image.whitespace - (summary | description)
