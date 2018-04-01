@@ -14,7 +14,7 @@ module Twterm
           operators
         elsif q.start_with?('#')
           app.hashtag_repository.all
-          .map { |tag| "##{tag} " }
+          .map { |tag| "##{tag.text} " }
           .select { |tag| tag.start_with?(q) }
         elsif q.start_with?('@')
           app.user_repository.all
