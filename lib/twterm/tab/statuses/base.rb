@@ -8,6 +8,7 @@ require 'twterm/publisher'
 require 'twterm/subscriber'
 require 'twterm/tab/base'
 require 'twterm/tab/loadable'
+require 'twterm/tab/status_tab'
 require 'twterm/utils'
 
 module Twterm
@@ -135,6 +136,8 @@ module Twterm
           k = KeyMapper.instance
 
           case key
+          when 10
+            open_status_tab
           when k[:status, :conversation]
             show_conversation
           when k[:status, :destroy]
