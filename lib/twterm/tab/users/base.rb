@@ -1,6 +1,7 @@
 require 'concurrent'
 
 require 'twterm/event/user_garbage_collected'
+require 'twterm/image_builder/user_name_image_builder'
 require 'twterm/tab/base'
 require 'twterm/tab/loadable'
 
@@ -74,8 +75,7 @@ module Twterm
             cursor = Image.cursor(2, scroller.current_index?(i))
 
             header = [
-              !Image.string(user.name).color(user.color),
-              Image.string("@#{user.screen_name}"),
+              ImageBuilder::UserNameImageBuilder.new(user).build,
               (Image.string('protected').brackets.color(:yellow) if user.protected?),
               (Image.string('verified').brackets.color(:cyan) if user.verified?),
             ].compact.intersperse(Image.whitespace).reduce(Image.empty, :-)

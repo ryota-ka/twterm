@@ -1,5 +1,6 @@
 require 'twterm/direct_message_composer'
 require 'twterm/event/direct_message/fetched'
+require 'twterm/image_builder/user_name_image_builder'
 require 'twterm/subscriber'
 require 'twterm/tab/base'
 require 'twterm/tab/loadable'
@@ -29,8 +30,7 @@ module Twterm
             sender = app.user_repository.find(message.sender_id)
 
             header = [
-              !Image.string(sender.name).color(sender.color),
-              Image.string("@#{sender.screen_name}").parens,
+              ImageBuilder::UserNameImageBuilder.new(sender).build,
               Image.string(message.date.to_s).brackets,
             ].intersperse(Image.whitespace).reduce(Image.empty, :-)
 

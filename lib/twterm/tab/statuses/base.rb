@@ -3,6 +3,7 @@ require 'concurrent'
 require 'twterm/event/open_uri'
 require 'twterm/event/status/delete'
 require 'twterm/event/status_garbage_collected'
+require 'twterm/image_builder/user_name_image_builder'
 require 'twterm/publisher'
 require 'twterm/subscriber'
 require 'twterm/tab/base'
@@ -221,8 +222,7 @@ module Twterm
             retweeted_by = app.user_repository.find(status.user_id)
 
             header = [
-              !Image.string(user.name).color(user.color),
-              Image.string("@#{user.screen_name}").parens,
+              ImageBuilder::UserNameImageBuilder.new(user).build,
               Image.string(original.date.to_s).brackets,
               (Image.whitespace.color(:black, :red) if original.favorited?),
               (Image.whitespace.color(:black, :green) if original.retweeted?),
