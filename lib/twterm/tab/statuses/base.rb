@@ -3,10 +3,12 @@ require 'concurrent'
 require 'twterm/event/open_uri'
 require 'twterm/event/status/delete'
 require 'twterm/event/status_garbage_collected'
+require 'twterm/image_builder/user_name_image_builder'
 require 'twterm/publisher'
 require 'twterm/subscriber'
 require 'twterm/tab/base'
 require 'twterm/tab/loadable'
+require 'twterm/tab/status_tab'
 require 'twterm/utils'
 
 module Twterm
@@ -134,6 +136,8 @@ module Twterm
           k = KeyMapper.instance
 
           case key
+          when 10
+            open_status_tab
           when k[:status, :conversation]
             show_conversation
           when k[:status, :destroy]
@@ -221,8 +225,7 @@ module Twterm
             retweeted_by = app.user_repository.find(status.user_id)
 
             header = [
-              !Image.string(user.name).color(user.color),
-              Image.string("@#{user.screen_name}").parens,
+              ImageBuilder::UserNameImageBuilder.new(user).build,
               Image.string(original.date.to_s).brackets,
               (Image.whitespace.color(:black, :red) if original.favorited?),
               (Image.whitespace.color(:black, :green) if original.retweeted?),

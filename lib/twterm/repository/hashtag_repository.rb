@@ -1,3 +1,4 @@
+require 'twterm/hashtag'
 require 'twterm/repository/abstract_repository'
 
 module Twterm
@@ -32,7 +33,7 @@ module Twterm
       end
 
       def type
-        String
+        Hashtag
       end
     end
   end

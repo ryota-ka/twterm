@@ -6,7 +6,7 @@ module Twterm
       def complete(query)
         if query.start_with?('#')
           app.hashtag_repository.all
-          .map { |tag| "##{tag}" }
+          .map { |tag| "##{tag.text}" }
           .select { |tag| tag.start_with?(query) }
         elsif query.start_with?('@')
           app.user_repository.all

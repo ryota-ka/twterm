@@ -1,5 +1,6 @@
 require 'twterm/event/open_uri'
 require 'twterm/publisher'
+require 'twterm/image_builder/user_name_image_builder'
 require 'twterm/tab/base'
 require 'twterm/tab/user_list_management'
 
@@ -233,7 +234,7 @@ module Twterm
           return Image.empty
         end
 
-        name = !Image.string(user.name) - Image.whitespace - Image.string("@#{user.screen_name}").parens
+        name = ImageBuilder::UserNameImageBuilder.new(user).build
 
         badges = [
           (Image.string('protected').brackets.color(:yellow) if user.protected?),

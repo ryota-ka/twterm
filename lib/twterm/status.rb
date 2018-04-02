@@ -1,5 +1,7 @@
 require 'concurrent'
 
+require 'twterm/hashtag'
+
 class Twitter::Tweet
   attr_reader :quoted_status_id
 
@@ -11,9 +13,9 @@ end
 
 module Twterm
   class Status
-    attr_reader :created_at, :favorite_count, :favorited, :id,
+    attr_reader :created_at, :favorite_count, :favorited, :hashtags, :id,
       :in_reply_to_status_id, :media, :retweet_count, :retweeted,
-      :quoted_status_id, :retweeted_status_id, :text, :url, :urls, :user_id
+      :quoted_status_id, :retweeted_status_id, :text, :url, :urls, :user_id, :user_mentions
     alias_method :favorited?, :favorited
     alias_method :retweeted?, :retweeted
 
@@ -50,7 +52,9 @@ module Twterm
       update!(tweet, is_retweeted_status)
 
       @media = tweet.media
+      @hashtags = tweet.hashtags.map { |tag| Hashtag.new(tag) }
       @urls = tweet.urls
+      @user_mentions = tweet.user_mentions
 
       @user_id = tweet.user.id
 

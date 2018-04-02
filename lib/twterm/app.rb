@@ -129,7 +129,7 @@ module Twterm
 
       status_repository.before_create do |tweet|
         tweet.hashtags.each do |hashtag|
-          hashtag_repository.create(hashtag.text)
+          hashtag_repository.create(hashtag)
         end
       end
 
