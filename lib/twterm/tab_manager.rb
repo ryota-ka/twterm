@@ -45,7 +45,7 @@ module Twterm
       current_tab.render
       refresh_window
     rescue Tab::NotClosableError
-      publish(Event::Message::Warning.new('this tab cannot be closed', 'this tab cannot be closed'))
+      publish(Event::Message::Warning.new('this tab cannot be closed'))
     end
 
     def current_tab
