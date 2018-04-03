@@ -247,6 +247,15 @@ module Twterm
             .reduce(Image.empty, :|)
         end
 
+        def open_status_tab
+          status = highlighted_original_status
+
+          return if status.nil?
+
+          tab = Tab::StatusTab.new(app, client, highlighted_original_status.id)
+          app.tab_manager.add_and_show(tab)
+        end
+
         def reload
           fetch.then do |statuses|
             statuses.each { |s| append(s) }
