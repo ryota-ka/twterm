@@ -1,5 +1,6 @@
 require 'twterm/image'
 require 'twterm/tab/preferences/notification_backend'
+require 'twterm/tab/preferences/photo_viewer_backend'
 require 'twterm/preferences'
 require 'twterm/publisher'
 require 'twterm/tab/abstract_tab'
@@ -27,6 +28,8 @@ module Twterm
               case item
               when :notification_backend
                 'Notification backend preferences'
+              when :photo_viewer_backend
+                'Photo viewer backend preferences'
               end
 
               cursor - Image.whitespace - Image.string(desc).bold(curr)
@@ -37,7 +40,8 @@ module Twterm
 
         def items
           [
-            :notification_backend
+            :notification_backend,
+            :photo_viewer_backend,
           ]
         end
 
@@ -65,6 +69,8 @@ module Twterm
             case scroller.current_item
             when :notification_backend
               Tab::Preferences::NotificationBackend.new(app, client)
+            when :photo_viewer_backend
+              Tab::Preferences::PhotoViewerBackend.new(app, client)
             end
 
           app.tab_manager.add_and_show(tab)
