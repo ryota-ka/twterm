@@ -43,7 +43,13 @@ module Twterm
       end
 
       @id = tweet.id
-      @text = CGI.unescapeHTML(tweet.full_text.dup)
+      text =
+        if tweet.truncated? && tweet.attrs[:extended_tweet]
+          tweet.attrs[:extended_tweet][:full_text]
+        else
+          tweet.attrs[:text] || tweet.attrs[:full_text]
+        end
+      @text = CGI.unescapeHTML(text)
       @created_at = tweet.created_at.dup.localtime
       @in_reply_to_status_id = tweet.in_reply_to_status_id
       @quoted_status_id = tweet.quoted_status_id

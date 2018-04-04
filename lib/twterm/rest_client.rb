@@ -85,7 +85,7 @@ module Twterm
       user_id ||= self.user_id
 
       send_request do
-        rest_client.favorites(user_id, count: 200)
+        rest_client.favorites(user_id, count: 200, tweet_mode: :extended)
       end.then do |tweets|
         tweets.map { |tweet| status_repository.create(tweet) }
       end
@@ -145,7 +145,7 @@ module Twterm
 
     def home_timeline
       send_request do
-        rest_client.home_timeline(count: 200)
+        rest_client.home_timeline(count: 200, tweet_mode: :extended)
       end.then do |tweets|
         tweets
         .select(&@mute_filter)
@@ -163,7 +163,7 @@ module Twterm
 
     def list_timeline(list_id)
       send_request do
-        rest_client.list_timeline(list_id, count: 200)
+        rest_client.list_timeline(list_id, count: 200, tweet_mode: :extended)
       end.then do |statuses|
         statuses
         .select(&@mute_filter)
@@ -219,7 +219,7 @@ module Twterm
 
     def mentions
       send_request do
-        rest_client.mentions(count: 200)
+        rest_client.mentions(count: 200, tweet_mode: :extended)
       end.then do |statuses|
         statuses
         .select(&@mute_filter)
@@ -300,7 +300,7 @@ module Twterm
 
     def search(query)
       send_request do
-        rest_client.search(query, count: 100).attrs[:statuses]
+        rest_client.search(query, count: 100, tweet_mode: :extended).attrs[:statuses]
       end.then do |statuses|
         statuses
         .map(&Twitter::Tweet.method(:new))
