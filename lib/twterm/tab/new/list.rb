@@ -1,11 +1,11 @@
 require 'twterm/event/message/info'
-require 'twterm/tab/base'
+require 'twterm/tab/abstract_tab'
 require 'twterm/tab/loadable'
 
 module Twterm
   module Tab
     module New
-      class List < Base
+      class List < AbstractTab
         include Loadable
         include Publisher
         include Searchable

@@ -1,10 +1,10 @@
-require 'twterm/event/base'
+require 'twterm/event/abstract_event'
 
 module Twterm
   module Event
     module Notification
       # @abstract
-      class AbstractNotification < Event::Base
+      class AbstractNotification < AbstractEvent
         # @abstract
         # @return [String] notification body
         def body

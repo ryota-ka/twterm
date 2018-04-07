@@ -5,14 +5,14 @@ require 'twterm/hashtag'
 require 'twterm/image'
 require 'twterm/image_builder/user_name_image_builder'
 require 'twterm/publisher'
-require 'twterm/tab/base'
+require 'twterm/tab/abstract_tab'
 require 'twterm/tab/dumpable'
 require 'twterm/tab/loadable'
 require 'twterm/tab/scrollable'
 
 module Twterm
   module Tab
-    class StatusTab < Tab::Base
+    class StatusTab < AbstractTab
       include Dumpable
       include Publisher
       include Tab::Scrollable

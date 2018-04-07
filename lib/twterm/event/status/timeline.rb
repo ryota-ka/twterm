@@ -1,9 +1,9 @@
-require 'twterm/event/status/base'
+require 'twterm/event/status/abstract_status_event'
 
 module Twterm
   module Event
     module Status
-      class Timeline < Base
+      class Timeline < AbstractStatusEvent
       end
     end
   end

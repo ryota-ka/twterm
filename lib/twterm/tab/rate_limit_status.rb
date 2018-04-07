@@ -2,7 +2,7 @@ require 'twterm/tab/loadable'
 
 module Twterm
   module Tab
-    class RateLimitStatus < Tab::Base
+    class RateLimitStatus < AbstractTab
       include Loadable
       include Scrollable
 

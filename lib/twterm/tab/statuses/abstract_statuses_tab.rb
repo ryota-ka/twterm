@@ -6,7 +6,7 @@ require 'twterm/event/status_garbage_collected'
 require 'twterm/image_builder/user_name_image_builder'
 require 'twterm/publisher'
 require 'twterm/subscriber'
-require 'twterm/tab/base'
+require 'twterm/tab/abstract_tab'
 require 'twterm/tab/loadable'
 require 'twterm/tab/status_tab'
 require 'twterm/utils'
@@ -14,7 +14,7 @@ require 'twterm/utils'
 module Twterm
   module Tab
     module Statuses
-      class Base < Tab::Base
+      class AbstractStatusesTab < AbstractTab
         include Publisher
         include Searchable
         include Subscriber

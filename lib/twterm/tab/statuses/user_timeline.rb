@@ -1,10 +1,10 @@
-require 'twterm/tab/statuses/base'
+require 'twterm/tab/statuses/abstract_statuses_tab'
 require 'twterm/tab/statuses/cacheable'
 
 module Twterm
   module Tab
     module Statuses
-      class UserTimeline < Base
+      class UserTimeline < AbstractStatusesTab
         include Cacheable
         include Dumpable
 

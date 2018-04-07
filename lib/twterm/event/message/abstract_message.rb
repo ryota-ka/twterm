@@ -1,9 +1,9 @@
-require 'twterm/event/base'
+require 'twterm/event/abstract_event'
 
 module Twterm
   module Event
     module Message
-      class AbstractMessage < Twterm::Event::Base
+      class AbstractMessage < AbstractEvent
         attr_reader :time
 
         def initialize(message)

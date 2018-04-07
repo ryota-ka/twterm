@@ -1,12 +1,12 @@
 require 'concurrent'
 
-require 'twterm/tab/base'
+require 'twterm/tab/abstract_tab'
 require 'twterm/tab/loadable'
 
 module Twterm
   module Tab
     module New
-      class Search < Base
+      class Search < AbstractTab
         include Loadable
         include Readline
         include Searchable

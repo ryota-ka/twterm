@@ -1,9 +1,9 @@
-require 'twterm/event/base'
+require 'twterm/event/abstract_event'
 
 module Twterm
   module Event
     module Status
-      class Delete < Base
+      class Delete < AbstractStatusEvent
         def fields
           { status_id: Integer }
         end

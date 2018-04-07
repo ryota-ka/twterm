@@ -1,13 +1,13 @@
 require 'twterm/image'
 require 'twterm/preferences'
 require 'twterm/publisher'
-require 'twterm/tab/base'
+require 'twterm/tab/abstract_tab'
 require 'twterm/tab/scrollable'
 
 module Twterm
   module Tab
     module Preferences
-      class NotificationBackend < Tab::Base
+      class NotificationBackend < AbstractTab
         include Scrollable
         include Publisher
 

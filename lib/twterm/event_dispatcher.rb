@@ -21,8 +21,8 @@ module Twterm
 
     def register_subscription(subscriber_id, event, callback)
       check_type Class, event
-      unless event <= Event::Base
-        raise TypeError, 'the second argument must be a subclass of Twterm::Event::Base'
+      unless event <= Event::AbstractEvent
+        raise TypeError, 'the second argument must be a subclass of Twterm::Event::AbstractEvent'
       end
 
       @subscriptions << Subscription.new(subscriber_id, event, callback)

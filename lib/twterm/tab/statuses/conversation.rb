@@ -1,13 +1,13 @@
 require 'concurrent'
 
 require 'twterm/tab/dumpable'
-require 'twterm/tab/statuses/base'
+require 'twterm/tab/statuses/abstract_statuses_tab'
 require 'twterm/tab/statuses/cacheable'
 
 module Twterm
   module Tab
     module Statuses
-      class Conversation < Base
+      class Conversation < AbstractStatusesTab
         include Cacheable
         include Dumpable
 
