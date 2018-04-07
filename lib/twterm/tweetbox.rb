@@ -5,8 +5,15 @@ require 'twterm/event/screen/refresh'
 module Twterm
   class Tweetbox
     class EmptyTextError < StandardError; end
-    class InvalidCharactersError < StandardError; end
-    class TextTooLongError < StandardError; end
+    class TextTooLongError < StandardError
+      def initialize(parse_result)
+        @parse_result = parse_result
+      end
+
+      def message
+        "Text is too long (weighted length: #{@parse_result[:weighted_length]} / 280)"
+      end
+    end
 
     include Readline
     include Curses
@@ -68,10 +75,8 @@ module Twterm
             break
           rescue EmptyTextError
             break
-          rescue InvalidCharactersError
-            puts 'Text contains invalid characters'
-          rescue TextTooLongError
-            puts "Text is too long (#{text_length(text)} / 140 characters)"
+          rescue TextTooLongError => e
+            puts e.message
           end
 
           puts "\n"
@@ -104,18 +109,16 @@ module Twterm
     end
 
     def text_length(text)
-      Twitter::Validation.tweet_length(text)
+      Twitter::TwitterText::Validation.tweet_length(text)
     end
 
     def validate!(text)
-      case Twitter::Validation.tweet_invalid?(text)
-      when :empty
-        fail EmptyTextError
-      when :invalid_characters
-        fail InvalidCharactersError
-      when :too_long
-        fail TextTooLongError
-      end
+      raise EmptyTextError if text.empty?
+
+      result = Twitter::TwitterText::Validation.parse_tweet(text)
+      valid = result[:valid]
+
+      raise TextTooLongError.new(result) unless valid
     end
   end
 end
