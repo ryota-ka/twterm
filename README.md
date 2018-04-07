@@ -9,6 +9,7 @@ A full-featured TUI Twitter client
 - Ruby (>= 2.1, compiled with ncurses and Readline)
 - ncurses
 - Readline
+- [GNU Libidn](https://www.gnu.org/software/libidn/)
 
 ## Installation
 
