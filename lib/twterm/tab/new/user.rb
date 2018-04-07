@@ -30,12 +30,12 @@ module Twterm
             resetter.call
 
             if screen_name.nil? || screen_name.empty?
-              app.tab_manager.switch(Tab::New::Start.new(app, client))
+              app.tab_manager.switch(Tab::New::Index.new(app, client))
             else
               client.show_user(screen_name).then do |user|
                 if user.nil?
                   publish(Event::Message::Error.new('User not found'))
-                  tab = Tab::New::Start.new(app, client)
+                  tab = Tab::New::Index.new(app, client)
                 else
                   tab = Tab::UserTab.new(app, client, user.id)
                 end
@@ -47,7 +47,7 @@ module Twterm
           app.register_interruption_handler do
             input_thread.kill
             resetter.call
-            tab = Tab::New::Start.new(app, client)
+            tab = Tab::New::Index.new(app, client)
             app.tab_manager.switch(tab)
           end
 
