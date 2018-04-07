@@ -9,7 +9,7 @@ PATH
       terminal-notifier (~> 2.0.0)
       toml-rb (~> 0.3.14)
       twitter (~> 6.2.0)
-      twitter-text (= 1.14.5)
+      twitter-text (~> 2.1.0)
 
 GEM
   remote: https://rubygems.org/
@@ -33,8 +33,9 @@ GEM
       http_parser.rb (~> 0.6.0)
     http-cookie (1.0.3)
       domain_name (~> 0.5)
-    http-form_data (2.0.0)
+    http-form_data (2.1.0)
     http_parser.rb (0.6.0)
+    idn-ruby (0.1.0)
     launchy (2.4.3)
       addressable (~> 2.3)
     memoizable (0.4.2)
@@ -46,7 +47,7 @@ GEM
     parser (2.4.0.0)
       ast (~> 2.2)
     powerpack (0.1.1)
-    public_suffix (3.0.1)
+    public_suffix (3.0.2)
     rainbow (2.2.2)
       rake
     rake (12.1.0)
@@ -87,11 +88,12 @@ GEM
       multipart-post (~> 2.0)
       naught (~> 1.0)
       simple_oauth (~> 0.3.0)
-    twitter-text (1.14.5)
+    twitter-text (2.1.0)
+      idn-ruby
       unf (~> 0.1.0)
     unf (0.1.4)
       unf_ext
-    unf_ext (0.0.7.4)
+    unf_ext (0.0.7.5)
     unicode-display_width (1.3.0)
     yard (0.9.12)
 
