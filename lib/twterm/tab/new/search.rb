@@ -1,5 +1,7 @@
 require 'concurrent'
 
+require 'twterm/event/screen/refresh'
+require 'twterm/publisher'
 require 'twterm/tab/abstract_tab'
 require 'twterm/tab/loadable'
 
@@ -8,6 +10,7 @@ module Twterm
     module New
       class Search < AbstractTab
         include Loadable
+        include Publisher
         include Readline
         include Searchable
 
@@ -31,7 +34,7 @@ module Twterm
           resetter = proc do
             reset_prog_mode
             sleep 0.1
-            app.screen.refresh
+            publish(Event::Screen::Refresh.new)
           end
 
           input_thread = Thread.new do

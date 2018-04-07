@@ -1,5 +1,6 @@
 require 'addressable/uri'
 
+require 'twterm/event/open_photo'
 require 'twterm/event/open_uri'
 require 'twterm/hashtag'
 require 'twterm/image'
@@ -184,7 +185,7 @@ module Twterm
         when Twitter::Entity::URI
           publish(Event::OpenURI.new(item.expanded_url))
         when Twitter::Media::Photo
-          publish(Event::OpenURI.new(item.media_url_https))
+          publish(Event::OpenPhoto.new(item))
         when Twitter::Media::AnimatedGif, Twitter::Media::Video
           url = item.video_info.variants.max { |v| v.bitrate }.url
           publish(Event::OpenURI.new(url))

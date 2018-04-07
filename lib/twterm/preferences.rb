@@ -27,6 +27,11 @@ module Twterm
     # @return [Twterm::Preferences] an instance having the default value
     def self.default
       new({
+        photo_viewer_backend: {
+          browser: true,
+          imgcat: false,
+          quick_look: false,
+        },
         notification_backend: {
           inline: true,
           terminal_notifier: false,
@@ -45,6 +50,11 @@ module Twterm
       bool = -> x { x == true || x == false }
 
       {
+        photo_viewer_backend: {
+          browser: bool,
+          imgcat: bool,
+          quick_look: bool,
+        },
         notification_backend: {
           inline: bool,
           terminal_notifier: bool,
