@@ -101,13 +101,13 @@ module Twterm
             *drawable_items
               .map.with_index(0) { |query, i|
                 curr = scroller.current_index?(i)
-                Image.cursor(1, curr) - Image.whitespace - Image.string(query).bold(curr)
+                image_factory.cursor(1, curr) - image_factory.whitespace - image_factory.string(query).bold(curr)
               },
-            (Image.string('  Loading saved searches...') unless initially_loaded?),
+            (image_factory.string('  Loading saved searches...') unless initially_loaded?),
           ]
             .reject(&:nil?)
-            .intersperse(Image.blank_line)
-            .reduce(Image.empty, :|)
+            .intersperse(image_factory.blank_line)
+            .reduce(image_factory.empty, :|)
         end
 
         def update_saved_search

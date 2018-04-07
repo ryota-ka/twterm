@@ -1,4 +1,5 @@
 require 'twterm/event/screen/resize'
+require 'twterm/image_factory'
 require 'twterm/publisher'
 require 'twterm/subscriber'
 require 'twterm/utils'
@@ -115,15 +116,41 @@ module Twterm
     end
 
     def view
-      wss = Image.string('  ')
-      pipe = Image.string('|')
+      image_factory = ImageFactory.new(2)
 
-      image = @tabs
-        .map { |t| [t, Image.string(t.title)] }
-        .map { |t, r| t.equal?(current_tab) ? !r : r }
-        .reduce(pipe) { |acc, x| acc - wss - x - wss - pipe }
+      sep = image_factory.string('  |  ')
+      max_width = @window.maxx - 2
 
-      View.new(@window, image).at(1, 1)
+      image = sep - !image_factory.string(current_tab.title) - sep
+      i = 1
+
+      while image.width - 5 <= max_width
+        left = @index - i < 0 ? nil : @tabs[@index - i]
+        right = @tabs[@index + i]
+
+        left_image = left.nil? ? nil : image_factory.string(left.title)
+        right_image = right.nil? ? nil : image_factory.string(right.title)
+
+        case [left.nil?, right.nil?]
+        when [true, true]
+          break
+        when [true, false]
+          image = image - right_image - sep if max_width - image.width - right_image.width >= 5
+        when [false, true]
+          image = sep - left_image - image if max_width - image.width - left_image.width >= 5
+        when [false, false]
+          image = image - right_image - sep if max_width - image.width - right_image.width >= 5
+          image = sep - left_image - image if max_width - image.width - left_image.width >= 5
+          if max_width - image.width - left_image.width - right_image.width >= 10
+
+          else
+          end
+        end
+
+        i += 1
+      end
+
+      View.new(@window, image).at(1, 0)
     end
 
     def respond_to_key(key)

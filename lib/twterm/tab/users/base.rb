@@ -69,22 +69,22 @@ module Twterm
         end
 
         def image
-          return Image.string(initially_loaded? ? 'No result found' : 'Loading...') if items.empty?
+          return image_factory.string(initially_loaded? ? 'No result found' : 'Loading...') if items.empty?
 
           drawable_items.map.with_index(0) do |user, i|
-            cursor = Image.cursor(2, scroller.current_index?(i))
+            cursor = image_factory.cursor(2, scroller.current_index?(i))
 
             header = [
-              ImageBuilder::UserNameImageBuilder.new(user).build,
-              (Image.string('protected').brackets.color(:yellow) if user.protected?),
-              (Image.string('verified').brackets.color(:cyan) if user.verified?),
-            ].compact.intersperse(Image.whitespace).reduce(Image.empty, :-)
+              ImageBuilder::UserNameImageBuilder.new(image_factory, user).build,
+              (image_factory.string('protected').brackets.color(:yellow) if user.protected?),
+              (image_factory.string('verified').brackets.color(:cyan) if user.verified?),
+            ].compact.intersperse(image_factory.whitespace).reduce(image_factory.empty, :-)
 
-            bio_chunks = user.description.gsub(/[\n\r]/, ' ').split_by_width(window.maxx - 10)
-            cursor - Image.whitespace - (header | Image.string("#{bio_chunks[0]}#{'...' unless bio_chunks[1].nil?}"))
+            bio_chunks = split_string(user.description.gsub(/[\n\r]/, ' '), window.maxx - 10)
+            cursor - image_factory.whitespace - (header | image_factory.string("#{bio_chunks[0]}#{'...' unless bio_chunks[1].nil?}"))
           end
-            .intersperse(Image.blank_line)
-            .reduce(Image.empty, :|)
+            .intersperse(image_factory.blank_line)
+            .reduce(image_factory.empty, :|)
         end
       end
     end

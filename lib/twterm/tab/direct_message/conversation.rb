@@ -1,6 +1,7 @@
 require 'twterm/direct_message_composer'
 require 'twterm/event/direct_message/fetched'
 require 'twterm/image_builder/user_name_image_builder'
+require 'twterm/string_width_measurer'
 require 'twterm/subscriber'
 require 'twterm/tab/base'
 require 'twterm/tab/loadable'
@@ -16,7 +17,7 @@ module Twterm
 
         def drawable_item_count
           messages.drop(scroller.offset).lazy
-            .map { |m| m.text.split_by_width(window.maxx - 4).count + 2 }
+            .map { |m| split_string(m.text, window.maxx - 4).count + 2 }
             .scan(0, :+)
             .each_cons(2)
             .select { |_, l| l < window.maxy }
@@ -24,28 +25,28 @@ module Twterm
         end
 
         def image
-          return Image.string(initially_loaded? ? 'No results found' : 'Loading...') if items.empty?
+          return image_factory.string(initially_loaded? ? 'No results found' : 'Loading...') if items.empty?
 
           scroller.drawable_items.map.with_index(0) do |message, i|
             sender = app.user_repository.find(message.sender_id)
 
             header = [
-              ImageBuilder::UserNameImageBuilder.new(sender).build,
-              Image.string(message.date.to_s).brackets,
-            ].intersperse(Image.whitespace).reduce(Image.empty, :-)
+              ImageBuilder::UserNameImageBuilder.new(image_factory, sender).build,
+              image_factory.string(message.date.to_s).brackets,
+            ].intersperse(image_factory.whitespace).reduce(image_factory.empty, :-)
 
-            body = message.text.split_by_width(window.maxx - 4)
-              .map { |x| Image.string(x) }
-              .reduce(Image.empty, :|)
+            body = split_string(message.text, window.maxx - 4)
+              .map { |x| image_factory.string(x) }
+              .reduce(image_factory.empty, :|)
 
             m = header | body
 
-            cursor = Image.cursor(m.height, scroller.current_index?(i))
+            cursor = image_factory.cursor(m.height, scroller.current_index?(i))
 
-            cursor - Image.whitespace - m
+            cursor - image_factory.whitespace - m
           end
-            .intersperse(Image.blank_line)
-            .reduce(Image.empty, :|)
+            .intersperse(image_factory.blank_line)
+            .reduce(image_factory.empty, :|)
         end
 
         def initialize(app, client, conversation)

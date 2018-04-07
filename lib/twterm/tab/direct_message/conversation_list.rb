@@ -19,24 +19,24 @@ module Twterm
         end
 
         def image
-          return Image.string(initially_loaded? ? 'No results found' : 'Loading...') if items.empty?
+          return image_factory.string(initially_loaded? ? 'No results found' : 'Loading...') if items.empty?
 
           scroller.drawable_items.map.with_index(0) do |conversation, i|
-            cursor = Image.cursor(2, scroller.current_index?(i))
+            cursor = image_factory.cursor(2, scroller.current_index?(i))
 
             collocutor = app.user_repository.find(conversation.collocutor_id)
 
             header = [
-              ImageBuilder::UserNameImageBuilder.new(collocutor).build,
-              Image.string(conversation.updated_at.to_s).brackets,
-            ].intersperse(Image.whitespace).reduce(Image.empty, :-)
+              ImageBuilder::UserNameImageBuilder.new(image_factory, collocutor).build,
+              image_factory.string(conversation.updated_at.to_s).brackets,
+            ].intersperse(image_factory.whitespace).reduce(image_factory.empty, :-)
 
-            body = Image.string(conversation.preview.split_by_width(window.maxx - 4).first)
+            body = image_factory.string(split_string(conversation.preview, window.maxx - 4).first)
 
-            cursor - Image.whitespace - (header | body)
+            cursor - image_factory.whitespace - (header | body)
           end
-            .intersperse(Image.blank_line)
-            .reduce(Image.empty, :|)
+            .intersperse(image_factory.blank_line)
+            .reduce(image_factory.empty, :|)
         end
 
         def initialize(app, client)

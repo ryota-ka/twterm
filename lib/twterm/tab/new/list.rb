@@ -70,19 +70,19 @@ module Twterm
         end
 
         def image
-          return Image.string(initially_loaded? ? 'No results found' : 'Loading...') if items.empty?
+          return image_factory.string(initially_loaded? ? 'No results found' : 'Loading...') if items.empty?
 
           drawable_items.map.with_index(0) do |list, i|
             curr = scroller.current_index?(i)
-            cursor = Image.cursor(2, curr)
+            cursor = image_factory.cursor(2, curr)
 
-            summary = Image.string("#{list.full_name} (#{list.member_count} members / #{list.subscriber_count} subscribers)").bold(curr)
-            desc = Image.string('  ') - Image.string(list.description)
+            summary = image_factory.string("#{list.full_name} (#{list.member_count} members / #{list.subscriber_count} subscribers)").bold(curr)
+            desc = image_factory.string('  ') - image_factory.string(list.description)
 
-            cursor - Image.whitespace - (summary | desc)
+            cursor - image_factory.whitespace - (summary | desc)
           end
-            .intersperse(Image.blank_line)
-            .reduce(Image.empty, :|)
+            .intersperse(image_factory.blank_line)
+            .reduce(image_factory.empty, :|)
         end
       end
     end

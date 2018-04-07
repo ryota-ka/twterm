@@ -63,17 +63,17 @@ module Twterm
         SHORTCUTS
           .flat_map { |(cat_str, cat_sym), shortcuts|
             [
-              !Image.string(cat_str).color(:green),
-              Image.blank_line,
+              !image_factory.string(cat_str).color(:green),
+              image_factory.blank_line,
               *shortcuts.map { |cmd, desc|
-                Image.string('  ') - !Image.string(k.as_string(cat_sym, cmd).center(3)).color(:cyan) - Image.whitespace - Image.string(desc)
+                image_factory.string('  ') - !image_factory.string(k.as_string(cat_sym, cmd).center(3)).color(:cyan) - image_factory.whitespace - image_factory.string(desc)
               },
-              Image.blank_line,
+              image_factory.blank_line,
             ]
           }
           .drop(scroller.offset)
           .take(drawable_item_count)
-          .reduce(Image.empty, :|)
+          .reduce(image_factory.empty, :|)
       end
 
       def initialize(app, client)

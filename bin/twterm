@@ -4,11 +4,21 @@ if RUBY_VERSION >= '2.5.0'
   Thread.report_on_exception = false
 end
 
+Thread.abort_on_exception = true
+
 if ARGV.count == 1 && (%w(-v --version).include?(ARGV.first))
   require 'twterm/version'
   puts 'twterm version %s' % Twterm::VERSION
   exit
 else
   require 'twterm'
-  Twterm::App.new.run
+  begin
+    Twterm::App.new.run
+  rescue => e
+    File.open('./debug', 'w') do |f|
+      f.write(e.message)
+      f.write(e.backtrace)
+    end
+    exit
+  end
 end

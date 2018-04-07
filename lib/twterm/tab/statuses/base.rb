@@ -27,7 +27,6 @@ module Twterm
           return if @status_ids.include?(status.id)
 
           @status_ids.push(status.id)
-          status.split(window.maxx - 4)
           scroller.item_appended!
           render
         end
@@ -46,7 +45,7 @@ module Twterm
 
         def drawable_item_count
           statuses.drop(scroller.offset).lazy
-          .map { |s| s.split(window.maxx - 4).count + 2 }
+          .map { |s| split_string(s.text, window.maxx - 4).count + 2 }
           .scan(0, :+)
           .each_cons(2)
           .select { |_, l| l < window.maxy }
@@ -113,7 +112,6 @@ module Twterm
           return if @status_ids.include?(status.id)
 
           @status_ids.unshift(status.id)
-          status.split(window.maxx - 4)
           scroller.item_prepended!
           render
         end
@@ -217,7 +215,7 @@ module Twterm
         end
 
         def image
-          return Image.string(initially_loaded? ? 'No results found' : 'Loading...') if items.empty?
+          return image_factory.string(initially_loaded? ? 'No results found' : 'Loading...') if items.empty?
 
           scroller.drawable_items.map.with_index(0) do |status, i|
             original = status.retweet? ? app.status_repository.find(status.retweeted_status_id) : status
@@ -225,26 +223,25 @@ module Twterm
             retweeted_by = app.user_repository.find(status.user_id)
 
             header = [
-              ImageBuilder::UserNameImageBuilder.new(user).build,
-              Image.string(original.date.to_s).brackets,
-              (Image.whitespace.color(:black, :red) if original.favorited?),
-              (Image.whitespace.color(:black, :green) if original.retweeted?),
-              ((Image.string('retweeted by ') - !Image.string("@#{retweeted_by.screen_name}")).parens if status.retweet?),
-              ((Image.number(original.favorite_count) - Image.plural(original.favorite_count, 'like')).color(:red) if original.favorite_count.positive?),
-              ((Image.number(original.retweet_count) - Image.plural(original.retweet_count, 'RT')).color(:green) if original.retweet_count.positive?),
-            ].compact.intersperse(Image.whitespace).reduce(Image.empty, :-)
+              ImageBuilder::UserNameImageBuilder.new(image_factory, user).build,
+              image_factory.string(original.date.to_s).brackets,
+              (image_factory.whitespace.color(:black, :red) if original.favorited?),
+              (image_factory.whitespace.color(:black, :green) if original.retweeted?),
+              ((image_factory.string('retweeted by ') - !image_factory.string("@#{retweeted_by.screen_name}")).parens if status.retweet?),
+              ((image_factory.number(original.favorite_count) - image_factory.plural(original.favorite_count, 'like')).color(:red) if original.favorite_count.positive?),
+              ((image_factory.number(original.retweet_count) - image_factory.plural(original.retweet_count, 'RT')).color(:green) if original.retweet_count.positive?),
+            ].compact.intersperse(image_factory.whitespace).reduce(image_factory.empty, :-)
 
-            body = original
-              .split(window.maxx - 4)
-              .map(&Image.method(:string))
-              .reduce(Image.empty, :|)
+            body = split_string(original.text, window.maxx - 4)
+              .map(&image_factory.method(:string))
+              .reduce(image_factory.empty, :|)
 
             s = header | body
 
-            Image.cursor(s.height, scroller.current_index?(i)) - Image.whitespace - s
+            image_factory.cursor(s.height, scroller.current_index?(i)) - image_factory.whitespace - s
           end
-            .intersperse(Image.blank_line)
-            .reduce(Image.empty, :|)
+            .intersperse(image_factory.blank_line)
+            .reduce(image_factory.empty, :|)
         end
 
         def open_status_tab

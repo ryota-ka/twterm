@@ -22,7 +22,6 @@ require 'twterm/config'
 require 'twterm/extensions/array'
 require 'twterm/extensions/curses/window'
 require 'twterm/extensions/enumerator/lazy'
-require 'twterm/extensions/string'
 require 'twterm/search_query_window'
 require 'twterm/friendship'
 require 'twterm/list'
@@ -55,9 +54,3 @@ require 'twterm/tab/users/friends'
 require 'twterm/tweetbox'
 require 'twterm/user'
 require 'twterm/version'
-
-module Twterm
-  class Conf
-    REQUIRE_VERSION = '1.1.1'
-  end
-end

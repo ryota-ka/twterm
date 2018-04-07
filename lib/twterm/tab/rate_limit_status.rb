@@ -32,12 +32,12 @@ module Twterm
       end
 
       def image
-        return Image.string('Loading...') unless initially_loaded?
+        return image_factory.string('Loading...') unless initially_loaded?
 
         items
           .drop(scroller.offset)
           .take(drawable_item_count)
-          .reduce(Image.empty, :|)
+          .reduce(image_factory.empty, :|)
       end
 
       def items
@@ -45,23 +45,23 @@ module Twterm
 
         @@status[:resources].flat_map do |category, limits|
           [
-            !Image.string(category.to_s.gsub('_', ' ')).color(:green),
-            Image.blank_line,
+            !image_factory.string(category.to_s.gsub('_', ' ')).color(:green),
+            image_factory.blank_line,
             *limits.flat_map do |endpoint, data|
               limit, remaining = data[:limit], data[:remaining]
               t = Time.at(data[:reset])
               diff = (t - Time.now).round
 
               [
-                Image.string("  #{endpoint}").color(:cyan) - (
+                image_factory.string("  #{endpoint}").color(:cyan) - (
                   limit == remaining \
-                    ? Image.empty
-                    : Image.string(" (Resets #{diff.positive? ? "in #{diff} seconds" : 'soon...'})")),
-                Image.string('  ') - Image.remaining_resource(remaining, limit, 50) - Image.string(" #{remaining}/#{limit}"),
-                Image.blank_line,
+                    ? image_factory.empty
+                    : image_factory.string(" (Resets #{diff.positive? ? "in #{diff} seconds" : 'soon...'})")),
+                image_factory.string('  ') - image_factory.remaining_resource(remaining, limit, 50) - image_factory.string(" #{remaining}/#{limit}"),
+                image_factory.blank_line,
               ]
             end,
-            Image.blank_line,
+            image_factory.blank_line,
           ]
         end
       end

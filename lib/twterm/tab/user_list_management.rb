@@ -43,19 +43,19 @@ module Twterm
       end
 
       def image
-        return Image.string(initially_loaded? ? 'No lists found' : 'Loading...') if items.empty?
+        return image_factory.string(initially_loaded? ? 'No lists found' : 'Loading...') if items.empty?
 
         drawable_items.map.with_index do |list, i|
           curr = scroller.current_index?(i)
-          cursor = Image.cursor(2, curr)
+          cursor = image_factory.cursor(2, curr)
 
-          summary = Image.checkbox(@list_ids.include?(list.id)) - Image.whitespace - Image.string(list.full_name).bold(curr)
-          description = Image.string('    ') - Image.string(list.description)
+          summary = image_factory.checkbox(@list_ids.include?(list.id)) - image_factory.whitespace - image_factory.string(list.full_name).bold(curr)
+          description = image_factory.string('    ') - image_factory.string(list.description)
 
-          cursor - Image.whitespace - (summary | description)
+          cursor - image_factory.whitespace - (summary | description)
         end
-          .intersperse(Image.blank_line)
-          .reduce(Image.empty, :|)
+          .intersperse(image_factory.blank_line)
+          .reduce(image_factory.empty, :|)
       end
 
       def items

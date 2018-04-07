@@ -5,19 +5,22 @@ module Twterm
     class UserNameImageBuilder
       COLORS = [:red, :blue, :green, :cyan, :yellow, :magenta].freeze
 
+      # @param factory [Twterm::ImageFactory]
       # @param user [Twterm::User] user
-      def initialize(user)
+      def initialize(factory, user)
+        @factory = factory
         @user = user
       end
 
       # @return [Twterm::Image] image for the given user
       def build
-        !Image.string(user.name).color(color) - Image.whitespace - Image.string("@#{user.screen_name}").parens
+        i = factory
+        !i.string(user.name).color(color) - i.whitespace - i.string("@#{user.screen_name}").parens
       end
 
       private
 
-      attr_reader :user
+      attr_reader :factory, :user
 
       # @return [Symbol] color for user
       def color

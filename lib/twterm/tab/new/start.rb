@@ -56,7 +56,7 @@ module Twterm
           drawable_items
             .map.with_index(0) { |item, i|
               curr = scroller.current_index?(i)
-              cursor = Image.cursor(1, curr)
+              cursor = image_factory.cursor(1, curr)
 
               desc =
                 case item
@@ -76,10 +76,10 @@ module Twterm
                   'Preferences'
                 end
 
-              cursor - Image.whitespace - Image.string(desc).bold(curr)
+              cursor - image_factory.whitespace - image_factory.string(desc).bold(curr)
             }
-            .intersperse(Image.blank_line)
-            .reduce(Image.empty, :|)
+            .intersperse(image_factory.blank_line)
+            .reduce(image_factory.empty, :|)
         end
 
         def open_direct_messages

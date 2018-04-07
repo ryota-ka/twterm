@@ -7,7 +7,7 @@ require 'twterm/tab/scrollable'
 module Twterm
   module Tab
     module Preferences
-      class NotificationBackend < Tab::Base
+      class Text < Tab::Base
         include Scrollable
         include Publisher
 
@@ -18,32 +18,27 @@ module Twterm
         def image
           drawable_items.map.with_index do |item, i|
             curr = scroller.current_index?(i)
-            cursor = Image.cursor(1, curr)
-            checkbox = Image.checkbox(app.preferences[:notification_backend, item])
-            desc =
+            cursor = image_factory.cursor(1, curr)
+            desc, cond, =
               case item
-              when :inline
-                'Inline backend'
-              when :tmux
-                'Tmux backend'
-              when :terminal_notifier
-                'Terminal Notifier backend'
+              when :ambiguous_width
+                [
+                  'Treat ambiguous-width characters as double-width',
+                  app.preferences[:text, :ambiguous_width] == 2,
+                ]
               end
+            checkbox = image_factory.checkbox(cond)
 
-              cursor - Image.whitespace - checkbox - Image.whitespace - Image.string(desc).bold(curr)
+              cursor - image_factory.whitespace - checkbox - image_factory.whitespace - image_factory.string(desc).bold(curr)
           end
-            .intersperse(Image.blank_line)
-            .reduce(Image.empty) { |acc, x| acc | x }
+            .intersperse(image_factory.blank_line)
+            .reduce(image_factory.empty) { |acc, x| acc | x }
         end
 
         def items
-          env = app.environment
-
           [
-            :inline,
-            (:tmux if env.with_tmux?),
-            (:terminal_notifier if env.terminal_notifier_available?),
-          ].compact
+            :ambiguous_width,
+          ]
         end
 
         def respond_to_key(key)
@@ -58,7 +53,7 @@ module Twterm
         end
 
         def title
-          'Notification backend preferences'
+          'Text preferences'
         end
 
         private
@@ -67,15 +62,8 @@ module Twterm
           item = scroller.current_item
 
           case item
-          when :inline
-            app.preferences[:notification_backend, :inline] =
-              !app.preferences[:notification_backend, :inline]
-          when :terminal_notifier
-            app.preferences[:notification_backend, :terminal_notifier] =
-              !app.preferences[:notification_backend, :terminal_notifier]
-          when :tmux
-            app.preferences[:notification_backend, :tmux] =
-              !app.preferences[:notification_backend, :tmux]
+          when :ambiguous_width
+            app.preferences[:text, :ambiguous_width] = 3 - app.preferences[:text, :ambiguous_width]
           end
 
           render

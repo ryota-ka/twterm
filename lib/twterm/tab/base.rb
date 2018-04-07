@@ -2,7 +2,9 @@ require 'concurrent'
 
 require 'twterm/event/screen/resize'
 require 'twterm/image'
+require 'twterm/image_factory'
 require 'twterm/subscriber'
+require 'twterm/string_width_measurer'
 
 module Twterm
   module Tab
@@ -91,7 +93,17 @@ module Twterm
       attr_reader :app, :client
 
       def image
-        Image.string('view method is not implemented')
+        image_factory.string('view method is not implemented')
+      end
+
+      def image_factory
+        @image_factory ||= ImageFactory.new(app.preferences[:text, :ambiguous_width])
+      end
+
+      def measure_string_width(string)
+        @string_width_measurer ||= StringWidthMeasurer.new
+        ambiguous = app.preferences[:text, :ambiguous_width]
+        @string_width_measurer.measure(string, ambiguous)
       end
 
       def refresh_mutex
@@ -109,6 +121,12 @@ module Twterm
       def resize(_event)
         window.resize(stdscr.maxy - 5, stdscr.maxx)
         window.move(3, 0)
+      end
+
+      def split_string(string, width)
+        @string_width_measurer ||= StringWidthMeasurer.new
+        ambiguous = app.preferences[:text, :ambiguous_width]
+        @string_width_measurer.split(string, width, ambiguous)
       end
 
       def view

@@ -1,5 +1,6 @@
 require 'twterm/image'
 require 'twterm/tab/preferences/notification_backend'
+require 'twterm/tab/preferences/text'
 require 'twterm/preferences'
 require 'twterm/publisher'
 require 'twterm/tab/base'
@@ -22,22 +23,25 @@ module Twterm
         def image
           drawable_items.map.with_index do |item, i|
             curr = scroller.current_index?(i)
-            cursor = Image.cursor(1, curr)
+            cursor = image_factory.cursor(1, curr)
             desc =
               case item
               when :notification_backend
                 'Notification backend preferences'
+              when :text
+                'Text'
               end
 
-              cursor - Image.whitespace - Image.string(desc).bold(curr)
+              cursor - image_factory.whitespace - image_factory.string(desc).bold(curr)
           end
-            .intersperse(Image.blank_line)
-            .reduce(Image.empty) { |acc, x| acc | x }
+            .intersperse(image_factory.blank_line)
+            .reduce(image_factory.empty) { |acc, x| acc | x }
         end
 
         def items
           [
-            :notification_backend
+            :notification_backend,
+            :text
           ]
         end
 
@@ -65,6 +69,8 @@ module Twterm
             case scroller.current_item
             when :notification_backend
               Tab::Preferences::NotificationBackend.new(app, client)
+            when :text
+              Tab::Preferences::Text.new(app, client)
             end
 
           app.tab_manager.add_and_show(tab)

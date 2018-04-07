@@ -1,8 +1,11 @@
+require 'twterm/string_width_measurer'
+
 module Twterm
   class Image
     class StringImage < Twterm::Image
-      def initialize(string)
+      def initialize(string, ambiguous = 2)
         @string = string
+        @ambiguous = @ambiguous
       end
 
       def -(other)
@@ -27,12 +30,12 @@ module Twterm
       end
 
       def width
-        string.width
+        StringWidthMeasurer.new.measure(string, ambiguous)
       end
 
       protected
 
-      attr_reader :string
+      attr_reader :ambiguous, :string
     end
   end
 end

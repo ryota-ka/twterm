@@ -32,6 +32,9 @@ module Twterm
           terminal_notifier: false,
           tmux: false,
         },
+        text: {
+          ambiguous_width: 1,
+        },
       })
     end
 
@@ -49,6 +52,9 @@ module Twterm
           inline: bool,
           terminal_notifier: bool,
           tmux: bool,
+        },
+        text: {
+          ambiguous_width: -> x { x == 1 || x == 2 },
         },
       }
     end

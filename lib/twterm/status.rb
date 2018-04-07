@@ -64,8 +64,6 @@ module Twterm
 
       @user_id = tweet.user.id
 
-      @splitted_text = {}
-
       expand_url!
     end
 
@@ -79,10 +77,6 @@ module Twterm
 
     def retweet!
       @retweeted = true
-    end
-
-    def split(width)
-      @splitted_text[width] ||= @text.split_by_width(width)
     end
 
     def unfavorite!

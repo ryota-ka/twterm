@@ -64,7 +64,7 @@ module Twterm
         private
 
         def image
-          Image.empty
+          image_factory.empty
         end
       end
     end
