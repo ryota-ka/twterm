@@ -2,14 +2,14 @@ require 'twterm/direct_message_composer'
 require 'twterm/event/direct_message/fetched'
 require 'twterm/image_builder/user_name_image_builder'
 require 'twterm/subscriber'
-require 'twterm/tab/base'
+require 'twterm/tab/abstract_tab'
 require 'twterm/tab/loadable'
 require 'twterm/tab/searchable'
 
 module Twterm
   module Tab
     module DirectMessage
-      class Conversation < Base
+      class Conversation < AbstractTab
         include Searchable
         include Subscriber
         include Loadable

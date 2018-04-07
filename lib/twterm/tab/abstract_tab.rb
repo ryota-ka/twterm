@@ -6,7 +6,7 @@ require 'twterm/subscriber'
 
 module Twterm
   module Tab
-    class Base
+    class AbstractTab
       include Curses
       include Subscriber
 

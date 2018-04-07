@@ -1,4 +1,4 @@
-require 'twterm/tab/base'
+require 'twterm/tab/abstract_tab'
 require 'twterm/tab/direct_message/conversation_list'
 require 'twterm/tab/rate_limit_status'
 require 'twterm/tab/preferences/index'
@@ -6,7 +6,7 @@ require 'twterm/tab/preferences/index'
 module Twterm
   module Tab
     module New
-      class Start < Base
+      class Index < AbstractTab
         include Scrollable
 
         def ==(other)

@@ -1,8 +1,8 @@
-require 'twterm/event/base'
+require 'twterm/event/abstract_event'
 
 module Twterm
   module Event
-    class StatusGarbageCollected < Base
+    class StatusGarbageCollected < AbstractEvent
       def fields
         {
           id: Integer

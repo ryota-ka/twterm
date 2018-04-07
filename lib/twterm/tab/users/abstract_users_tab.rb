@@ -2,13 +2,13 @@ require 'concurrent'
 
 require 'twterm/event/user_garbage_collected'
 require 'twterm/image_builder/user_name_image_builder'
-require 'twterm/tab/base'
+require 'twterm/tab/abstract_tab'
 require 'twterm/tab/loadable'
 
 module Twterm
   module Tab
     module Users
-      class Base < Tab::Base
+      class AbstractUsersTab < AbstractTab
         include Loadable
         include Searchable
 

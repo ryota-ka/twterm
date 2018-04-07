@@ -1,9 +1,9 @@
-require 'twterm/tab/users/base'
+require 'twterm/tab/users/abstract_users_tab'
 
 module Twterm
   module Tab
     module Users
-      class Friends < Base
+      class Friends < AbstractUsersTab
         include Dumpable
 
         attr_reader :user_id

@@ -1,11 +1,11 @@
 require 'twterm/publisher'
-require 'twterm/tab/base'
+require 'twterm/tab/abstract_tab'
 require 'twterm/event/message/error'
 
 module Twterm
   module Tab
     module New
-      class User < Base
+      class User < AbstractTab
         include Publisher
         include Readline
 

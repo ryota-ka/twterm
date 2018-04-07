@@ -1,5 +1,5 @@
 require 'twterm/event_dispatcher'
-require 'twterm/event/base'
+require 'twterm/event/abstract_event'
 require 'twterm/utils'
 
 module Twterm
@@ -7,7 +7,7 @@ module Twterm
     include Utils
 
     def publish(event)
-      check_type Event::Base, event
+      check_type Event::AbstractEvent, event
 
       EventDispatcher.instance.dispatch(event)
       event

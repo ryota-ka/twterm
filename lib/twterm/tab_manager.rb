@@ -14,7 +14,7 @@ module Twterm
     DUMPED_TABS_FILE = "#{ENV['HOME']}/.twterm/dumped_tabs"
 
     def add(tab_to_add)
-      check_type Tab::Base, tab_to_add
+      check_type Tab::AbstractTab, tab_to_add
 
       @tabs.each.with_index do |tab, i|
         next unless tab == tab_to_add
@@ -88,7 +88,7 @@ module Twterm
     end
 
     def open_new
-      tab = Tab::New::Start.new(app, client)
+      tab = Tab::New::Index.new(app, client)
       add_and_show(tab)
     end
 

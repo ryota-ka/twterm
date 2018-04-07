@@ -1,10 +1,10 @@
 require 'twterm/image'
-require 'twterm/tab/base'
+require 'twterm/tab/abstract_tab'
 require 'twterm/tab/searchable'
 
 module Twterm
   module Tab
-    class KeyAssignmentsCheatsheet < Base
+    class KeyAssignmentsCheatsheet < AbstractTab
       include Scrollable
 
       def ==(other)

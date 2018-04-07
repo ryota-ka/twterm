@@ -2,13 +2,13 @@ require 'twterm/image'
 require 'twterm/tab/preferences/notification_backend'
 require 'twterm/preferences'
 require 'twterm/publisher'
-require 'twterm/tab/base'
+require 'twterm/tab/abstract_tab'
 require 'twterm/tab/scrollable'
 
 module Twterm
   module Tab
     module Preferences
-      class Index < Tab::Base
+      class Index < AbstractTab
         include Scrollable
 
         def initialize(app, client)

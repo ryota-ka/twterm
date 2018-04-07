@@ -2,7 +2,7 @@ require 'twterm/utils'
 
 module Twterm
   module Event
-    class Base
+    class AbstractEvent
       include Utils
 
       def initialize(*args)

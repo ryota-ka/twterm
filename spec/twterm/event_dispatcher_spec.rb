@@ -6,7 +6,7 @@ RSpec.describe Twterm::EventDispatcher do
   describe '#dispatch' do
     subject { event_dispatcher.dispatch(event) }
 
-    let(:event) { Twterm::Event::Base.new }
+    let(:event) { Twterm::Event::AbstractEvent.new }
 
     it { is_expected.to eq event_dispatcher }
   end

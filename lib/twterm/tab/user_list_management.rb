@@ -9,7 +9,7 @@ require 'twterm/tab/searchable'
 
 module Twterm
   module Tab
-    class UserListManagement < Base
+    class UserListManagement < AbstractTab
       include Dumpable
       include Loadable
       include Publisher

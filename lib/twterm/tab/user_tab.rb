@@ -1,12 +1,12 @@
 require 'twterm/event/open_uri'
 require 'twterm/publisher'
 require 'twterm/image_builder/user_name_image_builder'
-require 'twterm/tab/base'
+require 'twterm/tab/abstract_tab'
 require 'twterm/tab/user_list_management'
 
 module Twterm
   module Tab
-    class UserTab < Base
+    class UserTab < AbstractTab
       include Dumpable
       include Publisher
       include Scrollable
