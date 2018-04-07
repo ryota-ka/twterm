@@ -1,6 +1,7 @@
+require 'twterm/event/message/error'
+require 'twterm/event/screen/refresh'
 require 'twterm/publisher'
 require 'twterm/tab/abstract_tab'
-require 'twterm/event/message/error'
 
 module Twterm
   module Tab
@@ -17,7 +18,7 @@ module Twterm
           resetter = proc do
             reset_prog_mode
             sleep 0.1
-            app.screen.refresh
+            publish(Event::Screen::Refresh.new)
           end
 
           app.completion_manager.set_screen_name_mode!

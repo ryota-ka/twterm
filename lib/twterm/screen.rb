@@ -1,3 +1,4 @@
+require 'twterm/event/screen/refresh'
 require 'twterm/event/screen/resize'
 require 'twterm/key_mapper'
 require 'twterm/subscriber'
@@ -18,13 +19,8 @@ module Twterm
       start_color
       use_default_colors
 
+      subscribe(Event::Screen::Refresh) { refresh }
       subscribe(Event::Screen::Resize, :resize)
-    end
-
-    def refresh
-      app.tab_manager.refresh_window
-      app.tab_manager.current_tab.render
-      MessageWindow.instance.show
     end
 
     def respond_to_key(key)
@@ -56,6 +52,12 @@ module Twterm
     private
 
     attr_reader :app, :client
+
+    def refresh
+      app.tab_manager.refresh_window
+      app.tab_manager.current_tab.render
+      MessageWindow.instance.show
+    end
 
     def resize(event)
       return if closed?

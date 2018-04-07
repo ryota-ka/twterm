@@ -3,6 +3,7 @@ require 'curses'
 require 'twterm/completion_manager'
 require 'twterm/direct_message_composer'
 require 'twterm/environment'
+require 'twterm/event/screen/refresh'
 require 'twterm/event/screen/resize'
 require 'twterm/message_window'
 require 'twterm/notification_dispatcher'
@@ -84,7 +85,7 @@ module Twterm
       tab_manager.add(mentions_tab)
       tab_manager.recover_tabs
 
-      screen.refresh
+      publish(Event::Screen::Refresh.new)
 
       client.connect_user_stream
 

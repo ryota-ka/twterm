@@ -1,5 +1,6 @@
 require 'twterm/publisher'
 require 'twterm/event/message/error'
+require 'twterm/event/screen/refresh'
 
 module Twterm
   class Tweetbox
@@ -99,7 +100,7 @@ module Twterm
     def reset
       reset_prog_mode
       sleep 0.1
-      app.screen.refresh
+      publish(Event::Screen::Refresh.new)
     end
 
     def text_length(text)

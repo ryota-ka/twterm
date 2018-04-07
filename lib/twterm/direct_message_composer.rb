@@ -1,3 +1,4 @@
+require 'twterm/event/screen/refresh'
 require 'twterm/publisher'
 require 'twterm/user'
 require 'twterm/utils'
@@ -21,7 +22,7 @@ module Twterm
       resetter = proc do
         reset_prog_mode
         sleep 0.1
-        app.screen.refresh
+        publish(Event::Screen::Refresh.new)
       end
 
       thread = Thread.new do
