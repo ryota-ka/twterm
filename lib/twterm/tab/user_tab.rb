@@ -1,6 +1,7 @@
+require 'twterm/event/open_photo'
 require 'twterm/event/open_uri'
-require 'twterm/publisher'
 require 'twterm/image_builder/user_name_image_builder'
+require 'twterm/publisher'
 require 'twterm/tab/abstract_tab'
 require 'twterm/tab/user_list_management'
 
@@ -49,6 +50,7 @@ module Twterm
           show_friends
           show_followers
           show_likes
+          profile_image
           manage_lists
         )
         items << :compose_direct_message unless myself?
@@ -144,6 +146,11 @@ module Twterm
         app.tab_manager.add_and_show(tab)
       end
 
+      def open_profile_image
+        event = Event::OpenPhoto.new(user.profile_image)
+        publish(event)
+      end
+
       def open_timeline_tab
         tab = Tab::Statuses::UserTimeline.new(app, client, user_id)
         app.tab_manager.add_and_show(tab)
@@ -165,6 +172,8 @@ module Twterm
           open_timeline_tab
         when :open_website
           open_website
+        when :profile_image
+          open_profile_image
         when :show_likes
           show_likes
         when :show_followers
@@ -295,6 +304,8 @@ module Twterm
               Image.number(user.statuses_count) - Image.whitespace - Image.plural(user.statuses_count, 'tweet')
             when :open_website
               Image.string("Open website (#{user.website})")
+            when :profile_image
+              Image.string('View profile image')
             when :show_likes
               Image.number(user.favorites_count) - Image.whitespace - Image.plural(user.favorites_count, 'like')
             when :show_followers

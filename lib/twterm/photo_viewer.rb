@@ -25,11 +25,11 @@ module Twterm
 
     attr_reader :backends, :preferences
 
-    # @param photo [Twitter::Media::Photo]
+    # @param url [Addressable::URI]
     # @return [void]
-    def view(photo)
+    def view(url)
       backends.each do |key, backend|
-        backend.view(photo) if preferences[:photo_viewer_backend, key]
+        backend.view(url) if preferences[:photo_viewer_backend, key]
       end
     end
   end

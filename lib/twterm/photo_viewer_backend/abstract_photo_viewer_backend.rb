@@ -5,7 +5,7 @@ module Twterm
     # @abstract
     class AbstractPhotoViewerBackend
       # @abstract
-      def view(_photo)
+      def view(_url)
         raise NotImplementedError, '`view` method must be implemented'
       end
 
@@ -18,7 +18,7 @@ module Twterm
         system('stty -raw echo')
       end
 
-      # @param url [String]
+      # @param url [#to_s]
       # @yieldparam file [File]
       def with_downloaded_file(url, &block)
         uri = URI.parse(url)
