@@ -185,7 +185,7 @@ module Twterm
         when Twitter::Entity::URI
           publish(Event::OpenURI.new(item.expanded_url))
         when Twitter::Media::Photo
-          publish(Event::OpenPhoto.new(item))
+          publish(Event::OpenPhoto.new(item.media_url_https))
         when Twitter::Media::AnimatedGif, Twitter::Media::Video
           url = item.video_info.variants.max { |v| v.bitrate }.url
           publish(Event::OpenURI.new(url))

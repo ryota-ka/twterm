@@ -9,12 +9,12 @@ module Twterm
     class ImgcatBackend < AbstractPhotoViewerBackend
       include Publisher
 
-      def view(photo)
+      def view(url)
         Curses.close_screen unless Curses.closed?
 
         puts "\e[H\e[2JDownloading..."
 
-        with_downloaded_file(photo.media_url_https) do |file|
+        with_downloaded_file(url) do |file|
           begin
             puts "\e[H\e[2JRendering..."
             system "imgcat #{file.path}"

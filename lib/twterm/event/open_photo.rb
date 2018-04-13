@@ -6,7 +6,7 @@ module Twterm
   module Event
     class OpenPhoto < AbstractEvent
       def fields
-        { photo: Twitter::Media::Photo }
+        { photo: Addressable::URI }
       end
     end
   end

@@ -7,8 +7,8 @@ module Twterm
     class BrowserBackend < AbstractPhotoViewerBackend
       include Publisher
 
-      def view(photo)
-        event = Event::OpenURI.new(photo.media_url_https)
+      def view(url)
+        event = Event::OpenURI.new(url)
         publish(event)
       end
     end
