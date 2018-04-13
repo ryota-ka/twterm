@@ -2,7 +2,7 @@ module Twterm
   class User
     attr_reader :description, :favorites_count, :followers_count,
                 :friends_count, :id, :location, :name, :protected, :profile_image,
-                :screen_name, :statuses_count, :url, :verified, :website
+                :profile_background_image, :screen_name, :statuses_count, :url, :verified, :website
     alias_method :protected?, :protected
     alias_method :verified?, :verified
 
@@ -25,6 +25,7 @@ module Twterm
       @url = user.url
       @verified = user.verified?
       @profile_image = user.profile_image_uri_https
+      @profile_background_image = user.profile_banner_uri_https
 
       self
     end
