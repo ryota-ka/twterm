@@ -45,19 +45,20 @@ module Twterm
       end
 
       def items
-        items = %i(
-          open_timeline_tab
-          show_friends
-          show_followers
-          show_likes
-          profile_image
-          manage_lists
-        )
-        items << :compose_direct_message unless myself?
-        items << :open_website  unless user.website.nil?
-        items << :toggle_follow unless myself?
-        items << :toggle_mute   unless myself?
-        items << :toggle_block  unless myself?
+        items = [
+          :open_timeline_tab,
+          :show_friends,
+          :show_followers,
+          :show_likes,
+          :profile_image,
+          (:profile_background_image unless user.profile_background_image.nil?),
+          :manage_lists,
+          (:compose_direct_message unless myself?),
+          (:open_website unless user.website.nil?),
+          (:toggle_follow unless myself?),
+          (:toggle_mute unless myself?),
+          (:toggle_block unless myself?),
+        ].compact
 
         items
       end
@@ -146,6 +147,11 @@ module Twterm
         app.tab_manager.add_and_show(tab)
       end
 
+      def open_profile_background_image
+        event = Event::OpenPhoto.new(user.profile_background_image)
+        publish(event)
+      end
+
       def open_profile_image
         event = Event::OpenPhoto.new(user.profile_image)
         publish(event)
@@ -172,6 +178,8 @@ module Twterm
           open_timeline_tab
         when :open_website
           open_website
+        when :profile_background_image
+          open_profile_background_image
         when :profile_image
           open_profile_image
         when :show_likes
@@ -304,6 +312,8 @@ module Twterm
               Image.number(user.statuses_count) - Image.whitespace - Image.plural(user.statuses_count, 'tweet')
             when :open_website
               Image.string("Open website (#{user.website})")
+            when :profile_background_image
+              Image.string('View profile background image')
             when :profile_image
               Image.string('View profile image')
             when :show_likes
