@@ -1,7 +1,7 @@
 require 'concurrent'
 
 require 'twterm/event/open_uri'
-require 'twterm/event/status/delete'
+require 'twterm/event/status_deleted'
 require 'twterm/event/status_garbage_collected'
 require 'twterm/image_builder/user_name_image_builder'
 require 'twterm/publisher'
@@ -77,7 +77,7 @@ module Twterm
 
           @status_ids = Concurrent::Array.new
 
-          subscribe(Event::Status::Delete) { |e| delete(e.status_id) }
+          subscribe(Event::StatusDeleted) { |e| delete(e.status_id) }
           subscribe(Event::StatusGarbageCollected) { |e| @status_ids.delete(e.id) }
         end
 
