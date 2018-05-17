@@ -39,6 +39,7 @@ module Twterm
           open_link: 'Open URLs',
           reply: 'Reply',
           retweet: 'Retweet',
+          quote: 'Quote',
           user: 'User',
         },
         ['Cursor', :cursor] => {
