@@ -6,10 +6,10 @@ module Twterm
       @uname = `uname`.strip
 
       @terminal_notifier_available = TerminalNotifier.available?
-      @with_eog = system('which eog 2>&1 >/dev/null')
-      @with_imgcat = system('which imgcat 2>&1 >/dev/null')
-      @with_tmux = system('which tmux 2>&1 >/dev/null') && !ENV['TMUX'].nil?
-      @with_qlmanage = system('which qlmanage 2>&1 >/dev/null')
+      @with_eog = system('which eog >/dev/null 2>&1')
+      @with_imgcat = system('which imgcat >/dev/null 2>&1')
+      @with_tmux = system('which tmux >/dev/null 2>&1') && !ENV['TMUX'].nil?
+      @with_qlmanage = system('which qlmanage >/dev/null 2>&1')
     end
 
     def darwin?
