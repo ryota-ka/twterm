@@ -84,7 +84,7 @@ module Twterm
             when Twitter::Streaming::FriendList
               user_stream_connected!
             when Twitter::Streaming::DeletedTweet
-              publish(Event::Status::Delete.new(event.id))
+              publish(Event::StatusDeleted.new(event.id))
             end
           end
         rescue Twitter::Error::TooManyRequests
