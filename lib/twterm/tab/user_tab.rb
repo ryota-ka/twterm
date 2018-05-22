@@ -58,6 +58,7 @@ module Twterm
           (:toggle_follow unless myself?),
           (:toggle_mute unless myself?),
           (:toggle_block unless myself?),
+          :open_in_browser,
         ].compact
 
         items
@@ -142,6 +143,11 @@ module Twterm
         user_id == client.user_id
       end
 
+      def open_in_browser
+        event = Event::OpenURI.new(user.url)
+        publish(event)
+      end
+
       def open_list_management_tab
         tab = Tab::UserListManagement.new(app, client, user_id)
         app.tab_manager.add_and_show(tab)
@@ -174,6 +180,8 @@ module Twterm
           compose_direct_message
         when :manage_lists
           open_list_management_tab
+        when :open_in_browser
+          open_in_browser
         when :open_timeline_tab
           open_timeline_tab
         when :open_website
@@ -308,6 +316,8 @@ module Twterm
               else
                 Image.string('Mute this user')
               end
+            when :open_in_browser
+              Image.string("Open this user in browser (#{user.url})")
             when :open_timeline_tab
               Image.number(user.statuses_count) - Image.whitespace - Image.plural(user.statuses_count, 'tweet')
             when :open_website
