@@ -38,9 +38,9 @@ module Twterm
     def reply(status)
       screen_name = app.user_repository.find(status.user_id).screen_name
       leading_text = "\e[1mReplying to @#{screen_name}\e[0m\n\n#{status.text}"
-      prompt = "> @#{screen_name} "
+      prompt = { prompt: '> ', init_text: "@#{screen_name} " }
 
-      ask_and_post(leading_text, prompt, -> body { "@#{screen_name} #{body}" }, { in_reply_to_status_id: status.id })
+      ask_and_post(leading_text, prompt, -> body { body }, { in_reply_to_status_id: status.id })
     end
 
     private
@@ -51,6 +51,13 @@ module Twterm
       app.completion_manager.set_default_mode!
 
       thread = Thread.new do
+        if prompt.is_a?(Hash)
+          if prompt.include?(:init_text)
+            init_readline_text(prompt[:init_text])
+          end
+          prompt = prompt[:prompt] || '> '
+        end
+
         raw_text = ''
 
         loop do
@@ -100,6 +107,16 @@ module Twterm
       close_screen
       puts "\e[H\e[2J#{leading_text}\n\n"
       ask(prompt, postprocessor) { |text| client.post(postprocessor.call(text), options) }
+    end
+
+    def init_readline_text(text)
+      old_pre_input_hook = Readline.pre_input_hook
+      Readline.pre_input_hook = lambda do
+        old_pre_input_hook.call if old_pre_input_hook
+        Readline.insert_text(text)
+        Readline.redisplay
+        Readline.pre_input_hook = old_pre_input_hook
+      end
     end
 
     def reset
