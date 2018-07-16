@@ -33,10 +33,10 @@ module Twterm
           @@lists || []
         end
 
-        def matches?(_list, query)
+        def matches?(list, query)
           [
-            other.description,
-            other.full_name,
+            list.description,
+            list.full_name,
           ].any? { |x| x.downcase.include?(query.downcase) }
         end
 
