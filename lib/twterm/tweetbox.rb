@@ -1,6 +1,7 @@
 require 'twterm/publisher'
 require 'twterm/event/message/error'
 require 'twterm/event/screen/refresh'
+require 'gemoji-parser'
 
 module Twterm
   class Tweetbox
@@ -86,9 +87,12 @@ module Twterm
             puts e.message
           end
 
+
           puts "\n"
           raw_text = ''
         end
+
+        raw_text = EmojiParser.detokenize(raw_text)
 
         reset
         cont.call(raw_text) unless raw_text.empty?
