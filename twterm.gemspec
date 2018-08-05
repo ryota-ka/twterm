@@ -34,6 +34,4 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec', '~> 3.7.0'
   spec.add_development_dependency 'rubocop', '~> 0.51.0'
   spec.add_development_dependency 'yard', '~> 0.9.12'
-  spec.add_development_dependency 'pry'
-  spec.add_development_dependency 'pry-byebug'
 end
