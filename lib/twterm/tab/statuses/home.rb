@@ -1,5 +1,4 @@
 require 'twterm/subscriber'
-require 'twterm/event/status/timeline'
 require 'twterm/tab/statuses/abstract_statuses_tab'
 require 'twterm/utils'
 
@@ -20,8 +19,6 @@ module Twterm
 
         def initialize(app, client)
           super(app, client)
-
-          subscribe(Event::Status::Timeline) { |e| prepend(e.status) }
 
           reload.then do
             initially_loaded!

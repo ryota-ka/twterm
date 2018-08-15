@@ -89,8 +89,6 @@ module Twterm
 
       publish(Event::Screen::Refresh.new)
 
-      client.connect_user_stream
-
       reset_interruption_handler
 
       Signal.trap(:WINCH) { on_resize }
