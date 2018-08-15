@@ -1,4 +1,5 @@
 require 'twterm/tab/statuses/abstract_statuses_tab'
+require 'twterm/event/status/mention'
 
 module Twterm
   module Tab

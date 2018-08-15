@@ -1,10 +1,8 @@
 require 'twterm/rest_client'
-require 'twterm/streaming_client'
 
 module Twterm
   class Client
     include RESTClient
-    include StreamingClient
 
     attr_reader :user_id, :screen_name
 
