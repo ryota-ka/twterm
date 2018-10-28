@@ -53,7 +53,6 @@ module Twterm
           :profile_image,
           (:profile_background_image unless user.profile_background_image.nil?),
           :manage_lists,
-          (:compose_direct_message unless myself?),
           (:open_website unless user.website.nil?),
           (:toggle_follow unless myself?),
           (:toggle_mute unless myself?),
@@ -94,10 +93,6 @@ module Twterm
 
       def blocking?
         app.friendship_repository.blocking?(client.user_id, user_id)
-      end
-
-      def compose_direct_message
-        app.direct_message_composer.compose(user)
       end
 
       def follow
@@ -176,8 +171,6 @@ module Twterm
 
       def perform_selected_action
         case scroller.current_item
-        when :compose_direct_message
-          compose_direct_message
         when :manage_lists
           open_list_management_tab
         when :open_in_browser
@@ -294,8 +287,6 @@ module Twterm
           curr = scroller.current_index?(i)
           Image.cursor(1, curr) - Image.whitespace -
             case item
-            when :compose_direct_message
-              Image.string('Compose direct message')
             when :toggle_block
               if blocking?
                 Image.string('Unblock this user')

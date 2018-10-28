@@ -1,7 +1,6 @@
 require 'curses'
 
 require 'twterm/completion_manager'
-require 'twterm/direct_message_composer'
 require 'twterm/environment'
 require 'twterm/event/screen/refresh'
 require 'twterm/event/screen/resize'
@@ -10,7 +9,6 @@ require 'twterm/notification_dispatcher'
 require 'twterm/persistable_configuration_proxy'
 require 'twterm/preferences'
 require 'twterm/photo_viewer'
-require 'twterm/repository/direct_message_repository'
 require 'twterm/repository/friendship_repository'
 require 'twterm/repository/hashtag_repository'
 require 'twterm/repository/list_repository'
@@ -40,14 +38,6 @@ module Twterm
 
     def completion_manager
       @completion_manager ||= CompletionManager.new(self)
-    end
-
-    def direct_message_composer
-      @direct_message_composer ||= DirectMessageComposer.new(self, client)
-    end
-
-    def direct_message_repository
-      @direct_messages_repository ||= Repository::DirectMessageRepository.new
     end
 
     def friendship_repository
@@ -101,11 +91,6 @@ module Twterm
 
         _ = status_repository.all.map { |status| user_repository.find(status.user_id) }
         user_repository.expire(3600)
-      end
-
-      direct_message_repository.before_create do |dm|
-        user_repository.create(dm.recipient)
-        user_repository.create(dm.sender)
       end
 
       user_repository.before_create do |user|
@@ -179,7 +164,6 @@ module Twterm
         config[:access_token_secret],
         {
           friendship: friendship_repository,
-          direct_message: direct_message_repository,
           hashtag: hashtag_repository,
           list: list_repository,
           status: status_repository,

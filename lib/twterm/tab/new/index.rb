@@ -1,5 +1,4 @@
 require 'twterm/tab/abstract_tab'
-require 'twterm/tab/direct_message/conversation_list'
 require 'twterm/tab/rate_limit_status'
 require 'twterm/tab/preferences/index'
 
@@ -19,7 +18,6 @@ module Twterm
 
         def items
           %i(
-            direct_messages
             list_tab
             search_tab
             user_tab
@@ -60,8 +58,6 @@ module Twterm
 
               desc =
                 case item
-                when :direct_messages
-                  'Direct messages'
                 when :list_tab
                   'List tab'
                 when :search_tab
@@ -80,10 +76,6 @@ module Twterm
             }
             .intersperse(Image.blank_line)
             .reduce(Image.empty, :|)
-        end
-
-        def open_direct_messages
-          switch(Tab::DirectMessage::ConversationList.new(app, client))
         end
 
         def open_list_tab
@@ -114,8 +106,6 @@ module Twterm
 
         def perform_selected_action
           case current_item
-          when :direct_messages
-            open_direct_messages
           when :list_tab
             open_list_tab
           when :search_tab
