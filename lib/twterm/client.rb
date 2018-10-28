@@ -11,7 +11,6 @@ module Twterm
       @access_token, @access_token_secret = access_token, access_token_secret
 
       @friendship_repository = repositories[:friendship]
-      @direct_message_repository = repositories[:direct_message]
       @hashtag_repository = repositories[:hashtag]
       @list_repository = repositories[:list]
       @status_repository = repositories[:status]
@@ -27,12 +26,10 @@ module Twterm
             muted_user_ids.include?(status.retweeted_status.user.id))
         end
       end
-
-      direct_message_manager
     end
 
     private
 
-    attr_reader :friendship_repository, :direct_message_repository, :hashtag_repository, :list_repository, :status_repository, :user_repository
+    attr_reader :friendship_repository, :hashtag_repository, :list_repository, :status_repository, :user_repository
   end
 end

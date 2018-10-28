@@ -1,6 +1,4 @@
 require 'concurrent'
-require 'twterm/direct_message'
-require 'twterm/direct_message_manager'
 require 'twterm/publisher'
 require 'twterm/event/message/success'
 
@@ -22,33 +20,6 @@ module Twterm
         users.each do |user|
           friendship_repository.block(self.user_id, user.id)
         end
-      end
-    end
-
-    def create_direct_message(recipient, text)
-      send_request do
-        rest_client.create_direct_message(recipient.id, text)
-      end.then do |message|
-        msg = direct_message_repository.create(message)
-        direct_message_manager.add(recipient.id, msg)
-        publish(Event::DirectMessage::Fetched.new)
-        publish(Event::Message::Success.new('Your message to @%s has been sent' % recipient.screen_name))
-      end
-    end
-
-    def direct_message_conversations
-      direct_message_manager.conversations
-    end
-
-    def direct_messages_received
-      send_request do
-        rest_client.direct_messages(count: 200).map { |dm| direct_message_repository.create(dm) }
-      end
-    end
-
-    def direct_messages_sent
-      send_request do
-        rest_client.direct_messages_sent(count: 200).map { |dm| direct_message_repository.create(dm) }
       end
     end
 
@@ -423,10 +394,6 @@ module Twterm
     end
 
     private
-
-    def direct_message_manager
-      @direct_message_manager ||= DirectMessageManager.new(self)
-    end
 
     def show_error
       proc do |e|
