@@ -1,0 +1,61 @@
+version: 2
+
+aliases:
+  build-steps: &build-steps
+    - checkout
+    - run:
+        name: Install dependencies
+        command: |
+          apt-get update
+          apt-get install -y libidn11-dev
+          bundle install
+    - run:
+        name: Run Rubocop
+        command: |
+          bundle exec rubocop --parallel --fail-level warning
+    - run:
+        name: Run RSpec
+        command: |
+          bundle exec rspec
+
+jobs:
+  build-2.1:
+    docker:
+      - image: ruby:2.1
+    steps:
+      *build-steps
+
+  build-2.2:
+    docker:
+      - image: ruby:2.2
+    steps:
+      *build-steps
+
+  build-2.3:
+    docker:
+      - image: ruby:2.3
+    steps:
+      *build-steps
+
+  build-2.4:
+    docker:
+      - image: ruby:2.4
+    steps:
+      *build-steps
+
+  build-2.5:
+    docker:
+      - image: ruby:2.5
+    steps:
+      *build-steps
+
+workflows:
+  version: 2
+
+  build:
+    jobs:
+      - build-2.1
+      - build-2.2
+      - build-2.3
+      - build-2.4
+      - build-2.5
