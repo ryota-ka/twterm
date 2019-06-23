@@ -277,7 +277,7 @@ module Twterm
               .reduce(Image.empty, :-)
           end
 
-        description = user.description.split_by_width(window.maxx - 4)
+        description = user.description.split_by_width(window.maxx - 5)
           .map(&Image.method(:string))
           .reduce(Image.empty, :|)
 
