@@ -6,7 +6,7 @@ A full-featured TUI Twitter client
 
 ## Requirements
 
-- Ruby (>= 2.1, compiled with ncurses and Readline)
+- Ruby (>= 2.4, compiled with ncurses and Readline)
 - ncurses
 - Readline
 - [GNU Libidn](https://www.gnu.org/software/libidn/)
