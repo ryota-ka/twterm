@@ -8,6 +8,7 @@ aliases:
         command: |
           apt-get update
           apt-get install -y libidn11-dev
+          gem install bundler:1.16.2
           bundle install
     - run:
         name: Run Rubocop
