@@ -8,6 +8,7 @@ aliases:
         command: |
           apt-get update
           apt-get install -y libidn11-dev
+          gem install bundler:1.16.2
           bundle install
     - run:
         name: Run Rubocop
@@ -37,6 +38,12 @@ jobs:
     steps:
       *build-steps
 
+  build-2.7:
+    docker:
+      - image: ruby:2.7
+    steps:
+      *build-steps
+
 workflows:
   version: 2
 
@@ -45,3 +52,4 @@ workflows:
       - build-2.4
       - build-2.5
       - build-2.6
+      - build-2.7

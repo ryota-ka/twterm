@@ -35,8 +35,6 @@ module Twterm
 
       def translate(key)
         case key
-        when '!'..'}' then key
-        when /\A\^([A-Z]?)\Z/ then $1.ord - 'A'.ord + 1
         when 'F1' then Curses::Key::F1
         when 'F2' then Curses::Key::F2
         when 'F3' then Curses::Key::F3
@@ -49,6 +47,8 @@ module Twterm
         when 'F10' then Curses::Key::F10
         when 'F11' then Curses::Key::F11
         when 'F12' then Curses::Key::F12
+        when /\A\^([A-Z]?)\Z/ then $1.ord - 'A'.ord + 1
+        when '!'..'}' then key
         else
           raise NoSuchKey.new(key)
         end
