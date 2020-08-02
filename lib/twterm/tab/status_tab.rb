@@ -25,7 +25,7 @@ module Twterm
       end
 
       def drawable_item_count
-        (window.maxy - status.text.split_by_width(window.maxx - 4).count - 6).div(2)
+        (window.maxy - status.text.split_by_width(window.maxx - 5).count - 6).div(2)
       end
 
       def dump
@@ -55,7 +55,7 @@ module Twterm
         [
           header,
           Image.blank_line,
-          *status.text.split_by_width(window.maxx - 4).map { |x| Image.string(x) },
+          *status.text.split_by_width(window.maxx - 5).map { |x| Image.string(x) },
           Image.blank_line,
           Image.blank_line,
           *drawable_items.flat_map.with_index do |item, i|

@@ -17,7 +17,7 @@ module Twterm
         with_downloaded_file(url) do |file|
           begin
             puts "\e[H\e[2JRendering..."
-            system "imgcat #{file.path}"
+            system "imgcat --half-height #{file.path}"
             getc
           ensure
             puts "\e[H\e[2J"

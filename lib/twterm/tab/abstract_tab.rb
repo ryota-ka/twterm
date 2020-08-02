@@ -54,7 +54,7 @@ module Twterm
       def initialize(app, client)
         @app, @client = app, client
 
-        @window = stdscr.subwin(stdscr.maxy - 5, stdscr.maxx, 3, 0)
+        @window = stdscr.subwin(stdscr.maxy - 5, stdscr.maxx-1, 3, 0)
 
         subscribe(Event::Screen::Resize, :resize)
       end

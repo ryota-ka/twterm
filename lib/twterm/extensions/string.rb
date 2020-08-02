@@ -1,3 +1,17 @@
+require 'word_wrap'
+require 'word_wrap/core_ext'
+
+class String
+  def width
+    each_char.map { |c| c.bytesize == 1 ? 1 : 2 }.reduce(0, &:+)
+  end
+
+  def split_by_width(width)
+    (self.fit width).split "\n"
+  end
+end
+
+=begin
 class String
   def width
     each_char.map { |c| c.bytesize == 1 ? 1 : 2 }.reduce(0, &:+)
@@ -28,3 +42,4 @@ class String
     chunks
   end
 end
+=end
