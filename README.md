@@ -49,3 +49,15 @@ See the LICENSE file for license rights and limitations (MIT).
 
 - http://twterm.ryota-ka.me/
 - https://rubygems.org/gems/twterm
+
+## Development
+
+### Requirements
+
+- [Nix](https://nixos.org/)
+
+### Setting up development environment
+
+```
+$ nix-shell
+```
