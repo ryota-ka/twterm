@@ -1,0 +1,70 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    addressable (2.7.0)
+      public_suffix (>= 2.0.2, < 5.0)
+    buftok (0.2.0)
+    citrus (3.0.2)
+    concurrent-ruby (1.0.5)
+    curses (1.3.2)
+    domain_name (0.5.20190701)
+      unf (>= 0.0.5, < 1.0.0)
+    equalizer (0.0.11)
+    http (3.3.0)
+      addressable (~> 2.3)
+      http-cookie (~> 1.0)
+      http-form_data (~> 2.0)
+      http_parser.rb (~> 0.6.0)
+    http-cookie (1.0.3)
+      domain_name (~> 0.5)
+    http-form_data (2.3.0)
+    http_parser.rb (0.6.0)
+    idn-ruby (0.1.0)
+    launchy (2.4.3)
+      addressable (~> 2.3)
+    memoizable (0.4.2)
+      thread_safe (~> 0.3, >= 0.3.1)
+    multipart-post (2.1.1)
+    naught (1.1.0)
+    oauth (0.5.4)
+    public_suffix (4.0.5)
+    simple_oauth (0.3.1)
+    terminal-notifier (2.0.0)
+    thread_safe (0.3.6)
+    toml-rb (0.3.15)
+      citrus (~> 3.0, > 3.0)
+    twitter (6.2.0)
+      addressable (~> 2.3)
+      buftok (~> 0.2.0)
+      equalizer (~> 0.0.11)
+      http (~> 3.0)
+      http-form_data (~> 2.0)
+      http_parser.rb (~> 0.6.0)
+      memoizable (~> 0.4.0)
+      multipart-post (~> 2.0)
+      naught (~> 1.0)
+      simple_oauth (~> 0.3.0)
+    twitter-text (2.1.0)
+      idn-ruby
+      unf (~> 0.1.0)
+    twterm (2.8.0)
+      concurrent-ruby (~> 1.0.5)
+      curses (~> 1.3.2)
+      launchy (~> 2.4.3)
+      oauth (~> 0.5.1)
+      terminal-notifier (~> 2.0.0)
+      toml-rb (~> 0.3.14)
+      twitter (~> 6.2.0)
+      twitter-text (~> 2.1.0)
+    unf (0.1.4)
+      unf_ext
+    unf_ext (0.0.7.7)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  twterm
+
+BUNDLED WITH
+   2.1.4
