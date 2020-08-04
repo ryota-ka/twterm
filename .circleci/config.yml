@@ -20,12 +20,6 @@ aliases:
           bundle exec rspec
 
 jobs:
-  build-2.4:
-    docker:
-      - image: ruby:2.4
-    steps:
-      *build-steps
-
   build-2.5:
     docker:
       - image: ruby:2.5
@@ -49,7 +43,6 @@ workflows:
 
   build:
     jobs:
-      - build-2.4
       - build-2.5
       - build-2.6
       - build-2.7
