@@ -4,14 +4,22 @@ A full-featured TUI Twitter client
 
 ![screencast](http://twterm.ryota-ka.me/screencast.gif)
 
-## Requirements
+## Installation
+
+### With [Nix](https://nixos.org/) (Recommended)
+
+```
+$ nix-env --install --file https://github.com/ryota-ka/twterm/archive/master.tar.gz
+```
+
+### With [RubyGems](https://rubygems.org/)
+
+####  Requirements
 
 - Ruby (>= 2.4, compiled with ncurses and Readline)
 - ncurses
 - Readline
 - [GNU Libidn](https://www.gnu.org/software/libidn/)
-
-## Installation
 
 ```
 $ gem install twterm
