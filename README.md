@@ -66,6 +66,12 @@ See the LICENSE file for license rights and limitations (MIT).
 
 ### Setting up development environment
 
-```
+```sh
 $ nix-shell
+```
+
+Ruby version can be switched with `--arg` option (defaults to 2.7).
+
+```sh
+$ nix-shell --arg ruby 2.6
 ```

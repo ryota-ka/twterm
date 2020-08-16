@@ -1,11 +1,19 @@
-{ pkgs ? import <nixpkgs> { } }:
+{ pkgs ? import <nixpkgs> { }, ruby ? 2.7 }:
 
 with pkgs;
 let
+  mri =
+    if ruby == 2.5
+    then ruby_2_5
+    else if ruby == 2.6
+    then ruby_2_6
+    else if ruby == 2.7
+    then ruby_2_7
+    else abort "Unsupported Ruby version";
   gems = bundlerEnv {
-    inherit ruby;
     pname = "twterm";
     gemdir = ./.;
+    ruby = mri;
   };
 in
 mkShell rec {
@@ -14,9 +22,9 @@ mkShell rec {
     bundler
     gems
     libidn
+    mri
     ncurses
     readline
-    ruby
   ];
   shellHook = ''
     alias twterm='bundle exec bin/twterm'
