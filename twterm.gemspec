@@ -27,7 +27,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'twitter', '~> 6.2.0'
   spec.add_dependency 'twitter-text', '~> 2.1.0'
 
-  spec.add_development_dependency 'bundler', '~> 1.8'
+  spec.add_development_dependency 'bundler', '~> 2.1.4'
   spec.add_development_dependency 'hashie', '~> 3.5.6'
   spec.add_development_dependency 'rake', '~> 12.0'
   spec.add_development_dependency 'rspec', '~> 3.7.0'
