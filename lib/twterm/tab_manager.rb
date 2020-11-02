@@ -120,7 +120,7 @@ module Twterm
 
       image = @tabs
         .map { |t| [t, Image.string(t.title)] }
-        .map { |t, r| t.equal?(current_tab) ? !r : r }
+        .map { |t, r| t.equal?(current_tab) ? !r._ : r }
         .reduce(pipe) { |acc, x| acc - wss - x - wss - pipe }
 
       View.new(@window, image).at(1, 1)
