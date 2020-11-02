@@ -67,6 +67,7 @@ module Twterm
 
       def items
         [
+          :show_conversation,
           :reply,
           :favorite,
           :retweet,
@@ -135,6 +136,8 @@ module Twterm
           Image.string('Quote this tweet')
         when :destroy
           Image.string('Delete this tweet')
+        when :show_conversation
+          Image.string("Show conversation")
         when :show_user
           Image.string("Show user (@#{user.screen_name})")
         when :open_in_browser
@@ -172,6 +175,8 @@ module Twterm
           quote!
         when :destroy
           destroy!
+        when :show_conversation
+          show_conversation!
         when :show_user
           show_user!
         when :open_in_browser
@@ -207,6 +212,11 @@ module Twterm
           client.retweet(status).then { status.retweet! }
         end
           .then { render }
+      end
+
+      def show_conversation!
+        tab = Tab::Statuses::Conversation.new(app, client, status_id)
+        app.tab_manager.add_and_show(tab)
       end
 
       def show_user!
