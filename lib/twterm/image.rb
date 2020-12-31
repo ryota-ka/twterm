@@ -7,11 +7,16 @@ require 'twterm/image/empty'
 require 'twterm/image/horizontal_sequential_image'
 require 'twterm/image/parens'
 require 'twterm/image/string_image'
+require 'twterm/image/underlined'
 require 'twterm/image/vertical_sequential_image'
 
 class Twterm::Image
   def initialize(column: 0, line: 0)
     @column, @line = column, line
+  end
+
+  def _
+    underlined
   end
 
   def !
@@ -100,6 +105,11 @@ class Twterm::Image
   def self.string(str)
     StringImage.new(str)
   end
+
+  def underlined(on = true)
+    on ? Underlined.new(self) : self
+  end
+
 
   def self.whitespace
     string(' ')
