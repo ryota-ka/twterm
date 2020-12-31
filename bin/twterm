@@ -1,8 +1,6 @@
 #!/usr/bin/env ruby
 
-if RUBY_VERSION >= '2.5.0'
-  Thread.report_on_exception = false
-end
+Thread.abort_on_exception = true
 
 if ARGV.count == 1 && (%w(-v --version).include?(ARGV.first))
   require 'twterm/version'
