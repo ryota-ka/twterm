@@ -1,4 +1,4 @@
-require 'toml'
+require 'toml-rb'
 require 'singleton'
 
 require 'twterm/app'
@@ -105,14 +105,12 @@ module Twterm
     end
 
     def load_dict_file!
-      dict = TOML.load_file(dict_file_path, symbolize_keys: true)
-    rescue TOML::ParseError, TOML::ValueOverwriteError => e
+      dict = TomlRB.load_file(dict_file_path, symbolize_keys: true)
+    rescue TomlRB::ParseError => e
       first_line =
         case e
-        when TOML::ParseError
-          "Your key assignments dictionary file (#{dict_file_path}) could not be parsed"
-        when TOML::ValueOverwriteError
-          "Command `#{e.key}` is declared more than once"
+        when TomlRB::ParseError
+          "Your key assignments dictionary file (#{dict_file_path}) could not be parsed:\n#{e.message}"
         end
 
       warn <<-EOS
@@ -132,7 +130,7 @@ Press any key to continue
     end
 
     def save!(mappings)
-      dict = TOML.dump(mappings).gsub("\n[", "\n\n[")
+      dict = TomlRB.dump(mappings).gsub("\n[", "\n\n[")
       File.open(dict_file_path, 'w', 0644) { |f| f.write(dict) }
     end
   end
