@@ -38,6 +38,12 @@ jobs:
     steps:
       *build-steps
 
+  build-3.0:
+    docker:
+      - image: ruby:3.0
+    steps:
+      *build-steps
+
 workflows:
   version: 2
 
@@ -46,3 +52,4 @@ workflows:
       - build-2.5
       - build-2.6
       - build-2.7
+      - build-3.0

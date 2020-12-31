@@ -1,4 +1,4 @@
-require 'toml'
+require 'toml-rb'
 
 require 'twterm/abstract_persistable_configuration'
 

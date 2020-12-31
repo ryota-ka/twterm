@@ -1,4 +1,4 @@
-require 'toml'
+require 'toml-rb'
 
 module Twterm
   class PersistableConfigurationProxy
@@ -32,16 +32,16 @@ module Twterm
     # @param [String] filepath File path to load configuration from
     # @return [Twterm::PersistableConfigurationProxy] a configuration proxy
     def self.load_from_file!(klass, filepath)
-      config = TOML.load_file(filepath, symbolize_keys: true)
+      config = TomlRB.load_file(filepath, symbolize_keys: true)
       new(klass.new(config), filepath).migrate!
     rescue Errno::ENOENT
       new(klass.default, filepath)
-    rescue TOML::ParseError, TOML::ValueOverwriteError => e
+    rescue TomlRB::ParseError, TomlRB::ValueOverwriteError => e
       msg =
         case e
-        when TOML::ParseError
+        when TomlRB::ParseError
           "Your configuration file could not be parsed"
-        when TOML::ValueOverwriteError
+        when TomlRB::ValueOverwriteError
           "`#{e.key}` is declared more than once"
         end
 
@@ -75,7 +75,7 @@ Press any key to continue
     attr_reader :filepath, :instance
 
     def persist!
-      hash = TOML.dump(instance.to_h).gsub("\n[", "\n\n[")
+      hash = TomlRB.dump(instance.to_h).gsub("\n[", "\n\n[")
       File.open(filepath, 'w', 0644) { |f| f.write(hash) }
     end
   end
