@@ -1458,10 +1458,10 @@
     platforms = [];
     source = {
       remotes = ["https://rubygems.org"];
-      sha256 = "120mkd2hkwhcfj7avi1dphb0lm7wx364d1cjm9yr4fibqpvsgqi7";
+      sha256 = "02bsx12ihl78x0vdm37byp78jjw2ff6035y7rrmbd90qxjwxr43q";
       type = "gem";
     };
-    version = "3.5.6";
+    version = "4.1.0";
   };
   http = {
     dependencies = ["addressable" "http-cookie" "http-form_data" "http-parser"];
