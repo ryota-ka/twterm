@@ -1134,18 +1134,7 @@
     };
     version = "0.0.11";
   };
-  hashie = {
-    groups = ["development"];
-    platforms = [];
-    source = {
-      remotes = ["https://rubygems.org"];
-      sha256 = "120mkd2hkwhcfj7avi1dphb0lm7wx364d1cjm9yr4fibqpvsgqi7";
-      type = "gem";
-    };
-    version = "3.5.6";
-  };
-  http = {
-    dependencies = ["addressable" "http-cookie" "http-form_data" "http_parser.rb"];
+  ffi = {
     groups = ["default"];
     platforms = [{
       engine = "maglev";
@@ -1299,10 +1288,340 @@
     }];
     source = {
       remotes = ["https://rubygems.org"];
-      sha256 = "1jlm5prw437wqpfxcigh88lfap3m7g8mnmj5as7qw6dzqnvrxwmc";
+      sha256 = "15hgiy09i8ywjihyzyvjvk42ivi3kmy6dm21s5sgg9j7y3h3zkkx";
       type = "gem";
     };
-    version = "3.3.0";
+    version = "1.14.2";
+  };
+  ffi-compiler = {
+    dependencies = ["ffi" "rake"];
+    groups = ["default"];
+    platforms = [{
+      engine = "maglev";
+    } {
+      engine = "maglev";
+    } {
+      engine = "maglev";
+      version = "1.8";
+    } {
+      engine = "maglev";
+      version = "1.8";
+    } {
+      engine = "maglev";
+      version = "1.9";
+    } {
+      engine = "maglev";
+      version = "1.9";
+    } {
+      engine = "maglev";
+      version = "2.0";
+    } {
+      engine = "maglev";
+      version = "2.0";
+    } {
+      engine = "maglev";
+      version = "2.1";
+    } {
+      engine = "maglev";
+      version = "2.1";
+    } {
+      engine = "maglev";
+      version = "2.2";
+    } {
+      engine = "maglev";
+      version = "2.2";
+    } {
+      engine = "maglev";
+      version = "2.3";
+    } {
+      engine = "maglev";
+      version = "2.3";
+    } {
+      engine = "maglev";
+      version = "2.4";
+    } {
+      engine = "maglev";
+      version = "2.4";
+    } {
+      engine = "maglev";
+      version = "2.5";
+    } {
+      engine = "maglev";
+      version = "2.5";
+    } {
+      engine = "maglev";
+      version = "2.6";
+    } {
+      engine = "maglev";
+      version = "2.6";
+    } {
+      engine = "rbx";
+    } {
+      engine = "rbx";
+    } {
+      engine = "rbx";
+      version = "1.8";
+    } {
+      engine = "rbx";
+      version = "1.9";
+    } {
+      engine = "rbx";
+      version = "2.0";
+    } {
+      engine = "rbx";
+      version = "2.1";
+    } {
+      engine = "rbx";
+      version = "2.2";
+    } {
+      engine = "rbx";
+      version = "2.3";
+    } {
+      engine = "rbx";
+      version = "2.4";
+    } {
+      engine = "rbx";
+      version = "2.5";
+    } {
+      engine = "rbx";
+      version = "2.6";
+    } {
+      engine = "ruby";
+    } {
+      engine = "ruby";
+    } {
+      engine = "ruby";
+    } {
+      engine = "ruby";
+      version = "1.8";
+    } {
+      engine = "ruby";
+      version = "1.8";
+    } {
+      engine = "ruby";
+      version = "1.9";
+    } {
+      engine = "ruby";
+      version = "1.9";
+    } {
+      engine = "ruby";
+      version = "2.0";
+    } {
+      engine = "ruby";
+      version = "2.0";
+    } {
+      engine = "ruby";
+      version = "2.1";
+    } {
+      engine = "ruby";
+      version = "2.1";
+    } {
+      engine = "ruby";
+      version = "2.2";
+    } {
+      engine = "ruby";
+      version = "2.2";
+    } {
+      engine = "ruby";
+      version = "2.3";
+    } {
+      engine = "ruby";
+      version = "2.3";
+    } {
+      engine = "ruby";
+      version = "2.4";
+    } {
+      engine = "ruby";
+      version = "2.4";
+    } {
+      engine = "ruby";
+      version = "2.5";
+    } {
+      engine = "ruby";
+      version = "2.5";
+    } {
+      engine = "ruby";
+      version = "2.6";
+    } {
+      engine = "ruby";
+      version = "2.6";
+    }];
+    source = {
+      remotes = ["https://rubygems.org"];
+      sha256 = "0c2caqm9wqnbidcb8dj4wd3s902z15qmgxplwyfyqbwa0ydki7q1";
+      type = "gem";
+    };
+    version = "1.0.1";
+  };
+  hashie = {
+    groups = ["development"];
+    platforms = [];
+    source = {
+      remotes = ["https://rubygems.org"];
+      sha256 = "120mkd2hkwhcfj7avi1dphb0lm7wx364d1cjm9yr4fibqpvsgqi7";
+      type = "gem";
+    };
+    version = "3.5.6";
+  };
+  http = {
+    dependencies = ["addressable" "http-cookie" "http-form_data" "http-parser"];
+    groups = ["default"];
+    platforms = [{
+      engine = "maglev";
+    } {
+      engine = "maglev";
+    } {
+      engine = "maglev";
+      version = "1.8";
+    } {
+      engine = "maglev";
+      version = "1.8";
+    } {
+      engine = "maglev";
+      version = "1.9";
+    } {
+      engine = "maglev";
+      version = "1.9";
+    } {
+      engine = "maglev";
+      version = "2.0";
+    } {
+      engine = "maglev";
+      version = "2.0";
+    } {
+      engine = "maglev";
+      version = "2.1";
+    } {
+      engine = "maglev";
+      version = "2.1";
+    } {
+      engine = "maglev";
+      version = "2.2";
+    } {
+      engine = "maglev";
+      version = "2.2";
+    } {
+      engine = "maglev";
+      version = "2.3";
+    } {
+      engine = "maglev";
+      version = "2.3";
+    } {
+      engine = "maglev";
+      version = "2.4";
+    } {
+      engine = "maglev";
+      version = "2.4";
+    } {
+      engine = "maglev";
+      version = "2.5";
+    } {
+      engine = "maglev";
+      version = "2.5";
+    } {
+      engine = "maglev";
+      version = "2.6";
+    } {
+      engine = "maglev";
+      version = "2.6";
+    } {
+      engine = "rbx";
+    } {
+      engine = "rbx";
+    } {
+      engine = "rbx";
+      version = "1.8";
+    } {
+      engine = "rbx";
+      version = "1.9";
+    } {
+      engine = "rbx";
+      version = "2.0";
+    } {
+      engine = "rbx";
+      version = "2.1";
+    } {
+      engine = "rbx";
+      version = "2.2";
+    } {
+      engine = "rbx";
+      version = "2.3";
+    } {
+      engine = "rbx";
+      version = "2.4";
+    } {
+      engine = "rbx";
+      version = "2.5";
+    } {
+      engine = "rbx";
+      version = "2.6";
+    } {
+      engine = "ruby";
+    } {
+      engine = "ruby";
+    } {
+      engine = "ruby";
+    } {
+      engine = "ruby";
+      version = "1.8";
+    } {
+      engine = "ruby";
+      version = "1.8";
+    } {
+      engine = "ruby";
+      version = "1.9";
+    } {
+      engine = "ruby";
+      version = "1.9";
+    } {
+      engine = "ruby";
+      version = "2.0";
+    } {
+      engine = "ruby";
+      version = "2.0";
+    } {
+      engine = "ruby";
+      version = "2.1";
+    } {
+      engine = "ruby";
+      version = "2.1";
+    } {
+      engine = "ruby";
+      version = "2.2";
+    } {
+      engine = "ruby";
+      version = "2.2";
+    } {
+      engine = "ruby";
+      version = "2.3";
+    } {
+      engine = "ruby";
+      version = "2.3";
+    } {
+      engine = "ruby";
+      version = "2.4";
+    } {
+      engine = "ruby";
+      version = "2.4";
+    } {
+      engine = "ruby";
+      version = "2.5";
+    } {
+      engine = "ruby";
+      version = "2.5";
+    } {
+      engine = "ruby";
+      version = "2.6";
+    } {
+      engine = "ruby";
+      version = "2.6";
+    }];
+    source = {
+      remotes = ["https://rubygems.org"];
+      sha256 = "0z8vmvnkrllkpzsxi94284di9r63g9v561a16an35izwak8g245y";
+      type = "gem";
+    };
+    version = "4.4.1";
   };
   http-cookie = {
     dependencies = ["domain_name"];
@@ -1622,6 +1941,166 @@
       type = "gem";
     };
     version = "2.3.0";
+  };
+  http-parser = {
+    dependencies = ["ffi-compiler"];
+    groups = ["default"];
+    platforms = [{
+      engine = "maglev";
+    } {
+      engine = "maglev";
+    } {
+      engine = "maglev";
+      version = "1.8";
+    } {
+      engine = "maglev";
+      version = "1.8";
+    } {
+      engine = "maglev";
+      version = "1.9";
+    } {
+      engine = "maglev";
+      version = "1.9";
+    } {
+      engine = "maglev";
+      version = "2.0";
+    } {
+      engine = "maglev";
+      version = "2.0";
+    } {
+      engine = "maglev";
+      version = "2.1";
+    } {
+      engine = "maglev";
+      version = "2.1";
+    } {
+      engine = "maglev";
+      version = "2.2";
+    } {
+      engine = "maglev";
+      version = "2.2";
+    } {
+      engine = "maglev";
+      version = "2.3";
+    } {
+      engine = "maglev";
+      version = "2.3";
+    } {
+      engine = "maglev";
+      version = "2.4";
+    } {
+      engine = "maglev";
+      version = "2.4";
+    } {
+      engine = "maglev";
+      version = "2.5";
+    } {
+      engine = "maglev";
+      version = "2.5";
+    } {
+      engine = "maglev";
+      version = "2.6";
+    } {
+      engine = "maglev";
+      version = "2.6";
+    } {
+      engine = "rbx";
+    } {
+      engine = "rbx";
+    } {
+      engine = "rbx";
+      version = "1.8";
+    } {
+      engine = "rbx";
+      version = "1.9";
+    } {
+      engine = "rbx";
+      version = "2.0";
+    } {
+      engine = "rbx";
+      version = "2.1";
+    } {
+      engine = "rbx";
+      version = "2.2";
+    } {
+      engine = "rbx";
+      version = "2.3";
+    } {
+      engine = "rbx";
+      version = "2.4";
+    } {
+      engine = "rbx";
+      version = "2.5";
+    } {
+      engine = "rbx";
+      version = "2.6";
+    } {
+      engine = "ruby";
+    } {
+      engine = "ruby";
+    } {
+      engine = "ruby";
+    } {
+      engine = "ruby";
+      version = "1.8";
+    } {
+      engine = "ruby";
+      version = "1.8";
+    } {
+      engine = "ruby";
+      version = "1.9";
+    } {
+      engine = "ruby";
+      version = "1.9";
+    } {
+      engine = "ruby";
+      version = "2.0";
+    } {
+      engine = "ruby";
+      version = "2.0";
+    } {
+      engine = "ruby";
+      version = "2.1";
+    } {
+      engine = "ruby";
+      version = "2.1";
+    } {
+      engine = "ruby";
+      version = "2.2";
+    } {
+      engine = "ruby";
+      version = "2.2";
+    } {
+      engine = "ruby";
+      version = "2.3";
+    } {
+      engine = "ruby";
+      version = "2.3";
+    } {
+      engine = "ruby";
+      version = "2.4";
+    } {
+      engine = "ruby";
+      version = "2.4";
+    } {
+      engine = "ruby";
+      version = "2.5";
+    } {
+      engine = "ruby";
+      version = "2.5";
+    } {
+      engine = "ruby";
+      version = "2.6";
+    } {
+      engine = "ruby";
+      version = "2.6";
+    }];
+    source = {
+      remotes = ["https://rubygems.org"];
+      sha256 = "0kcqszqq8ml26pa6qjzz1xx6h6b04wjhh81c4cla7jk6fvbrwrs6";
+      type = "gem";
+    };
+    version = "1.2.2";
   };
   "http_parser.rb" = {
     groups = ["default"];
@@ -3816,10 +4295,10 @@
     }];
     source = {
       remotes = ["https://rubygems.org"];
-      sha256 = "0fjyz3viabz3xs5d9aad18zgdbhfwm51jsnzigc8kxk77p1x58n5";
+      sha256 = "13dmkjgsnym1avym9f7y2i2h3mlk8crqvc87drrzr4f0sf9l8g2y";
       type = "gem";
     };
-    version = "6.2.0";
+    version = "7.0.0";
   };
   twitter-text = {
     dependencies = ["idn-ruby" "unf"];
