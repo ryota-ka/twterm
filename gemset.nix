@@ -4455,10 +4455,10 @@
     }];
     source = {
       remotes = ["https://rubygems.org"];
-      sha256 = "1igv713wn6wqhq4nlr81r93v7wmgjqny24jwp3ai5i4ipk2f2k6a";
+      sha256 = "1dnmp0bj3l01nbb52zby2c7hrazcdwfg846knkrjdfl0yfmv793z";
       type = "gem";
     };
-    version = "2.1.0";
+    version = "3.1.0";
   };
   twterm = {
     dependencies = ["concurrent-ruby" "curses" "launchy" "oauth" "terminal-notifier" "toml-rb" "twitter" "twitter-text"];

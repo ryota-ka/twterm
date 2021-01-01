@@ -25,7 +25,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'terminal-notifier', '~> 2.0.0'
   spec.add_dependency 'toml-rb', '~> 2.0.1'
   spec.add_dependency 'twitter', '~> 7.0.0'
-  spec.add_dependency 'twitter-text', '~> 2.1.0'
+  spec.add_dependency 'twitter-text', '~> 3.1.0'
 
   spec.add_development_dependency 'bundler', '~> 2.1.4'
   spec.add_development_dependency 'hashie', '~> 3.5.6'
