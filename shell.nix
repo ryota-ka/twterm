@@ -21,6 +21,7 @@ mkShell rec {
     bundix
     bundler
     gems
+    libffi
     libidn
     mri
     ncurses
