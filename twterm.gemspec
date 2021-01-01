@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'curses', '~> 1.4.0'
   spec.add_dependency 'concurrent-ruby', '~> 1.1.7'
-  spec.add_dependency 'launchy', '~> 2.4.3'
+  spec.add_dependency 'launchy', '~> 2.5.0'
   spec.add_dependency 'oauth', '~> 0.5.1'
   spec.add_dependency 'terminal-notifier', '~> 2.0.0'
   spec.add_dependency 'toml-rb', '~> 2.0.1'
