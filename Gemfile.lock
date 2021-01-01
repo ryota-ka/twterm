@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     twterm (2.8.0)
-      concurrent-ruby (~> 1.0.5)
+      concurrent-ruby (~> 1.1.7)
       curses (~> 1.4.0)
       launchy (~> 2.4.3)
       oauth (~> 0.5.1)
@@ -19,7 +19,7 @@ GEM
     ast (2.3.0)
     buftok (0.2.0)
     citrus (3.0.2)
-    concurrent-ruby (1.0.5)
+    concurrent-ruby (1.1.7)
     curses (1.4.0)
     diff-lcs (1.4.4)
     domain_name (0.5.20190701)
