@@ -29,7 +29,7 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency 'bundler', '~> 2.1.4'
   spec.add_development_dependency 'hashie', '~> 4.1.0'
-  spec.add_development_dependency 'rake', '~> 12.0'
+  spec.add_development_dependency 'rake', '~> 13.0.3'
   spec.add_development_dependency 'rspec', '~> 3.10.0'
   spec.add_development_dependency 'rubocop', '~> 1.7.0'
   spec.add_development_dependency 'yard', '~> 0.9.12'
