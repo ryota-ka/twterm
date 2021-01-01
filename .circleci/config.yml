@@ -13,7 +13,7 @@ aliases:
     - run:
         name: Run Rubocop
         command: |
-          bundle exec rubocop --parallel --fail-level warning
+          bundle exec rubocop --parallel --fail-level=E
     - run:
         name: Run RSpec
         command: |

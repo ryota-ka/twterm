@@ -9,6 +9,8 @@ let
     then ruby_2_6
     else if ruby == 2.7
     then ruby_2_7
+    else if ruby == 3.0
+    then ruby_3_0
     else abort "Unsupported Ruby version";
   gems = bundlerEnv {
     pname = "twterm";
@@ -21,6 +23,7 @@ mkShell rec {
     bundix
     bundler
     gems
+    libffi
     libidn
     mri
     ncurses

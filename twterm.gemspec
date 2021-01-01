@@ -18,19 +18,19 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
   spec.required_ruby_version = spec.required_ruby_version = Gem::Requirement.new('>= 2.5')
 
-  spec.add_dependency 'curses', '~> 1.3.2'
-  spec.add_dependency 'concurrent-ruby', '~> 1.0.5'
-  spec.add_dependency 'launchy', '~> 2.4.3'
+  spec.add_dependency 'curses', '~> 1.4.0'
+  spec.add_dependency 'concurrent-ruby', '~> 1.1.7'
+  spec.add_dependency 'launchy', '~> 2.5.0'
   spec.add_dependency 'oauth', '~> 0.5.1'
   spec.add_dependency 'terminal-notifier', '~> 2.0.0'
   spec.add_dependency 'toml-rb', '~> 2.0.1'
-  spec.add_dependency 'twitter', '~> 6.2.0'
-  spec.add_dependency 'twitter-text', '~> 2.1.0'
+  spec.add_dependency 'twitter', '~> 7.0.0'
+  spec.add_dependency 'twitter-text', '~> 3.1.0'
 
   spec.add_development_dependency 'bundler', '~> 2.1.4'
-  spec.add_development_dependency 'hashie', '~> 3.5.6'
-  spec.add_development_dependency 'rake', '~> 12.0'
-  spec.add_development_dependency 'rspec', '~> 3.7.0'
-  spec.add_development_dependency 'rubocop', '~> 0.51.0'
-  spec.add_development_dependency 'yard', '~> 0.9.12'
+  spec.add_development_dependency 'hashie', '~> 4.1.0'
+  spec.add_development_dependency 'rake', '~> 13.0.3'
+  spec.add_development_dependency 'rspec', '~> 3.10.0'
+  spec.add_development_dependency 'rubocop', '~> 1.7.0'
+  spec.add_development_dependency 'yard', '~> 0.9.26'
 end
