@@ -27,7 +27,7 @@ module Twterm
           return if @status_ids.include?(status.id)
 
           @status_ids.push(status.id)
-          status.split(window.maxx - 4)
+          status.split(window.maxx - 2)
           scroller.item_appended!
           render
         end
@@ -46,7 +46,7 @@ module Twterm
 
         def drawable_item_count
           statuses.drop(scroller.offset).lazy
-          .map { |s| s.split(window.maxx - 4).count + 2 }
+          .map { |s| s.split(window.maxx - 2).count + 2 }
           .scan(0, :+)
           .each_cons(2)
           .select { |_, l| l < window.maxy }
@@ -113,7 +113,7 @@ module Twterm
           return if @status_ids.include?(status.id)
 
           @status_ids.unshift(status.id)
-          status.split(window.maxx - 4)
+          status.split(window.maxx - 2)
           scroller.item_prepended!
           render
         end
@@ -235,7 +235,7 @@ module Twterm
             ].compact.intersperse(Image.whitespace).reduce(Image.empty, :-)
 
             body = original
-              .split(window.maxx - 4)
+              .split(window.maxx - 2)
               .map(&Image.method(:string))
               .reduce(Image.empty, :|)
 
