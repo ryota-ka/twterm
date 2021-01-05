@@ -54,7 +54,7 @@ module Twterm
       def initialize(app, client)
         @app, @client = app, client
 
-        @window = stdscr.subwin(stdscr.maxy - 5, stdscr.maxx, 3, 0)
+        @window = stdscr.subwin(stdscr.maxy - 3, stdscr.maxx, 2, 0)
 
         subscribe(Event::Screen::Resize, :resize)
       end
@@ -72,7 +72,7 @@ module Twterm
               end
             end
 
-            view.at(1, 2).render
+            view.render
           end if refreshable?
         end
       end
@@ -107,8 +107,8 @@ module Twterm
       end
 
       def resize(_event)
-        window.resize(stdscr.maxy - 5, stdscr.maxx)
-        window.move(3, 0)
+        window.resize(stdscr.maxy - 3, stdscr.maxx)
+        window.move(2, 0)
       end
 
       def view

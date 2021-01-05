@@ -9,7 +9,7 @@ module Twterm
     include Subscriber
 
     def initialize
-      @window = stdscr.subwin(1, stdscr.maxx, stdscr.maxy - 2, 0)
+      @window = stdscr.subwin(1, stdscr.maxx, stdscr.maxy - 1, 0)
       @queue = Queue.new
 
       subscribe(Event::Message::AbstractMessage) do |e|
@@ -75,7 +75,7 @@ module Twterm
 
     def resize(_event)
       @window.resize(1, stdscr.maxx)
-      @window.move(stdscr.maxy - 2, 0)
+      @window.move(stdscr.maxy - 1, 0)
     end
   end
 end

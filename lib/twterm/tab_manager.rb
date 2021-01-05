@@ -76,7 +76,7 @@ module Twterm
       @index = 0
       @history = []
 
-      @window = stdscr.subwin(3, stdscr.maxx, 0, 0)
+      @window = stdscr.subwin(1, stdscr.maxx, 0, 0)
 
       subscribe(Event::Screen::Resize, :resize)
     end
@@ -123,7 +123,7 @@ module Twterm
         .map { |t, r| t.equal?(current_tab) ? !r._ : r }
         .reduce(pipe) { |acc, x| acc - wss - x - wss - pipe }
 
-      View.new(@window, image).at(1, 1)
+      View.new(@window, image)
     end
 
     def respond_to_key(key)
@@ -196,7 +196,7 @@ module Twterm
     attr_reader :app, :client
 
     def resize(_event)
-      @window.resize(3, stdscr.maxx)
+      @window.resize(1, stdscr.maxx)
       @window.move(0, 0)
     end
   end
