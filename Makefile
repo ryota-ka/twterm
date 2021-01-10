@@ -1,5 +1,8 @@
 all:
 
+docs:
+	nix-shell --run 'bundle exec yard'
+
 Gemfile.lock: Gemfile twterm.gemspec
 	nix-shell --run 'bundle lock'
 
