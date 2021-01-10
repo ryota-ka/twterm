@@ -1,18 +1,17 @@
 module Twterm
   class ColorManager
     include Singleton
-    include Curses
 
     COLORS = [:black, :white, :red, :green, :blue, :yellow, :cyan, :magenta, :transparent]
     CURSES_COLORS = {
-      black: COLOR_BLACK,
-      white: COLOR_WHITE,
-      red: COLOR_RED,
-      green: COLOR_GREEN,
-      blue: COLOR_BLUE,
-      yellow: COLOR_YELLOW,
-      cyan: COLOR_CYAN,
-      magenta: COLOR_MAGENTA,
+      black: Curses::COLOR_BLACK,
+      white: Curses::COLOR_WHITE,
+      red: Curses::COLOR_RED,
+      green: Curses::COLOR_GREEN,
+      blue: Curses::COLOR_BLUE,
+      yellow: Curses::COLOR_YELLOW,
+      cyan: Curses::COLOR_CYAN,
+      magenta: Curses::COLOR_MAGENTA,
       transparent: -1
     }
 

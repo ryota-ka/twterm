@@ -6,18 +6,17 @@ require 'twterm/subscriber'
 module Twterm
   class Screen
     include Subscriber
-    include Curses
 
     def initialize(app, client)
       @app, @client = app, client
 
-      @screen = init_screen
-      noecho
-      raw
-      curs_set(0)
-      stdscr.keypad(true)
-      start_color
-      use_default_colors
+      @screen = Curses.init_screen
+      Curses.noecho
+      Curses.raw
+      Curses.curs_set(0)
+      Curses.stdscr.keypad(true)
+      Curses.start_color
+      Curses.use_default_colors
 
       subscribe(Event::Screen::Refresh) { refresh }
       subscribe(Event::Screen::Resize, :resize)
@@ -60,10 +59,10 @@ module Twterm
     end
 
     def resize(event)
-      return if closed?
+      return if Curses.closed?
 
       lines, cols = event.lines, event.cols
-      resizeterm(lines, cols)
+      Curses.resizeterm(lines, cols)
       @screen.resize(lines, cols)
 
       refresh
@@ -72,7 +71,7 @@ module Twterm
     def scan
       app.reset_interruption_handler
 
-      key = getch
+      key = Curses.getch
 
       return if app.tab_manager.current_tab.respond_to_key(key)
       return if app.tab_manager.respond_to_key(key)

@@ -16,7 +16,6 @@ module Twterm
     end
 
     include Readline
-    include Curses
     include Publisher
 
     def initialize(app, client)
@@ -104,7 +103,7 @@ module Twterm
     end
 
     def ask_and_post(leading_text, prompt, postprocessor, options = {})
-      close_screen
+      Curses.close_screen
       puts "\e[H\e[2J#{leading_text}\n\n"
       ask(prompt, postprocessor) { |text| client.post(postprocessor.call(text), options) }
     end
@@ -120,7 +119,7 @@ module Twterm
     end
 
     def reset
-      reset_prog_mode
+      Curses.reset_prog_mode
       sleep 0.1
       publish(Event::Screen::Refresh.new)
     end
