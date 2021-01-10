@@ -18,6 +18,13 @@ aliases:
         name: Run RSpec
         command: |
           bundle exec rspec
+    - run:
+        name: Generate docs
+        command: |
+          bundle exec yard
+    - store_artifacts:
+        path: doc
+        dist: /doc
 
 jobs:
   build-2.5:
