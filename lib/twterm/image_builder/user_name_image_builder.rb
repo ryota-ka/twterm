@@ -1,6 +1,7 @@
 require 'twterm/image'
 
 module Twterm
+  # @todo Rename to `Presenter`
   module ImageBuilder
     class UserNameImageBuilder
       COLORS = [:red, :blue, :green, :cyan, :yellow, :magenta].freeze

@@ -1,4 +1,5 @@
 module Twterm
+  # A Twitter user
   class User
     attr_reader :description, :favorites_count, :followers_count,
                 :friends_count, :id, :location, :name, :protected, :profile_image,
