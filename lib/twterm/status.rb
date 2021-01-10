@@ -12,6 +12,7 @@ class Twitter::Tweet
 end
 
 module Twterm
+  # A tweet
   class Status
     attr_reader :created_at, :favorite_count, :favorited, :hashtags, :id,
       :in_reply_to_status_id, :media, :retweet_count, :retweeted,
@@ -23,11 +24,13 @@ module Twterm
       other.is_a?(self.class) && id == other.id
     end
 
+    # @todo This should be done in a presenter
     def date
       format = Time.now - @created_at < 86_400 ? '%H:%M:%S' : '%Y-%m-%d %H:%M:%S'
       @created_at.strftime(format)
     end
 
+    # @todo This can be marked as private
     def expand_url!
       sub = -> (x) { @text.sub!(x.url, x.display_url) }
       (@media + @urls).each(&sub)
@@ -69,10 +72,16 @@ module Twterm
       expand_url!
     end
 
+    # Is this status a quote?
+    #
+    # @return [Boolean]
     def quote?
       !quoted_status_id.nil?
     end
 
+    # Is this status a retweet?
+    #
+    # @return [Boolean]
     def retweet?
       !retweeted_status_id.nil?
     end
@@ -93,6 +102,7 @@ module Twterm
       @retweeted = false
     end
 
+    # @return [self]
     def update!(tweet, is_retweeted_status = false)
       @retweet_count = tweet.retweet_count
       @favorite_count = tweet.favorite_count

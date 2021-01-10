@@ -10,17 +10,29 @@ module Twterm
       include Curses
       include Subscriber
 
-      attr_reader :window, :title
+      # @return [String]
+      attr_reader :title
 
+      # @return [Curses::Window]
+      # @todo This can be (and should be) private
+      attr_reader :window
+
+      # @param other [Twterm::Tab::AbstractTab]
+      #
+      # @return [Boolean]
       def ==(other)
         self.equal?(other)
       end
 
+      # @return [void]
       def close
         unsubscribe
         window.close
       end
 
+      # A utility method to find a status by its ID
+      #
+      # @return [Concurrent::Promise<Twterm::Status>]
       def find_or_fetch_status(id)
         status = app.status_repository.find(id)
 
@@ -31,6 +43,9 @@ module Twterm
         end
       end
 
+      # A utility method to find a list by their ID
+      #
+      # @return [Concurrent::Promise<Twterm::List>]
       def find_or_fetch_list(id)
         list = app.list_repository.find(id)
 
@@ -41,6 +56,9 @@ module Twterm
         end
       end
 
+      # A utility method to find a user by their id
+      #
+      # @return [Concurrent::Promise<Twterm::User>]
       def find_or_fetch_user(id)
         user = app.user_repository.find(id)
 
@@ -88,8 +106,13 @@ module Twterm
 
       private
 
-      attr_reader :app, :client
+      # @return [Twterm::App]
+      attr_reader :app
 
+      # @return [Twterm::Client]
+      attr_reader :client
+
+      # @return [Twterm::Image]
       def image
         Image.string('view method is not implemented')
       end
@@ -98,6 +121,7 @@ module Twterm
         @refresh_mutex ||= Mutex.new
       end
 
+      # @return [Boolean]
       def refreshable?
         !(
           refresh_mutex.locked? ||
@@ -106,11 +130,13 @@ module Twterm
         )
       end
 
+      # @return [void]
       def resize(_event)
         window.resize(stdscr.maxy - 3, stdscr.maxx)
         window.move(2, 0)
       end
 
+      # @return [Twterm::View]
       def view
         View.new(window, image)
       end
