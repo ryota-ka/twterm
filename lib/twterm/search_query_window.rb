@@ -3,7 +3,6 @@ require 'twterm/subscriber'
 
 module Twterm
   class SearchQueryWindow
-    include Curses
     include Singleton
     include Subscriber
 
@@ -12,7 +11,7 @@ module Twterm
     attr_reader :last_query
 
     def initialize
-      @window = stdscr.subwin(1, stdscr.maxx, stdscr.maxy - 1, 0)
+      @window = Curses.stdscr.subwin(1, Curses.stdscr.maxx, Curses.stdscr.maxy - 1, 0)
       @searching_down = true
       @str = ''
       @last_query = ''
@@ -29,7 +28,7 @@ module Twterm
       chars = []
 
       loop do
-        char = getch
+        char = Curses.getch
 
         if char.nil?
           case chars.first
@@ -117,8 +116,8 @@ module Twterm
     attr_reader :window
 
     def resize(_event)
-      window.resize(1, stdscr.maxx)
-      window.move(stdscr.maxy - 1, 0)
+      window.resize(1, Curses.stdscr.maxx)
+      window.move(Curses.stdscr.maxy - 1, 0)
     end
 
     def render(str)

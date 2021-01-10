@@ -5,11 +5,10 @@ require 'twterm/event/screen/resize'
 module Twterm
   class MessageWindow
     include Singleton
-    include Curses
     include Subscriber
 
     def initialize
-      @window = stdscr.subwin(1, stdscr.maxx, stdscr.maxy - 1, 0)
+      @window = Curses.stdscr.subwin(1, Curses.stdscr.maxx, Curses.stdscr.maxy - 1, 0)
       @queue = Queue.new
 
       subscribe(Event::Message::AbstractMessage) do |e|
@@ -34,7 +33,7 @@ module Twterm
 
     def show(message = nil)
       loop do
-        break unless closed?
+        break unless Curses.closed?
         sleep 0.5
       end
 
@@ -74,8 +73,8 @@ module Twterm
     end
 
     def resize(_event)
-      @window.resize(1, stdscr.maxx)
-      @window.move(stdscr.maxy - 1, 0)
+      @window.resize(1, Curses.stdscr.maxx)
+      @window.move(Curses.stdscr.maxy - 1, 0)
     end
   end
 end
