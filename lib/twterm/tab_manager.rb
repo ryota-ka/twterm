@@ -69,6 +69,20 @@ module Twterm
       end
     end
 
+    # Returns if the given coordinate is enclosed by the window
+    #
+    # @param x [Integer]
+    # @param y [Integer]
+    # @return [Boolean]
+    def enclose?(x, y)
+      left = @window.begx
+      top = @window.begy
+      right = left + @window.maxx
+      bottom = top + @window.maxy
+
+      left <= x && x < right && top <= y && y < bottom
+    end
+
     def initialize(app, client)
       @app, @client = app, client
 
@@ -79,6 +93,21 @@ module Twterm
       @window = stdscr.subwin(1, stdscr.maxx, 0, 0)
 
       subscribe(Event::Screen::Resize, :resize)
+    end
+
+    # Open the clicked tab
+    #
+    # @param x [Integer]
+    # @param _y [Integer]
+    #
+    # @return [nil]
+    def handle_left_click(x, _y)
+      n = find_tab_index_on_x(x)
+      return if n.nil?
+
+      show_nth_tab(n)
+
+      nil
     end
 
     def open_my_profile
@@ -194,6 +223,26 @@ module Twterm
     private
 
     attr_reader :app, :client
+
+    # @param x [Integer]
+    #
+    # @return [Integer, nil]
+    def find_tab_index_on_x(x)
+      pos = 0
+
+      @tabs.each.with_index do |tab, index|
+        title = tab.title
+        len = title.length
+        left = pos + 1
+        right = left + len + 4 # each tab has 2 whitespaces on the both side
+
+        return index if left <= x && x < right
+
+        pos = right
+      end
+
+      nil
+    end
 
     def resize(_event)
       @window.resize(1, stdscr.maxx)

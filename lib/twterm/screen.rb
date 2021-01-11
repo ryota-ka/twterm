@@ -17,6 +17,7 @@ module Twterm
       Curses.stdscr.keypad(true)
       Curses.start_color
       Curses.use_default_colors
+      Curses.mousemask(Curses::BUTTON1_CLICKED)
 
       subscribe(Event::Screen::Refresh) { refresh }
       subscribe(Event::Screen::Resize, :resize)
@@ -52,6 +53,24 @@ module Twterm
 
     attr_reader :app, :client
 
+    # @param [Integer, String] key
+    def handle_keyboard_event(key)
+      return if app.tab_manager.current_tab.respond_to_key(key)
+      return if app.tab_manager.respond_to_key(key)
+      respond_to_key(key)
+    end
+
+    # @param [Curses::MouseEvent] e
+    def handle_mouse_event(e)
+      x = e.x
+      y = e.y
+
+      case e.bstate
+      when Curses::BUTTON1_CLICKED
+        return app.tab_manager.handle_left_click(x, y) if app.tab_manager.enclose?(x, y)
+      end
+    end
+
     def refresh
       app.tab_manager.refresh_window
       app.tab_manager.current_tab.render
@@ -73,9 +92,13 @@ module Twterm
 
       key = Curses.getch
 
-      return if app.tab_manager.current_tab.respond_to_key(key)
-      return if app.tab_manager.respond_to_key(key)
-      respond_to_key(key)
+      if key == Curses::Key::MOUSE
+        e = Curses.getmouse
+
+        handle_mouse_event(e) unless e.nil?
+      else
+        handle_keyboard_event(key)
+      end
     end
   end
 end
