@@ -6,7 +6,6 @@ require 'twterm/view'
 
 module Twterm
   class TabManager
-    include Curses
     include Publisher
     include Subscriber
     include Utils
@@ -90,7 +89,7 @@ module Twterm
       @index = 0
       @history = []
 
-      @window = stdscr.subwin(1, stdscr.maxx, 0, 0)
+      @window = Curses.stdscr.subwin(1, Curses.stdscr.maxx, 0, 0)
 
       subscribe(Event::Screen::Resize, :resize)
     end
@@ -245,7 +244,7 @@ module Twterm
     end
 
     def resize(_event)
-      @window.resize(1, stdscr.maxx)
+      @window.resize(1, Curses.stdscr.maxx)
       @window.move(0, 0)
     end
   end
