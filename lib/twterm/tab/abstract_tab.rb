@@ -7,7 +7,6 @@ require 'twterm/subscriber'
 module Twterm
   module Tab
     class AbstractTab
-      include Curses
       include Subscriber
 
       # @return [String]
@@ -72,7 +71,7 @@ module Twterm
       def initialize(app, client)
         @app, @client = app, client
 
-        @window = stdscr.subwin(stdscr.maxy - 3, stdscr.maxx, 2, 0)
+        @window = Curses.stdscr.subwin(Curses.stdscr.maxy - 3, Curses.stdscr.maxx, 2, 0)
 
         subscribe(Event::Screen::Resize, :resize)
       end
@@ -125,14 +124,14 @@ module Twterm
       def refreshable?
         !(
           refresh_mutex.locked? ||
-            closed? ||
+            Curses.closed? ||
             app.tab_manager.current_tab.object_id != object_id
         )
       end
 
       # @return [void]
       def resize(_event)
-        window.resize(stdscr.maxy - 3, stdscr.maxx)
+        window.resize(Curses.stdscr.maxy - 3, Curses.stdscr.maxx)
         window.move(2, 0)
       end
 

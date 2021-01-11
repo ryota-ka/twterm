@@ -16,7 +16,7 @@ module Twterm
 
         def invoke_input
           resetter = proc do
-            reset_prog_mode
+            Curses.reset_prog_mode
             sleep 0.1
             publish(Event::Screen::Refresh.new)
           end
@@ -24,7 +24,7 @@ module Twterm
           app.completion_manager.set_screen_name_mode!
 
           input_thread = Thread.new do
-            close_screen
+            Curses.close_screen
             puts "\nSearch user"
             screen_name = (readline('> @', true) || '').strip
             resetter.call
