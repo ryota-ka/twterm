@@ -17,7 +17,7 @@ module Twterm
       Curses.stdscr.keypad(true)
       Curses.start_color
       Curses.use_default_colors
-      Curses.mousemask(Curses::BUTTON1_CLICKED)
+      Curses.mousemask(Curses::BUTTON1_CLICKED | 65536 | 2097152)
 
       subscribe(Event::Screen::Refresh) { refresh }
       subscribe(Event::Screen::Resize, :resize)
@@ -68,6 +68,24 @@ module Twterm
       case e.bstate
       when Curses::BUTTON1_CLICKED
         return app.tab_manager.handle_left_click(x, y) if app.tab_manager.enclose?(x, y)
+      when 65536
+        scroll_direction = app.preferences[:control, :scroll_direction]
+
+        case scroll_direction
+        when 'natural'
+          return app.tab_manager.handle_scroll_up(x, y) if app.tab_manager.enclose?(x, y)
+        when 'traditional'
+          return app.tab_manager.handle_scroll_down(x, y) if app.tab_manager.enclose?(x, y)
+        end
+      when 2097152
+        scroll_direction = app.preferences[:control, :scroll_direction]
+
+        case scroll_direction
+        when 'natural'
+          return app.tab_manager.handle_scroll_down(x, y) if app.tab_manager.enclose?(x, y)
+        when 'traditional'
+          return app.tab_manager.handle_scroll_up(x, y) if app.tab_manager.enclose?(x, y)
+        end
       end
     end
 
