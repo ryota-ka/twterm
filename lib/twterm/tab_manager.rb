@@ -109,6 +109,30 @@ module Twterm
       nil
     end
 
+    # Open next tab
+    #
+    # @param _x [Integer]
+    # @param _y [Integer]
+    #
+    # @return [nil]
+    def handle_scroll_down(_x, _y)
+      show_next
+
+      nil
+    end
+
+    # Open previous tab
+    #
+    # @param _x [Integer]
+    # @param _y [Integer]
+    #
+    # @return [nil]
+    def handle_scroll_up(_x, _y)
+      show_previous
+
+      nil
+    end
+
     def open_my_profile
       current_user_id = client.user_id
       tab = Tab::UserTab.new(app, client, current_user_id)
