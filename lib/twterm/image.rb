@@ -106,10 +106,26 @@ class Twterm::Image
     StringImage.new(str)
   end
 
+  # @param items [Array<Symbol>]
+  # @param selected [Symbol]
+  #
+  # @return [Image]
+  def self.toggle_switch(items, selected)
+    items
+      .map do |item|
+        on = item == selected
+        string(item.to_s)
+          .bold(on)
+          .underlined(on)
+      end
+      .intersperse(string(' | '))
+      .reduce(empty) { |acc, x| acc - x }
+      .brackets
+  end
+
   def underlined(on = true)
     on ? Underlined.new(self) : self
   end
-
 
   def self.whitespace
     string(' ')
