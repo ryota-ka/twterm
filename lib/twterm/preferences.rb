@@ -27,6 +27,9 @@ module Twterm
     # @return [Twterm::Preferences] an instance having the default value
     def self.default
       new({
+        control: {
+          scroll_direction: 'traditional',
+        },
         photo_viewer_backend: {
           browser: true,
           imgcat: false,
@@ -48,8 +51,12 @@ module Twterm
     # @return [Hash]
     def self.structure
       bool = -> x { x == true || x == false }
+      scroll_direction = -> x { x == 'natural' || x == 'traditional' }
 
       {
+        control: {
+          scroll_direction: scroll_direction
+        },
         photo_viewer_backend: {
           browser: bool,
           imgcat: bool,

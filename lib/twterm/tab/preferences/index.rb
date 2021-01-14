@@ -1,4 +1,5 @@
 require 'twterm/image'
+require 'twterm/tab/preferences/control'
 require 'twterm/tab/preferences/notification_backend'
 require 'twterm/tab/preferences/photo_viewer_backend'
 require 'twterm/preferences'
@@ -26,6 +27,8 @@ module Twterm
             cursor = Image.cursor(1, curr)
             desc =
               case item
+              when :control
+                'Control preferences'
               when :notification_backend
                 'Notification backend preferences'
               when :photo_viewer_backend
@@ -40,6 +43,7 @@ module Twterm
 
         def items
           [
+            :control,
             :notification_backend,
             :photo_viewer_backend,
           ]
@@ -67,6 +71,8 @@ module Twterm
         def open
           tab =
             case scroller.current_item
+            when :control
+              Tab::Preferences::Control.new(app, client)
             when :notification_backend
               Tab::Preferences::NotificationBackend.new(app, client)
             when :photo_viewer_backend
