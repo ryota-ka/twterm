@@ -9,7 +9,7 @@ A full-featured TUI Twitter client
 ### With [Nix](https://nixos.org/) (Recommended)
 
 ```
-$ nix-env --install --file https://github.com/ryota-ka/twterm/archive/master.tar.gz
+$ nix-env --install --file https://github.com/ryota-ka/twterm/archive/v2.9.0.tar.gz
 ```
 
 ### With [RubyGems](https://rubygems.org/)
