@@ -16,7 +16,7 @@ $ nix-env --install --file https://github.com/ryota-ka/twterm/archive/master.tar
 
 ####  Requirements
 
-- Ruby (>= 2.5, compiled with ncurses and Readline)
+- Ruby (>= 2.5, < 3, compiled with ncurses and Readline)
 - ncurses
 - Readline
 - [GNU Libidn](https://www.gnu.org/software/libidn/)
