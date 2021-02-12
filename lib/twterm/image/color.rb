@@ -1,18 +1,12 @@
+require 'twterm/image/attr'
+
 module Twterm
   class Image
-    class Color < Twterm::Image
+    class Color < Twterm::Image::Attr
       def initialize(image, fg, bg = :transparent)
-        @image, @fg, @bg = image, fg, bg
-      end
+        super(image)
 
-      def height
-        image.height
-      end
-
-      def render(window)
-        window.attron(Curses.color_pair(color_pair_index))
-        image.at(line, column).render(window)
-        window.attroff(Curses.color_pair(color_pair_index))
+        @fg, @bg = fg, bg
       end
 
       def to_s
@@ -29,13 +23,13 @@ module Twterm
         @bg == :transparent ? str : "\e[#{bg_colors[@bg]}m#{str}"
       end
 
-      def width
-        image.width
+      protected
+
+      def attr
+        Curses.color_pair(color_pair_index)
       end
 
       private
-
-      attr_reader :image
 
       def color_pair_index
         Twterm::ColorManager.instance.get_color_pair_index(@fg, @bg)
