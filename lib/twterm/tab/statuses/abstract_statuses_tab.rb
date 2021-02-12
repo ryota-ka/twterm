@@ -226,10 +226,10 @@ module Twterm
 
             header = [
               ImageBuilder::UserNameImageBuilder.new(user).build,
-              Image.string(original.date.to_s).brackets,
+              Image.string(original.date.to_s).brackets.dim,
               (Image.whitespace.color(:black, :red) if original.favorited?),
               (Image.whitespace.color(:black, :green) if original.retweeted?),
-              ((Image.string('retweeted by ') - !Image.string("@#{retweeted_by.screen_name}")).parens if status.retweet?),
+              ((Image.string('retweeted by ') - !Image.string("@#{retweeted_by.screen_name}")).parens.dim if status.retweet?),
               ((Image.number(original.favorite_count) - Image.plural(original.favorite_count, 'like')).color(:red) if original.favorite_count.positive?),
               ((Image.number(original.retweet_count) - Image.plural(original.retweet_count, 'RT')).color(:green) if original.retweet_count.positive?),
             ].compact.intersperse(Image.whitespace).reduce(Image.empty, :-)
