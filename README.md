@@ -12,7 +12,7 @@ A full-featured TUI Twitter client
 $ nix-env --install --file https://github.com/ryota-ka/twterm/archive/v2.9.0.tar.gz
 ```
 
-:warning: **Warning**
+:warning: **Caution**
 
 If you have `BUNDLE_PATH` configured in `~/.bundle/config`, `twterm` may fail due to `Bundler::GemNotFound`.
 
