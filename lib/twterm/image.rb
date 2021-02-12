@@ -3,6 +3,7 @@ require 'twterm/image/blank_line'
 require 'twterm/image/bold'
 require 'twterm/image/brackets'
 require 'twterm/image/color'
+require 'twterm/image/dim'
 require 'twterm/image/empty'
 require 'twterm/image/horizontal_sequential_image'
 require 'twterm/image/parens'
@@ -47,6 +48,10 @@ class Twterm::Image
 
   def brackets
     Brackets.new(self)
+  end
+
+  def dim(on = true)
+    on ? Dim.new(self) : self
   end
 
   def self.checkbox(checked)
