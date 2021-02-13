@@ -1,21 +1,18 @@
 require 'twterm/subscriber'
 require 'twterm/event/message/abstract_message'
-require 'twterm/event/screen/resize'
 
 module Twterm
   class MessageWindow
-    include Singleton
     include Subscriber
 
-    def initialize
-      @window = Curses.stdscr.subwin(1, Curses.stdscr.maxx, Curses.stdscr.maxy - 1, 0)
+    # @param window [Curses::Window]
+    def initialize(window)
+      @window = window
       @queue = Queue.new
 
       subscribe(Event::Message::AbstractMessage) do |e|
         queue(e)
       end
-
-      subscribe(Event::Screen::Resize, :resize)
 
       Thread.new do
         while message = @queue.pop # rubocop:disable Lint/AssignmentInCondition:
@@ -70,11 +67,6 @@ module Twterm
     def queue(message)
       @queue.push(message)
       self
-    end
-
-    def resize(_event)
-      @window.resize(1, Curses.stdscr.maxx)
-      @window.move(Curses.stdscr.maxy - 1, 0)
     end
   end
 end

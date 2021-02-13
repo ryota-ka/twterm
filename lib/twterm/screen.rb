@@ -1,5 +1,4 @@
 require 'twterm/event/screen/refresh'
-require 'twterm/event/screen/resize'
 require 'twterm/key_mapper'
 require 'twterm/subscriber'
 
@@ -7,10 +6,35 @@ module Twterm
   class Screen
     include Subscriber
 
+    # @todo Make private
+    # @return [Curses::Window]
+    attr_reader :tab_manager_window
+
+    # @todo Make private
+    # @return [Curses::Window]
+    attr_reader :tab_window
+
+    # @todo Make private
+    # @return [Curses::Window]
+    attr_reader :message_window_window
+
+    # @todo Make private
+    # @return [Curses::Window]
+    attr_reader :search_query_window_window
+
     def initialize(app, client)
       @app, @client = app, client
 
-      @screen = Curses.init_screen
+      @stdscr = Curses.init_screen
+
+      width = @stdscr.maxx
+      height = @stdscr.maxy
+
+      @tab_manager_window = @stdscr.subwin(1, width, 0, 0)
+      @tab_window = @stdscr.subwin(height - 3, width, 2, 0)
+      @message_window_window = @stdscr.subwin(1, width, height - 1, 0)
+      @search_query_window_window = @stdscr.subwin(1, width, height - 1, 0)
+
       Curses.noecho
       Curses.raw
       Curses.curs_set(0)
@@ -20,7 +44,31 @@ module Twterm
       Curses.mousemask(Curses::BUTTON1_CLICKED | 65536 | 2097152)
 
       subscribe(Event::Screen::Refresh) { refresh }
-      subscribe(Event::Screen::Resize, :resize)
+    end
+
+    def resize(lines, cols)
+      return if Curses.closed?
+
+      Curses.resizeterm(lines, cols)
+      @stdscr.resize(lines, cols)
+
+      tab_manager_window.move(0, 0)
+      tab_manager_window.resize(1, cols)
+      tab_manager_window.refresh
+
+      tab_window.move(2, 0)
+      tab_window.resize(lines - 3, cols)
+      tab_window.refresh
+
+      message_window_window.move(cols - 1, 0)
+      message_window_window.resize(1, cols)
+      message_window_window.refresh
+
+      search_query_window_window.move(cols - 1, 0)
+      search_query_window_window.resize(1, cols)
+      search_query_window_window.refresh
+
+      refresh
     end
 
     def respond_to_key(key)
@@ -92,17 +140,7 @@ module Twterm
     def refresh
       app.tab_manager.refresh_window
       app.tab_manager.current_tab.render
-      MessageWindow.instance.show
-    end
-
-    def resize(event)
-      return if Curses.closed?
-
-      lines, cols = event.lines, event.cols
-      Curses.resizeterm(lines, cols)
-      @screen.resize(lines, cols)
-
-      refresh
+      app.message_window.show
     end
 
     def scan

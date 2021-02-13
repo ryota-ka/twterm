@@ -263,6 +263,11 @@ module Twterm
           end
         end
 
+        # for the sake of Twterm::Tab::Searchable
+        def search_query_window
+          app.search_query_window
+        end
+
         def sort
           return if items.empty? || scroller.current_item.nil?
 

@@ -14,6 +14,12 @@ module Twterm
         raise NotImplementedError, '`matches?` method must be implemented'
       end
 
+      # @abstract
+      # @return [Twterm::SearchQueryWindow]
+      def search_query_window
+        raise NotImplementedError, '`search_query_window` method must be implemented'
+      end
+
       class Scroller < Scrollable::Scroller
         extend Forwardable
         include Publisher
@@ -120,10 +126,6 @@ module Twterm
             publish(hit_top) if (searching_up? ^ searching_backward?) && index >= previous_index
             move_to(index)
           end
-        end
-
-        def search_query_window
-          SearchQueryWindow.instance
         end
 
         alias_method :count, :total_item_count
