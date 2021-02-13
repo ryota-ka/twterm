@@ -1,4 +1,3 @@
-require 'twterm/event/screen/resize'
 require 'twterm/publisher'
 require 'twterm/subscriber'
 require 'twterm/utils'
@@ -82,16 +81,17 @@ module Twterm
       left <= x && x < right && top <= y && y < bottom
     end
 
-    def initialize(app, client)
+    # @param app [Twterm::App]
+    # @param client [Twterm::Client]
+    # @param window [Curses::Window]
+    def initialize(app, client, window)
       @app, @client = app, client
 
       @tabs = []
       @index = 0
       @history = []
 
-      @window = Curses.stdscr.subwin(1, Curses.stdscr.maxx, 0, 0)
-
-      subscribe(Event::Screen::Resize, :resize)
+      @window = window
     end
 
     # Open the clicked tab
@@ -265,11 +265,6 @@ module Twterm
       end
 
       nil
-    end
-
-    def resize(_event)
-      @window.resize(1, Curses.stdscr.maxx)
-      @window.move(0, 0)
     end
   end
 end

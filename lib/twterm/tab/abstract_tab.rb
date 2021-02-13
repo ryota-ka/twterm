@@ -1,6 +1,5 @@
 require 'concurrent'
 
-require 'twterm/event/screen/resize'
 require 'twterm/image'
 require 'twterm/subscriber'
 
@@ -12,10 +11,6 @@ module Twterm
       # @return [String]
       attr_reader :title
 
-      # @return [Curses::Window]
-      # @todo This can be (and should be) private
-      attr_reader :window
-
       # @param other [Twterm::Tab::AbstractTab]
       #
       # @return [Boolean]
@@ -26,7 +21,6 @@ module Twterm
       # @return [void]
       def close
         unsubscribe
-        window.close
       end
 
       # A utility method to find a status by its ID
@@ -70,10 +64,6 @@ module Twterm
 
       def initialize(app, client)
         @app, @client = app, client
-
-        @window = Curses.stdscr.subwin(Curses.stdscr.maxy - 3, Curses.stdscr.maxx, 2, 0)
-
-        subscribe(Event::Screen::Resize, :resize)
       end
 
       def render
@@ -129,15 +119,14 @@ module Twterm
         )
       end
 
-      # @return [void]
-      def resize(_event)
-        window.resize(Curses.stdscr.maxy - 3, Curses.stdscr.maxx)
-        window.move(2, 0)
-      end
-
       # @return [Twterm::View]
       def view
         View.new(window, image)
+      end
+
+      # @todo This method is for transition. `window` should explicitly be obtained on initialization.
+      def window
+        app.screen.tab_window
       end
     end
   end

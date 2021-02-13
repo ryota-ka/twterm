@@ -27,7 +27,7 @@ module Twterm
         attr_reader :index, :offset
 
         attr_accessor :delegate
-        def_delegators :delegate, :items, :total_item_count, :drawable_item_count
+        def_delegators :delegate, :items, :total_item_count, :drawable_item_count, :search_query_window
 
         def after_move(&block)
           add_hook(:after_move, &block)

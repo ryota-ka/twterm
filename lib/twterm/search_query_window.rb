@@ -1,22 +1,19 @@
-require 'twterm/event/screen/resize'
 require 'twterm/subscriber'
 
 module Twterm
   class SearchQueryWindow
-    include Singleton
     include Subscriber
 
     class CancelInput < StandardError; end
 
     attr_reader :last_query
 
-    def initialize
-      @window = Curses.stdscr.subwin(1, Curses.stdscr.maxx, Curses.stdscr.maxy - 1, 0)
+    # @param window [Curses::Window]
+    def initialize(window)
+      @window = window
       @searching_down = true
       @str = ''
       @last_query = ''
-
-      subscribe(Event::Screen::Resize, :resize)
     end
 
     def input
@@ -113,12 +110,8 @@ module Twterm
 
     private
 
+    # @return [Curses::Window]
     attr_reader :window
-
-    def resize(_event)
-      window.resize(1, Curses.stdscr.maxx)
-      window.move(Curses.stdscr.maxy - 1, 0)
-    end
 
     def render(str)
       window.clear

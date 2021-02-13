@@ -3,7 +3,6 @@ require 'curses'
 require 'twterm/completion_manager'
 require 'twterm/environment'
 require 'twterm/event/screen/refresh'
-require 'twterm/event/screen/resize'
 require 'twterm/message_window'
 require 'twterm/notification_dispatcher'
 require 'twterm/persistable_configuration_proxy'
@@ -23,6 +22,12 @@ module Twterm
     include Publisher
 
     attr_reader :environment, :preferences, :screen
+
+    # return [Twterm::MessageWindow]
+    attr_reader :message_window
+
+    # return [Twterm::SearchQueryWindow]
+    attr_reader :search_query_window
 
     DATA_DIR = "#{ENV['HOME']}/.twterm".freeze
 
@@ -63,8 +68,8 @@ module Twterm
 
       @screen = Screen.new(self, client)
 
-      SearchQueryWindow.instance
-      MessageWindow.instance
+      @search_query_window = SearchQueryWindow.new(screen.search_query_window_window)
+      @message_window = MessageWindow.new(screen.message_window_window)
 
       @notification_dispatcher = NotificationDispatcher.new(preferences)
       @photo_viewer = PhotoViewer.new(preferences)
@@ -143,7 +148,7 @@ module Twterm
     end
 
     def tab_manager
-      @tab_manager ||= TabManager.new(self, client)
+      @tab_manager ||= TabManager.new(self, client, screen.tab_manager_window)
     end
 
     def tweetbox
@@ -177,11 +182,11 @@ module Twterm
     end
 
     def on_resize
-      return if Curses.closed?
+      lines, cols = `stty size`.split(' ').map(&:to_i)
 
-      lines = `tput lines`.to_i
-      cols = `tput cols`.to_i
-      publish(Event::Screen::Resize.new(lines, cols))
+      Readline.set_screen_size(lines, cols)
+
+      screen.resize(lines, cols) unless Curses.closed?
     end
   end
 end
