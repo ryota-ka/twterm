@@ -7,13 +7,14 @@ A full-featured TUI Twitter client
 ## Installation
 
 <details>
-<summary>Nix (Recommended)</summary>
+<summary>:snowflake: Nix (Recommended)</summary>
 
 All the required dependencies will automatically be installed together.
 
 ```sh
 $ nix-env --install --file https://github.com/ryota-ka/twterm/archive/v2.9.0.tar.gz
 ```
+
 :warning: **Caution**
 
 If you have `BUNDLE_PATH` configured in `~/.bundle/config`, `twterm` may fail due to `Bundler::GemNotFound`.
@@ -22,7 +23,16 @@ See [NixOS/nixpkgs#85989](https://github.com/NixOS/nixpkgs/issues/85989) for det
 </details>
 
 <details>
-<summary>RubyGems</summary>
+<summary>:beer: Homebrew</summary>
+
+```sh
+$ brew install ryota-ka/twterm/twterm
+```
+
+</details>
+
+<details>
+<summary>:gem: RubyGems</summary>
 
 You also have to install the following dependencies manually.
 
