@@ -6,30 +6,36 @@ A full-featured TUI Twitter client
 
 ## Installation
 
-### With [Nix](https://nixos.org/) (Recommended)
+<details>
+<summary>Nix (Recommended)</summary>
 
-```
+All the required dependencies will automatically be installed together.
+
+```sh
 $ nix-env --install --file https://github.com/ryota-ka/twterm/archive/v2.9.0.tar.gz
 ```
-
 :warning: **Caution**
 
 If you have `BUNDLE_PATH` configured in `~/.bundle/config`, `twterm` may fail due to `Bundler::GemNotFound`.
-
 See [NixOS/nixpkgs#85989](https://github.com/NixOS/nixpkgs/issues/85989) for details.
 
-### With [RubyGems](https://rubygems.org/)
+</details>
 
-####  Requirements
+<details>
+<summary>RubyGems</summary>
 
-- Ruby (>= 2.5, < 3, compiled with ncurses and Readline)
-- ncurses
-- Readline
+You also have to install the following dependencies manually.
+
+- [Ruby](https://www.ruby-lang.org/) (>= 2.5, < 3, compiled with ncurses and Readline)
+- [ncurses](https://invisible-island.net/ncurses/)
+- [GNU Readline](https://tiswww.case.edu/php/chet/readline/rltop.html)
 - [GNU Libidn](https://www.gnu.org/software/libidn/)
 
-```
+```sh
 $ gem install twterm
 ```
+
+</details>
 
 ## Usage
 
