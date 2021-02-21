@@ -9,14 +9,12 @@ A full-featured TUI Twitter client
 <details>
 <summary>:snowflake: Nix (Recommended)</summary>
 
-All the required dependencies will automatically be installed together.
-
 ```sh
-$ nix-env --install --file https://github.com/ryota-ka/twterm/archive/v2.9.0.tar.gz
+$ nix-channel --add https://github.com/ryota-ka/twterm/archive/master.tar.gz
+$ nix-env -iA twterm
 ```
 
-:warning: **Caution**
-
+:warning:
 If you have `BUNDLE_PATH` configured in `~/.bundle/config`, `twterm` may fail due to `Bundler::GemNotFound`.
 See [NixOS/nixpkgs#85989](https://github.com/NixOS/nixpkgs/issues/85989) for details.
 
