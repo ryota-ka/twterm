@@ -177,6 +177,11 @@ module Twterm
             .then { render }
         end
 
+        # for the sake of Twterm::Tab::Searchable
+        def search_query_window
+          app.search_query_window
+        end
+
         def show_conversation
           status = highlighted_original_status
 
@@ -261,11 +266,6 @@ module Twterm
             statuses.each { |s| append(s) }
             sort
           end
-        end
-
-        # for the sake of Twterm::Tab::Searchable
-        def search_query_window
-          app.search_query_window
         end
 
         def sort
