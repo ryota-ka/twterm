@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    twterm (2.9.0)
+    twterm (2.10.0)
       concurrent-ruby (~> 1.1.7)
       curses (~> 1.4.0)
       launchy (~> 2.5.0)
