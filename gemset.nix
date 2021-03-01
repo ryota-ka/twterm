@@ -4632,12 +4632,161 @@
   twterm = {
     dependencies = ["concurrent-ruby" "curses" "launchy" "oauth" "terminal-notifier" "toml-rb" "twitter" "twitter-text"];
     groups = ["default"];
-    platforms = [];
+    platforms = [{
+      engine = "maglev";
+    } {
+      engine = "maglev";
+    } {
+      engine = "maglev";
+      version = "1.8";
+    } {
+      engine = "maglev";
+      version = "1.8";
+    } {
+      engine = "maglev";
+      version = "1.9";
+    } {
+      engine = "maglev";
+      version = "1.9";
+    } {
+      engine = "maglev";
+      version = "2.0";
+    } {
+      engine = "maglev";
+      version = "2.0";
+    } {
+      engine = "maglev";
+      version = "2.1";
+    } {
+      engine = "maglev";
+      version = "2.1";
+    } {
+      engine = "maglev";
+      version = "2.2";
+    } {
+      engine = "maglev";
+      version = "2.2";
+    } {
+      engine = "maglev";
+      version = "2.3";
+    } {
+      engine = "maglev";
+      version = "2.3";
+    } {
+      engine = "maglev";
+      version = "2.4";
+    } {
+      engine = "maglev";
+      version = "2.4";
+    } {
+      engine = "maglev";
+      version = "2.5";
+    } {
+      engine = "maglev";
+      version = "2.5";
+    } {
+      engine = "maglev";
+      version = "2.6";
+    } {
+      engine = "maglev";
+      version = "2.6";
+    } {
+      engine = "rbx";
+    } {
+      engine = "rbx";
+    } {
+      engine = "rbx";
+      version = "1.8";
+    } {
+      engine = "rbx";
+      version = "1.9";
+    } {
+      engine = "rbx";
+      version = "2.0";
+    } {
+      engine = "rbx";
+      version = "2.1";
+    } {
+      engine = "rbx";
+      version = "2.2";
+    } {
+      engine = "rbx";
+      version = "2.3";
+    } {
+      engine = "rbx";
+      version = "2.4";
+    } {
+      engine = "rbx";
+      version = "2.5";
+    } {
+      engine = "rbx";
+      version = "2.6";
+    } {
+      engine = "ruby";
+    } {
+      engine = "ruby";
+    } {
+      engine = "ruby";
+    } {
+      engine = "ruby";
+      version = "1.8";
+    } {
+      engine = "ruby";
+      version = "1.8";
+    } {
+      engine = "ruby";
+      version = "1.9";
+    } {
+      engine = "ruby";
+      version = "1.9";
+    } {
+      engine = "ruby";
+      version = "2.0";
+    } {
+      engine = "ruby";
+      version = "2.0";
+    } {
+      engine = "ruby";
+      version = "2.1";
+    } {
+      engine = "ruby";
+      version = "2.1";
+    } {
+      engine = "ruby";
+      version = "2.2";
+    } {
+      engine = "ruby";
+      version = "2.2";
+    } {
+      engine = "ruby";
+      version = "2.3";
+    } {
+      engine = "ruby";
+      version = "2.3";
+    } {
+      engine = "ruby";
+      version = "2.4";
+    } {
+      engine = "ruby";
+      version = "2.4";
+    } {
+      engine = "ruby";
+      version = "2.5";
+    } {
+      engine = "ruby";
+      version = "2.5";
+    } {
+      engine = "ruby";
+      version = "2.6";
+    } {
+      engine = "ruby";
+      version = "2.6";
+    }];
     source = {
       path = ./.;
       type = "path";
     };
-    version = "2.10.0";
+    version = "2.10.1";
   };
   unf = {
     dependencies = ["unf_ext"];
