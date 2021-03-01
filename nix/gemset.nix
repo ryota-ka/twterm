@@ -296,10 +296,10 @@
     platforms = [];
     source = {
       remotes = ["https://rubygems.org"];
-      sha256 = "1r9kx8p5z3mpyza1ihskd92rvzrm3k0jqvacil82g97f0vjyhnll";
+      sha256 = "1fcajwgxhfxjjg0jj5il8dgg35dkzn98yacn6f880izlry40wsfp";
       type = "gem";
     };
-    version = "2.10.0";
+    version = "2.10.1";
   };
   unf = {
     dependencies = ["unf_ext"];
