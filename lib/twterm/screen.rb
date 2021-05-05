@@ -32,7 +32,7 @@ module Twterm
 
       @tab_manager_window = @stdscr.subwin(1, width, 0, 0)
       @tab_window = @stdscr.subwin(height - 3, width, 2, 0)
-      @message_window_window = @stdscr.subwin(1, width, height - 1, 0)
+      @message_window_window = @stdscr.subwin(1, width, height - 2, 0)
       @search_query_window_window = @stdscr.subwin(1, width, height - 1, 0)
 
       Curses.noecho
