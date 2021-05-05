@@ -54,7 +54,7 @@ GEM
     twitter-text (3.1.0)
       idn-ruby
       unf (~> 0.1.0)
-    twterm (2.10.1)
+    twterm (2.10.2)
       concurrent-ruby (~> 1.1.7)
       curses (~> 1.4.0)
       launchy (~> 2.5.0)
@@ -71,7 +71,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  twterm (= 2.10.1)
+  twterm (= 2.10.2)
 
 BUNDLED WITH
    2.1.4
