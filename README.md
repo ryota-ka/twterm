@@ -10,7 +10,8 @@ A full-featured TUI Twitter client
 <summary>:snowflake: Nix (Recommended)</summary>
 
 ```sh
-$ nix-channel --add https://github.com/ryota-ka/twterm/archive/master.tar.gz
+$ nix-channel --add https://github.com/ryota-ka/twterm/archive/master.tar.gz twterm
+$ nix-channel --update
 $ nix-env -iA twterm
 ```
 
